@@ -118,13 +118,24 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
 
 
 @app.get("/api/historial")
-async def ver_historial():
-    return historial.listar_historial()
+async def ver_historial(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
+    return historial.listar_historial(sucursal=sucursal, desde=desde, hasta=hasta)
+
+
+@app.delete("/api/historial/{fecha}/{sucursal}")
+async def borrar_reporte_historial(fecha: str, sucursal: str):
+    historial.eliminar_reporte(fecha, sucursal)
+    return {"ok": True}
 
 
 @app.get("/api/dashboard")
 async def ver_dashboard(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
     return historial.dashboard(sucursal=sucursal, desde=desde, hasta=hasta)
+
+
+@app.get("/api/mermas")
+async def ver_mermas(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None, insumo: str | None = None):
+    return historial.mermas_detalle(sucursal=sucursal, desde=desde, hasta=hasta, insumo=insumo)
 
 
 @app.get("/api/pendientes-acumulados")

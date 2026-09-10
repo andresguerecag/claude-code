@@ -86,20 +86,69 @@ def _todos_los_reportes() -> list[tuple[str, str, str, str]]:
     return filas
 
 
-def listar_historial() -> list[dict]:
+def listar_historial(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None) -> list[dict]:
     resumen = []
-    for fecha, sucursal, reporte_json, creado_en in _todos_los_reportes():
+    for fecha, suc, reporte_json, creado_en in _todos_los_reportes():
+        if sucursal and sucursal != "todas" and suc != sucursal:
+            continue
+        if desde and fecha < desde:
+            continue
+        if hasta and fecha > hasta:
+            continue
         r = json.loads(reporte_json)
         num_alertas = sum(1 for f in r.get("comparativo", []) if f.get("alerta") is True)
         resumen.append({
             "fecha": fecha,
-            "sucursal": sucursal,
+            "sucursal": suc,
             "pct_identificado": r.get("pct_identificado"),
             "total_platillos_vendidos": r.get("total_platillos_vendidos"),
             "num_alertas": num_alertas,
             "guardado_en": creado_en,
         })
     return resumen
+
+
+def eliminar_reporte(fecha: str, sucursal: str) -> None:
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute("DELETE FROM reportes WHERE fecha = %s AND sucursal = %s", (fecha, sucursal))
+        con.close()
+        return
+
+    con = _conectar_sqlite()
+    with con:
+        con.execute("DELETE FROM reportes WHERE fecha = ? AND sucursal = ?", (fecha, sucursal))
+    con.close()
+
+
+def mermas_detalle(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None, insumo: str | None = None) -> list[dict]:
+    """Una fila por dia+sucursal+insumo, para poder ver/filtrar la merma a
+    detalle (no solo el acumulado del dashboard)."""
+    filas = []
+    for fecha, suc, reporte_json, _creado_en in _todos_los_reportes():
+        if sucursal and sucursal != "todas" and suc != sucursal:
+            continue
+        if desde and fecha < desde:
+            continue
+        if hasta and fecha > hasta:
+            continue
+        r = json.loads(reporte_json)
+        for f in r.get("comparativo", []):
+            if insumo and insumo != "todos" and f["insumo"] != insumo:
+                continue
+            filas.append({
+                "fecha": fecha,
+                "sucursal": suc,
+                "insumo": f["insumo"],
+                "consumo_real": f.get("consumo_real"),
+                "consumo_teorico": f.get("consumo_teorico"),
+                "diferencia": f.get("diferencia"),
+                "alerta": f.get("alerta"),
+            })
+    filas.sort(key=lambda x: (x["fecha"], x["sucursal"], x["insumo"]), reverse=True)
+    return filas
 
 
 def pendientes_acumulados() -> list[dict]:

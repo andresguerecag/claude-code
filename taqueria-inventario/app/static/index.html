@@ -157,11 +157,35 @@
   <h3>Consumo acumulado del período (teórico vs. real)</h3>
   <table><thead><tr><th>Insumo</th><th>Consumo real</th><th>Consumo teórico</th><th>Diferencia</th></tr></thead>
   <tbody id="dashboard-merma"></tbody></table>
+
+  <h3>Detalle de merma por día</h3>
+  <div class="filtros">
+    <div>
+      <label>Insumo</label>
+      <select id="filtro-insumo"><option value="todos">Todos</option></select>
+    </div>
+  </div>
+  <table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Insumo</th><th>Consumo real</th><th>Consumo teórico</th><th>Diferencia</th></tr></thead>
+  <tbody id="dashboard-mermas-detalle"></tbody></table>
 </div>
 
 <div id="vista-historial" hidden>
   <h2>Historial de reportes guardados</h2>
-  <table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Platillos identificados</th><th>Alertas</th><th></th></tr></thead>
+  <div class="filtros">
+    <div>
+      <label>Sucursal</label>
+      <select id="hist-filtro-sucursal"><option value="todas">Todas</option></select>
+    </div>
+    <div>
+      <label>Desde</label>
+      <input type="date" id="hist-filtro-desde">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" id="hist-filtro-hasta">
+    </div>
+  </div>
+  <table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Platillos identificados</th><th>Alertas</th><th></th><th></th></tr></thead>
   <tbody id="tabla-historial"></tbody></table>
 </div>
 
@@ -353,12 +377,30 @@ function mostrarVista(nombre) {
 async function mostrarHistorial() {
   mostrarVista('vista-historial');
   const tbody = document.getElementById('tabla-historial');
-  tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
+  const sucursal = document.getElementById('hist-filtro-sucursal').value;
+  const desde = document.getElementById('hist-filtro-desde').value;
+  const hasta = document.getElementById('hist-filtro-hasta').value;
+  const params = new URLSearchParams();
+  if (sucursal && sucursal !== 'todas') params.set('sucursal', sucursal);
+  if (desde) params.set('desde', desde);
+  if (hasta) params.set('hasta', hasta);
   try {
-    const resp = await fetch('/api/historial');
+    const resp = await fetch('/api/historial?' + params.toString());
     const lista = await resp.json();
+
+    const select = document.getElementById('hist-filtro-sucursal');
+    if (select.options.length <= 1) {
+      const sucursales = [...new Set(lista.map(x => x.sucursal))].sort();
+      for (const s of sucursales) {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        select.appendChild(opt);
+      }
+    }
+
     if (!lista.length) {
-      tbody.innerHTML = '<tr><td colspan="5">Todavía no hay reportes guardados.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6">No hay reportes guardados con estos filtros.</td></tr>';
       return;
     }
     tbody.innerHTML = '';
@@ -367,18 +409,28 @@ async function mostrarHistorial() {
       tr.innerHTML = `<td>${item.fecha}</td><td>${item.sucursal}</td>
         <td>${item.pct_identificado}%</td>
         <td>${item.num_alertas > 0 ? '⚠️ ' + item.num_alertas : '-'}</td>
-        <td><button class="ver-dia">Ver reporte</button></td>`;
+        <td><button class="ver-dia">Ver reporte</button></td>
+        <td><button class="borrar-dia" style="background:#b00020; color:#fff;">Borrar</button></td>`;
       tr.querySelector('.ver-dia').addEventListener('click', async () => {
         const r = await (await fetch(`/api/historial/${item.fecha}/${encodeURIComponent(item.sucursal)}`)).json();
         mostrarVista('vista-reporte');
         renderReporte(r);
       });
+      tr.querySelector('.borrar-dia').addEventListener('click', async () => {
+        if (!confirm(`¿Borrar el reporte del ${item.fecha} (${item.sucursal})? No se puede deshacer.`)) return;
+        await fetch(`/api/historial/${item.fecha}/${encodeURIComponent(item.sucursal)}`, { method: 'DELETE' });
+        mostrarHistorial();
+      });
       tbody.appendChild(tr);
     }
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="5">Error cargando historial: ${err.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6">Error cargando historial: ${err.message}</td></tr>`;
   }
 }
+
+document.getElementById('hist-filtro-sucursal').addEventListener('change', mostrarHistorial);
+document.getElementById('hist-filtro-desde').addEventListener('change', mostrarHistorial);
+document.getElementById('hist-filtro-hasta').addEventListener('change', mostrarHistorial);
 
 document.getElementById('ver-historial').addEventListener('click', () => {
   const yaVisible = !document.getElementById('vista-historial').hidden;
@@ -568,7 +620,42 @@ async function cargarDashboard() {
     <tr class="${f.diferencia !== 'no disponible' && Math.abs(f.diferencia) > 2 ? 'alerta' : ''}">
       <td>${f.insumo}</td><td>${f.consumo_real}</td><td>${f.consumo_teorico}</td><td>${f.diferencia}</td>
     </tr>`).join('') || '<tr><td colspan="4">Sin datos en este período.</td></tr>';
+
+  // Llenar el selector de insumo solo la primera vez
+  const selectInsumo = document.getElementById('filtro-insumo');
+  if (selectInsumo.options.length <= 1) {
+    for (const f of d.merma_por_insumo) {
+      const opt = document.createElement('option');
+      opt.value = f.insumo; opt.textContent = f.insumo;
+      selectInsumo.appendChild(opt);
+    }
+  }
+
+  await cargarMermasDetalle(sucursal, desde, hasta);
 }
+
+async function cargarMermasDetalle(sucursal, desde, hasta) {
+  const insumo = document.getElementById('filtro-insumo').value;
+  const params = new URLSearchParams();
+  if (sucursal && sucursal !== 'todas') params.set('sucursal', sucursal);
+  if (desde) params.set('desde', desde);
+  if (hasta) params.set('hasta', hasta);
+  if (insumo && insumo !== 'todos') params.set('insumo', insumo);
+
+  const filas = await (await fetch('/api/mermas?' + params.toString())).json();
+  const tbody = document.getElementById('dashboard-mermas-detalle');
+  tbody.innerHTML = filas.map(f => `
+    <tr class="${f.alerta ? 'alerta' : ''}">
+      <td>${f.fecha}</td><td>${f.sucursal}</td><td>${f.insumo}</td>
+      <td>${typeof f.consumo_real === 'number' ? f.consumo_real.toFixed(3) : f.consumo_real ?? 'n/d'}</td>
+      <td>${typeof f.consumo_teorico === 'number' ? f.consumo_teorico.toFixed(3) : f.consumo_teorico ?? 'n/d'}</td>
+      <td>${typeof f.diferencia === 'number' ? f.diferencia.toFixed(3) : f.diferencia ?? 'n/d'}${f.alerta ? ' ⚠️' : ''}</td>
+    </tr>`).join('') || '<tr><td colspan="6">Sin datos en este período.</td></tr>';
+}
+
+document.getElementById('filtro-insumo').addEventListener('change', () => {
+  cargarMermasDetalle(document.getElementById('filtro-sucursal').value, document.getElementById('filtro-desde').value, document.getElementById('filtro-hasta').value);
+});
 
 document.getElementById('ver-dashboard').addEventListener('click', cargarDashboard);
 document.getElementById('boton-volver').addEventListener('click', cargarDashboard);
