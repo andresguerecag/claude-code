@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 
-from . import exportar, historial, reconciliacion
+from . import exportar, historial, reconciliacion, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -136,6 +136,20 @@ async def ver_dashboard(sucursal: str | None = None, desde: str | None = None, h
 @app.get("/api/mermas")
 async def ver_mermas(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None, insumo: str | None = None):
     return historial.mermas_detalle(sucursal=sucursal, desde=desde, hasta=hasta, insumo=insumo)
+
+
+@app.get("/api/resumen-ia/disponible")
+async def resumen_ia_disponible():
+    return {"disponible": resumen_ia.disponible()}
+
+
+@app.get("/api/resumen-ia")
+async def ver_resumen_ia(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
+    datos = historial.dashboard(sucursal=sucursal, desde=desde, hasta=hasta)
+    texto = resumen_ia.generar_resumen(datos)
+    if texto is None:
+        raise HTTPException(status_code=503, detail="El resumen con IA no está configurado (falta ANTHROPIC_API_KEY).")
+    return {"resumen": texto}
 
 
 @app.get("/api/pendientes-acumulados")

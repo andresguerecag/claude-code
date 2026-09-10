@@ -20,7 +20,7 @@
     display: flex; align-items: center; gap: 16px; padding: 18px 4px;
     border-bottom: 6px solid var(--naranja);
   }
-  header img { height: 60px; width: 60px; border-radius: 50%; flex-shrink: 0; }
+  header img { height: 64px; width: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
   header h1 { font-size: 1.3rem; margin: 0; color: var(--naranja-oscuro); }
   header p { margin: 2px 0 0; color: #7a5230; font-size: .9rem; }
 
@@ -93,12 +93,29 @@
   .subir-mini .dropzone-mini .archivo { font-weight: bold; color: #2b7a2b; font-size: .78rem; word-break: break-all; }
   .subir-mini button#enviar { flex: 0 0 auto; padding: 12px 20px; margin: 0; }
   #boton-volver { background: #eee; color: var(--negro); padding: 8px 14px; margin-bottom: 14px; }
+
+  #resumen-ia-texto {
+    background: #f5f0ff; border: 1px solid #c9b3ff; border-radius: 8px; padding: 14px 16px;
+    margin: 6px 0 16px; white-space: pre-wrap; line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    header { flex-wrap: wrap; }
+    header img { height: 44px; width: 44px; }
+    .filtros { flex-direction: column; align-items: stretch; }
+    .filtros .atajos { flex-wrap: wrap; }
+    .subir-mini { flex-direction: column; align-items: stretch; }
+    .subir-mini button#enviar { width: 100%; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+    .resumen { flex-direction: column; }
+    .resumen div { width: 100%; }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <img src="/static/logo.png" alt="T-Grill" onerror="this.style.display='none'">
+  <img src="/static/logo.jpg" alt="T-Grill" onerror="this.style.display='none'">
   <div>
     <h1>T-Grill · Conciliación de inventario</h1>
     <p>Sube el formato de corte y el reporte de Wansoft del mismo día</p>
@@ -149,6 +166,15 @@
   </div>
 
   <div class="resumen" id="dashboard-kpis"></div>
+
+  <div id="resumen-ia-box" hidden>
+    <button id="generar-resumen-ia" style="background:#7c3aed; color:#fff; padding:10px 16px; margin:8px 0;">🧠 Generar resumen con IA</button>
+    <div id="resumen-ia-texto"></div>
+  </div>
+
+  <h3>Comparativo entre sucursales</h3>
+  <table><thead><tr><th>Sucursal</th><th>Platillos vendidos</th><th>Alertas</th><th>Identificado promedio</th></tr></thead>
+  <tbody id="dashboard-comparativo-sucursales"></tbody></table>
 
   <h3>Platillos vendidos por día</h3>
   <div class="leyenda" id="dashboard-leyenda"></div>
@@ -583,6 +609,32 @@ async function cargarDashboard() {
     <div><b>${d.resumen.pct_identificado_promedio ?? 'n/d'}${d.resumen.pct_identificado_promedio !== null ? '%' : ''}</b>Identificado promedio</div>
   `;
 
+  // Comparativo lado a lado entre sucursales
+  const porSucursal = {};
+  for (const dia of d.dias) {
+    if (!porSucursal[dia.sucursal]) porSucursal[dia.sucursal] = { vendidos: 0, alertas: 0, sumaPct: 0, n: 0 };
+    const s = porSucursal[dia.sucursal];
+    s.vendidos += dia.total_platillos_vendidos || 0;
+    s.alertas += dia.num_alertas || 0;
+    if (dia.pct_identificado !== null) { s.sumaPct += dia.pct_identificado; s.n += 1; }
+  }
+  const tbodyComp = document.getElementById('dashboard-comparativo-sucursales');
+  const filasComp = Object.entries(porSucursal);
+  tbodyComp.innerHTML = filasComp.length
+    ? filasComp.map(([suc, s]) => `<tr>
+        <td>${suc}</td><td>${s.vendidos}</td>
+        <td>${s.alertas > 0 ? '⚠️ ' + s.alertas : '-'}</td>
+        <td>${s.n ? (s.sumaPct / s.n).toFixed(1) + '%' : 'n/d'}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4">Sin datos en este período.</td></tr>';
+
+  // Resumen con IA (si esta configurada)
+  if (window.iaDisponible === undefined) {
+    window.iaDisponible = await (await fetch('/api/resumen-ia/disponible')).json().then(r => r.disponible);
+    document.getElementById('resumen-ia-box').hidden = !window.iaDisponible;
+  }
+  document.getElementById('resumen-ia-texto').innerHTML = '';
+
   // Leyenda (una entrada por sucursal presente en los datos)
   coloresPorSucursal = {};
   const sucursalesEnDias = [...new Set(d.dias.map(x => x.sucursal))].sort();
@@ -655,6 +707,28 @@ async function cargarMermasDetalle(sucursal, desde, hasta) {
 
 document.getElementById('filtro-insumo').addEventListener('change', () => {
   cargarMermasDetalle(document.getElementById('filtro-sucursal').value, document.getElementById('filtro-desde').value, document.getElementById('filtro-hasta').value);
+});
+
+document.getElementById('generar-resumen-ia').addEventListener('click', async () => {
+  const boton = document.getElementById('generar-resumen-ia');
+  const texto = document.getElementById('resumen-ia-texto');
+  boton.disabled = true;
+  texto.textContent = 'Pensando...';
+  const sucursal = document.getElementById('filtro-sucursal').value;
+  const desde = document.getElementById('filtro-desde').value;
+  const hasta = document.getElementById('filtro-hasta').value;
+  const params = new URLSearchParams();
+  if (sucursal && sucursal !== 'todas') params.set('sucursal', sucursal);
+  if (desde) params.set('desde', desde);
+  if (hasta) params.set('hasta', hasta);
+  try {
+    const resp = await fetch('/api/resumen-ia?' + params.toString());
+    const data = await resp.json();
+    texto.textContent = resp.ok ? data.resumen : (data.detail || 'No se pudo generar el resumen.');
+  } catch (err) {
+    texto.textContent = 'Error: ' + err.message;
+  }
+  boton.disabled = false;
 });
 
 document.getElementById('ver-dashboard').addEventListener('click', cargarDashboard);
