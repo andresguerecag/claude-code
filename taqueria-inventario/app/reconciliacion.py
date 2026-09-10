@@ -25,6 +25,8 @@ from pathlib import Path
 import openpyxl
 
 RECETAS_PATH = Path(__file__).parent / "recetas.json"
+MAPEO_MANUAL_PATH = Path(__file__).parent / "mapeo_manual.json"
+IGNORAR = "IGNORAR"
 
 # Tolerancia de merma "normal" por insumo, en las unidades del inventario.
 # Segun explico la familia: carne ~400-500g de merma es normal (descongelado,
@@ -43,6 +45,22 @@ PREFIJOS_CONOCIDOS = ["DOM ", "PLATAF ", "REF "]
 def _cargar_recetas() -> dict:
     with open(RECETAS_PATH, encoding="utf-8") as f:
         return json.load(f)
+
+
+def cargar_mapeo_manual() -> dict:
+    """Diccionario clave_normalizada -> clave_receta (o IGNORAR) que se va
+    llenando con las correcciones que la familia guarda desde el reporte."""
+    if not MAPEO_MANUAL_PATH.exists():
+        return {}
+    with open(MAPEO_MANUAL_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def guardar_mapeo_manual(clave_wansoft: str, clave_receta_o_ignorar: str) -> None:
+    mapeo = cargar_mapeo_manual()
+    mapeo[_normalizar(clave_wansoft)] = clave_receta_o_ignorar
+    with open(MAPEO_MANUAL_PATH, "w", encoding="utf-8") as f:
+        json.dump(mapeo, f, indent=2, ensure_ascii=False)
 
 
 def _normalizar(clave: str) -> str:
@@ -76,14 +94,16 @@ class ItemInventario:
 class MatchResultado:
     ventas_identificadas: list = field(default_factory=list)   # (clave_original, clave_receta, cantidad_efectiva)
     ventas_sin_identificar: list = field(default_factory=list)  # VentaPlatillo
+    ventas_ignoradas: list = field(default_factory=list)         # VentaPlatillo, marcadas IGNORAR a mano
 
 
-def emparejar_ventas_con_recetas(ventas: list[VentaPlatillo], recetas: dict) -> MatchResultado:
+def emparejar_ventas_con_recetas(ventas: list[VentaPlatillo], recetas: dict, mapeo_manual: dict | None = None) -> MatchResultado:
     """
     Empareja cada clave vendida en Wansoft con una clave de la tabla de
-    recetas. Reglas de normalizacion (descubiertas comparando contra el
-    Excel real de la familia, no adivinadas):
+    recetas. Orden de reglas:
 
+      0. Mapeo manual guardado desde el reporte (gana siempre sobre lo
+         automatico, porque lo confirmo una persona).
       1. Match exacto (sin espacios, mayusculas).
       2. Si no hay match, se prueban los prefijos conocidos de canal de
          venta (DOM=domicilio, PLATAF=plataforma, REF=combo/promo) quitados.
@@ -97,12 +117,24 @@ def emparejar_ventas_con_recetas(ventas: list[VentaPlatillo], recetas: dict) -> 
     pendiente, y esa cantidad no entra al calculo de consumo teorico.
     """
     recetas_norm = {_normalizar(k): k for k in recetas}
+    mapeo_manual = mapeo_manual or {}
     resultado = MatchResultado()
 
     for venta in ventas:
         clave_norm = _normalizar(venta.clave)
         objetivo = None
         multiplicador = 1.0
+
+        if clave_norm in mapeo_manual:
+            decision = mapeo_manual[clave_norm]
+            if decision == IGNORAR:
+                resultado.ventas_ignoradas.append(venta)
+                continue
+            if decision in recetas:
+                resultado.ventas_identificadas.append((venta.clave, decision, venta.cantidad))
+                continue
+            # si el mapeo guardado ya no es valido (receta renombrada), sigue
+            # con las reglas automaticas en vez de fallar
 
         if clave_norm in recetas_norm:
             objetivo = recetas_norm[clave_norm]
@@ -284,10 +316,11 @@ PRODUCTOS_DIRECTOS = {
 
 def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str, hoja_wansoft: str | None = None) -> dict:
     recetas = _cargar_recetas()
+    mapeo_manual = cargar_mapeo_manual()
 
     inventario = leer_inventario_formato_corte(path_formato_corte, hoja_corte)
     ventas = leer_ventas_wansoft(path_wansoft, hoja_wansoft)
-    match = emparejar_ventas_con_recetas(ventas, recetas)
+    match = emparejar_ventas_con_recetas(ventas, recetas, mapeo_manual)
     consumo_teorico = calcular_consumo_teorico(match, recetas)
 
     inventario_por_producto = {_normalizar(i.producto): i for i in inventario}
@@ -352,10 +385,19 @@ def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str,
             "tomarlas con cautela hasta completar el diccionario de claves (ver pendientes)."
         )
 
+    claves_receta_disponibles = [
+        {"clave": clave, "nombre": info["nombre"]} for clave, info in sorted(recetas.items())
+    ]
+
     return {
         "comparativo": comparativo,
         "inventario_crudo": inventario_crudo,
         "platillos_no_identificados": pendientes,
+        "platillos_ignorados": [
+            {"clave": v.clave, "nombre": v.nombre, "cantidad": v.cantidad}
+            for v in match.ventas_ignoradas
+        ],
+        "recetas_disponibles": claves_receta_disponibles,
         "total_platillos_vendidos": total_vendido,
         "total_identificado": total_identificado,
         "total_sin_identificar": sum(v.cantidad for v in match.ventas_sin_identificar),

@@ -7,11 +7,11 @@ import re
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import Body, FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import reconciliacion
+from . import exportar, reconciliacion
 
 app = FastAPI(title="Conciliacion de inventario - Taqueria")
 
@@ -75,6 +75,50 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
 
         reporte["dia_detectado"] = dia
         return reporte
+
+
+@app.post("/api/exportar")
+async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: UploadFile = File(...)):
+    """Regenera el mismo reporte y lo entrega como Excel descargable."""
+    with tempfile.TemporaryDirectory() as tmp:
+        path_corte = Path(tmp) / "formato_corte.xlsx"
+        path_wansoft = Path(tmp) / "wansoft.xlsx"
+        path_corte.write_bytes(await formato_corte.read())
+        path_wansoft.write_bytes(await wansoft.read())
+
+        dia = _detectar_dia_del_reporte(str(path_wansoft))
+        if dia is None:
+            raise HTTPException(status_code=400, detail="No pude encontrar la fecha en el archivo de Wansoft.")
+        hoja = _elegir_hoja(str(path_corte), dia)
+
+        try:
+            reporte = reconciliacion.generar_reporte(
+                path_formato_corte=str(path_corte), hoja_corte=hoja, path_wansoft=str(path_wansoft),
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        reporte["dia_detectado"] = dia
+
+    buffer = exportar.generar_excel_reporte(reporte)
+    nombre_archivo = f"conciliacion_dia_{dia}.xlsx"
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{nombre_archivo}"'},
+    )
+
+
+@app.post("/api/mapeo")
+async def guardar_mapeo(payload: dict = Body(...)):
+    """Guarda la correccion manual de una clave no identificada: a que clave
+    de receta corresponde, o IGNORAR si no debe entrar al calculo (ej.
+    refrescos, que se comparan distinto)."""
+    clave = payload.get("clave")
+    receta_o_ignorar = payload.get("receta_o_ignorar")
+    if not clave or not receta_o_ignorar:
+        raise HTTPException(status_code=400, detail="Falta 'clave' o 'receta_o_ignorar'.")
+    reconciliacion.guardar_mapeo_manual(clave, receta_o_ignorar)
+    return {"ok": True}
 
 
 @app.get("/")
