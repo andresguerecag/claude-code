@@ -77,8 +77,16 @@
     <h1>T-Grill · Conciliación de inventario</h1>
     <p>Sube el formato de corte y el reporte de Wansoft del mismo día</p>
   </div>
+  <button id="ver-historial" style="margin-left:auto; background:var(--negro); color:#fff; padding:10px 16px;">📋 Historial</button>
 </header>
 
+<div id="vista-historial" hidden>
+  <h2>Historial de reportes guardados</h2>
+  <table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Platillos identificados</th><th>Alertas</th><th></th></tr></thead>
+  <tbody id="tabla-historial"></tbody></table>
+</div>
+
+<div id="vista-normal">
 <div class="dropzones">
   <div class="dropzone" id="dz-corte" data-tipo="corte">
     <p><strong>Formato de corte</strong></p>
@@ -98,6 +106,7 @@
 <div id="estado"></div>
 
 <div id="reporte"></div>
+</div>
 
 <script>
 let archivoCorte = null;
@@ -175,7 +184,8 @@ function renderReporte(r) {
   recetasDisponibles = r.recetas_disponibles || [];
   const div = document.getElementById('reporte');
   let html = `<div class="resumen">
-    <div><b>${r.dia_detectado}</b>Día del reporte</div>
+    <div><b>${r.fecha || r.dia_detectado}</b>Fecha del reporte</div>
+    <div><b>${r.sucursal || '—'}</b>Sucursal</div>
     <div><b>${r.total_platillos_vendidos}</b>Platillos vendidos</div>
     <div><b>${r.pct_identificado}%</b>Identificados en la receta</div>
   </div>`;
@@ -260,6 +270,48 @@ async function descargarExcel() {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+async function mostrarHistorial() {
+  document.getElementById('vista-normal').hidden = true;
+  document.getElementById('vista-historial').hidden = false;
+  const tbody = document.getElementById('tabla-historial');
+  tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
+  try {
+    const resp = await fetch('/api/historial');
+    const lista = await resp.json();
+    if (!lista.length) {
+      tbody.innerHTML = '<tr><td colspan="5">Todavía no hay reportes guardados.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    for (const item of lista) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${item.fecha}</td><td>${item.sucursal}</td>
+        <td>${item.pct_identificado}%</td>
+        <td>${item.num_alertas > 0 ? '⚠️ ' + item.num_alertas : '-'}</td>
+        <td><button class="ver-dia">Ver reporte</button></td>`;
+      tr.querySelector('.ver-dia').addEventListener('click', async () => {
+        const r = await (await fetch(`/api/historial/${item.fecha}/${encodeURIComponent(item.sucursal)}`)).json();
+        document.getElementById('vista-historial').hidden = true;
+        document.getElementById('vista-normal').hidden = false;
+        renderReporte(r);
+      });
+      tbody.appendChild(tr);
+    }
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5">Error cargando historial: ${err.message}</td></tr>`;
+  }
+}
+
+document.getElementById('ver-historial').addEventListener('click', () => {
+  const historialVisible = !document.getElementById('vista-historial').hidden;
+  if (historialVisible) {
+    document.getElementById('vista-historial').hidden = true;
+    document.getElementById('vista-normal').hidden = false;
+  } else {
+    mostrarHistorial();
+  }
+});
 
 document.getElementById('enviar').addEventListener('click', async () => {
   const estado = document.getElementById('estado');

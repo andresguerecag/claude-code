@@ -11,27 +11,38 @@ from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import exportar, reconciliacion
+from . import exportar, historial, reconciliacion
 
 app = FastAPI(title="Conciliacion de inventario - Taqueria")
 
 STATIC_DIR = Path(__file__).parent / "static"
 
 
-def _detectar_dia_del_reporte(path_wansoft: str) -> str | None:
-    """Busca 'Reporte del: 2026-09-05 al 2026-09-05' en las primeras filas
-    del reporte de Wansoft y regresa el dia del mes como texto ('05')."""
+def _detectar_metadatos_wansoft(path_wansoft: str) -> dict:
+    """
+    Lee del propio reporte de Wansoft (sin que la usuaria tenga que
+    tecleerlo):
+      - la fecha completa ('Reporte del: 2026-09-05 al 2026-09-05')
+      - el nombre de la sucursal ('Sucursal: T-Grill Sucursal Santa Catarina')
+    """
     import openpyxl
 
     wb = openpyxl.load_workbook(path_wansoft, data_only=True)
     ws = wb[wb.sheetnames[0]]
+    fecha_completa = dia = sucursal = None
     for row in ws.iter_rows(min_row=1, max_row=10):
         for cell in row:
-            if isinstance(cell.value, str) and "reporte del" in cell.value.lower():
-                m = re.search(r"(\d{4})-(\d{2})-(\d{2})", cell.value)
+            if not isinstance(cell.value, str):
+                continue
+            texto = cell.value.strip()
+            if fecha_completa is None and "reporte del" in texto.lower():
+                m = re.search(r"(\d{4}-\d{2}-\d{2})", texto)
                 if m:
-                    return m.group(3)
-    return None
+                    fecha_completa = m.group(1)
+                    dia = fecha_completa.split("-")[2]
+            if sucursal is None and texto.lower().startswith("sucursal:"):
+                sucursal = texto.split(":", 1)[1].strip()
+    return {"fecha": fecha_completa, "dia": dia, "sucursal": sucursal}
 
 
 def _elegir_hoja(path_formato_corte: str, dia: str) -> str:
@@ -55,14 +66,19 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
         path_corte.write_bytes(await formato_corte.read())
         path_wansoft.write_bytes(await wansoft.read())
 
-        dia = _detectar_dia_del_reporte(str(path_wansoft))
-        if dia is None:
+        meta = _detectar_metadatos_wansoft(str(path_wansoft))
+        if meta["dia"] is None:
             raise HTTPException(
                 status_code=400,
                 detail="No pude encontrar la fecha ('Reporte del: ...') en el archivo de Wansoft. "
                 "Verifica que sea el reporte de Ventas Por Platillo Por Grupo sin editar.",
             )
-        hoja = _elegir_hoja(str(path_corte), dia)
+        if meta["sucursal"] is None:
+            raise HTTPException(
+                status_code=400,
+                detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo de Wansoft.",
+            )
+        hoja = _elegir_hoja(str(path_corte), meta["dia"])
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -73,8 +89,24 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        reporte["dia_detectado"] = dia
+        reporte["dia_detectado"] = meta["dia"]
+        reporte["fecha"] = meta["fecha"]
+        reporte["sucursal"] = meta["sucursal"]
+        historial.guardar_reporte(meta["fecha"], meta["sucursal"], reporte)
         return reporte
+
+
+@app.get("/api/historial")
+async def ver_historial():
+    return historial.listar_historial()
+
+
+@app.get("/api/historial/{fecha}/{sucursal}")
+async def ver_reporte_historial(fecha: str, sucursal: str):
+    reporte = historial.obtener_reporte(fecha, sucursal)
+    if reporte is None:
+        raise HTTPException(status_code=404, detail="No hay reporte guardado para esa fecha y sucursal.")
+    return reporte
 
 
 @app.post("/api/exportar")
@@ -86,10 +118,10 @@ async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: Uploa
         path_corte.write_bytes(await formato_corte.read())
         path_wansoft.write_bytes(await wansoft.read())
 
-        dia = _detectar_dia_del_reporte(str(path_wansoft))
-        if dia is None:
+        meta = _detectar_metadatos_wansoft(str(path_wansoft))
+        if meta["dia"] is None:
             raise HTTPException(status_code=400, detail="No pude encontrar la fecha en el archivo de Wansoft.")
-        hoja = _elegir_hoja(str(path_corte), dia)
+        hoja = _elegir_hoja(str(path_corte), meta["dia"])
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -97,10 +129,12 @@ async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: Uploa
             )
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
-        reporte["dia_detectado"] = dia
+        reporte["dia_detectado"] = meta["dia"]
+        reporte["fecha"] = meta["fecha"]
+        reporte["sucursal"] = meta["sucursal"]
 
     buffer = exportar.generar_excel_reporte(reporte)
-    nombre_archivo = f"conciliacion_dia_{dia}.xlsx"
+    nombre_archivo = f"conciliacion_{meta['fecha']}_{meta['sucursal'].replace(' ', '-')}.xlsx"
     return StreamingResponse(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
