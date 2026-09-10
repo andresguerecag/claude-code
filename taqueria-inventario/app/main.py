@@ -155,6 +155,31 @@ async def guardar_mapeo(payload: dict = Body(...)):
     return {"ok": True}
 
 
+@app.get("/api/recetas")
+async def listar_recetas():
+    return reconciliacion.listar_recetas()
+
+
+@app.post("/api/recetas")
+async def guardar_receta(payload: dict = Body(...)):
+    clave = payload.get("clave")
+    nombre = payload.get("nombre", "")
+    receta_por_unidad = payload.get("receta_por_unidad", {})
+    if not clave:
+        raise HTTPException(status_code=400, detail="Falta 'clave'.")
+    try:
+        reconciliacion.guardar_receta(clave, nombre, receta_por_unidad)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True}
+
+
+@app.delete("/api/recetas/{clave}")
+async def eliminar_receta(clave: str):
+    reconciliacion.eliminar_receta(clave)
+    return {"ok": True}
+
+
 @app.get("/")
 async def index():
     return FileResponse(STATIC_DIR / "index.html")

@@ -63,6 +63,41 @@ def guardar_mapeo_manual(clave_wansoft: str, clave_receta_o_ignorar: str) -> Non
         json.dump(mapeo, f, indent=2, ensure_ascii=False)
 
 
+INSUMOS_VALIDOS = ["carne", "pastor", "queso", "tortillas", "telera"]
+
+
+def listar_recetas() -> list[dict]:
+    recetas = _cargar_recetas()
+    return [
+        {"clave": clave, "nombre": info["nombre"], "receta_por_unidad": info["receta_por_unidad"]}
+        for clave, info in sorted(recetas.items())
+    ]
+
+
+def guardar_receta(clave: str, nombre: str, receta_por_unidad: dict) -> None:
+    """Crea o edita una fila de la tabla de recetas (recetas.json). Los
+    insumos con valor None/vacio se omiten (no se guarda un 0 que no es
+    real)."""
+    clave = clave.strip().upper()
+    if not clave:
+        raise ValueError("La clave no puede estar vacia")
+    recetas = _cargar_recetas()
+    receta_limpia = {
+        k: float(v) for k, v in receta_por_unidad.items()
+        if k in INSUMOS_VALIDOS and v not in (None, "")
+    }
+    recetas[clave] = {"nombre": nombre.strip() or clave, "receta_por_unidad": receta_limpia}
+    with open(RECETAS_PATH, "w", encoding="utf-8") as f:
+        json.dump(recetas, f, indent=2, ensure_ascii=False)
+
+
+def eliminar_receta(clave: str) -> None:
+    recetas = _cargar_recetas()
+    recetas.pop(clave.strip().upper(), None)
+    with open(RECETAS_PATH, "w", encoding="utf-8") as f:
+        json.dump(recetas, f, indent=2, ensure_ascii=False)
+
+
 def _normalizar(clave: str) -> str:
     return re.sub(r"\s+", "", str(clave).strip().upper())
 

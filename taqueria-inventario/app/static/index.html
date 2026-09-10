@@ -77,13 +77,25 @@
     <h1>T-Grill · Conciliación de inventario</h1>
     <p>Sube el formato de corte y el reporte de Wansoft del mismo día</p>
   </div>
-  <button id="ver-historial" style="margin-left:auto; background:var(--negro); color:#fff; padding:10px 16px;">📋 Historial</button>
+  <div style="margin-left:auto; display:flex; gap:8px;">
+    <button id="ver-recetas" style="background:var(--naranja-oscuro); color:#fff; padding:10px 16px;">🧾 Recetas</button>
+    <button id="ver-historial" style="background:var(--negro); color:#fff; padding:10px 16px;">📋 Historial</button>
+  </div>
 </header>
 
 <div id="vista-historial" hidden>
   <h2>Historial de reportes guardados</h2>
   <table><thead><tr><th>Fecha</th><th>Sucursal</th><th>Platillos identificados</th><th>Alertas</th><th></th></tr></thead>
   <tbody id="tabla-historial"></tbody></table>
+</div>
+
+<div id="vista-recetas" hidden>
+  <h2>Tabla de recetas</h2>
+  <p>Cuánto de cada insumo lleva cada platillo por unidad vendida. Corrige lo que esté mal y da "Guardar" — se usa desde el próximo reporte. Deja vacío el insumo que no aplique (no pongas 0 si no estás segura).</p>
+  <button id="agregar-receta" style="background:var(--amarillo); color:var(--negro); padding:8px 14px; margin-bottom:10px;">+ Agregar platillo nuevo</button>
+  <table><thead><tr>
+    <th>Clave</th><th>Nombre</th><th>Carne (kg)</th><th>Pastor (kg)</th><th>Queso (kg)</th><th>Tortillas (pza)</th><th>Telera (pza)</th><th></th>
+  </tr></thead><tbody id="tabla-recetas"></tbody></table>
 </div>
 
 <div id="vista-normal">
@@ -271,9 +283,14 @@ async function descargarExcel() {
   URL.revokeObjectURL(url);
 }
 
+function mostrarVista(nombre) {
+  for (const id of ['vista-normal', 'vista-historial', 'vista-recetas']) {
+    document.getElementById(id).hidden = (id !== nombre);
+  }
+}
+
 async function mostrarHistorial() {
-  document.getElementById('vista-normal').hidden = true;
-  document.getElementById('vista-historial').hidden = false;
+  mostrarVista('vista-historial');
   const tbody = document.getElementById('tabla-historial');
   tbody.innerHTML = '<tr><td colspan="5">Cargando...</td></tr>';
   try {
@@ -292,8 +309,7 @@ async function mostrarHistorial() {
         <td><button class="ver-dia">Ver reporte</button></td>`;
       tr.querySelector('.ver-dia').addEventListener('click', async () => {
         const r = await (await fetch(`/api/historial/${item.fecha}/${encodeURIComponent(item.sucursal)}`)).json();
-        document.getElementById('vista-historial').hidden = true;
-        document.getElementById('vista-normal').hidden = false;
+        mostrarVista('vista-normal');
         renderReporte(r);
       });
       tbody.appendChild(tr);
@@ -304,13 +320,77 @@ async function mostrarHistorial() {
 }
 
 document.getElementById('ver-historial').addEventListener('click', () => {
-  const historialVisible = !document.getElementById('vista-historial').hidden;
-  if (historialVisible) {
-    document.getElementById('vista-historial').hidden = true;
-    document.getElementById('vista-normal').hidden = false;
-  } else {
-    mostrarHistorial();
+  const yaVisible = !document.getElementById('vista-historial').hidden;
+  yaVisible ? mostrarVista('vista-normal') : mostrarHistorial();
+});
+
+// --- Recetas ---
+
+async function cargarRecetas() {
+  mostrarVista('vista-recetas');
+  const tbody = document.getElementById('tabla-recetas');
+  tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+  const recetas = await (await fetch('/api/recetas')).json();
+  tbody.innerHTML = '';
+  for (const r of recetas) {
+    tbody.appendChild(filaReceta(r));
   }
+}
+
+function filaReceta(r) {
+  const receta = r.receta_por_unidad || {};
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="clave" value="${r.clave || ''}" style="width:90px" ${r.clave ? 'readonly' : ''}></td>
+    <td><input type="text" class="nombre" value="${r.nombre || ''}" style="width:200px"></td>
+    <td><input type="number" step="0.01" class="carne" value="${receta.carne ?? ''}" style="width:70px"></td>
+    <td><input type="number" step="0.01" class="pastor" value="${receta.pastor ?? ''}" style="width:70px"></td>
+    <td><input type="number" step="0.01" class="queso" value="${receta.queso ?? ''}" style="width:70px"></td>
+    <td><input type="number" step="0.1" class="tortillas" value="${receta.tortillas ?? ''}" style="width:70px"></td>
+    <td><input type="number" step="0.1" class="telera" value="${receta.telera ?? ''}" style="width:70px"></td>
+    <td><button class="guardar-receta">Guardar</button></td>`;
+  tr.querySelector('.guardar-receta').addEventListener('click', async () => {
+    const boton = tr.querySelector('.guardar-receta');
+    const clave = tr.querySelector('.clave').value.trim();
+    if (!clave) { alert('Falta la clave.'); return; }
+    const body = {
+      clave,
+      nombre: tr.querySelector('.nombre').value,
+      receta_por_unidad: {
+        carne: tr.querySelector('.carne').value || null,
+        pastor: tr.querySelector('.pastor').value || null,
+        queso: tr.querySelector('.queso').value || null,
+        tortillas: tr.querySelector('.tortillas').value || null,
+        telera: tr.querySelector('.telera').value || null,
+      },
+    };
+    boton.disabled = true;
+    boton.textContent = 'Guardando...';
+    try {
+      const resp = await fetch('/api/recetas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!resp.ok) throw new Error();
+      boton.textContent = 'Guardado ✓';
+      tr.querySelector('.clave').readOnly = true;
+      setTimeout(() => { boton.disabled = false; boton.textContent = 'Guardar'; }, 1500);
+    } catch {
+      boton.disabled = false;
+      boton.textContent = 'Error, reintentar';
+    }
+  });
+  return tr;
+}
+
+document.getElementById('ver-recetas').addEventListener('click', () => {
+  const yaVisible = !document.getElementById('vista-recetas').hidden;
+  yaVisible ? mostrarVista('vista-normal') : cargarRecetas();
+});
+
+document.getElementById('agregar-receta').addEventListener('click', () => {
+  document.getElementById('tabla-recetas').prepend(filaReceta({clave: '', nombre: '', receta_por_unidad: {}}));
 });
 
 document.getElementById('enviar').addEventListener('click', async () => {
