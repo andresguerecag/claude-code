@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Conciliación de inventario</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: Arial, Helvetica, sans-serif; max-width: 900px; margin: 0 auto; padding: 24px 16px; background: #fafafa; color: #222; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  p.subtitulo { color: #555; margin-top: 0; }
+  .dropzones { display: flex; gap: 16px; flex-wrap: wrap; margin: 24px 0; }
+  .dropzone {
+    flex: 1 1 260px; border: 2px dashed #999; border-radius: 10px; padding: 24px;
+    text-align: center; background: #fff; cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .dropzone.sobre { border-color: #2b7a2b; background: #f0fff0; }
+  .dropzone.listo { border-color: #2b7a2b; background: #f5fff5; }
+  .dropzone p { margin: 6px 0; }
+  .dropzone .archivo { font-weight: bold; color: #2b7a2b; word-break: break-all; }
+  input[type=file] { display: none; }
+  button#enviar {
+    display: block; width: 100%; padding: 14px; font-size: 1.05rem; font-weight: bold;
+    background: #2b7a2b; color: #fff; border: none; border-radius: 8px; cursor: pointer; margin-top: 8px;
+  }
+  button#enviar:disabled { background: #aaa; cursor: not-allowed; }
+  #estado { margin-top: 12px; font-weight: bold; }
+  #estado.error { color: #b00020; }
+  #reporte { margin-top: 32px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; background: #fff; }
+  th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: right; font-size: .95rem; }
+  th { background: #eee; text-align: left; }
+  td:first-child, th:first-child { text-align: left; }
+  tr.alerta { background: #fff2f2; }
+  tr.alerta td:last-child { color: #b00020; font-weight: bold; }
+  .advertencia { background: #fff8e1; border: 1px solid #f0c040; border-radius: 8px; padding: 14px 16px; margin: 16px 0; }
+  .pendientes-lista { font-size: .9rem; max-height: 260px; overflow-y: auto; background: #fff; border-radius: 8px; border: 1px solid #ddd; }
+  .resumen { display: flex; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+  .resumen div { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px 16px; }
+  .resumen b { display: block; font-size: 1.3rem; }
+</style>
+</head>
+<body>
+
+<h1>Conciliación de inventario del día</h1>
+<p class="subtitulo">Sube el formato de corte de la sucursal y el reporte de ventas de Wansoft de ese mismo día.</p>
+
+<div class="dropzones">
+  <div class="dropzone" id="dz-corte" data-tipo="corte">
+    <p><strong>Formato de corte</strong></p>
+    <p>Arrastra aquí el Excel, o toca para elegirlo</p>
+    <p class="archivo" id="nombre-corte"></p>
+    <input type="file" id="input-corte" accept=".xlsx">
+  </div>
+  <div class="dropzone" id="dz-wansoft" data-tipo="wansoft">
+    <p><strong>Reporte de Wansoft</strong></p>
+    <p>Ventas por platillo por grupo</p>
+    <p class="archivo" id="nombre-wansoft"></p>
+    <input type="file" id="input-wansoft" accept=".xlsx">
+  </div>
+</div>
+
+<button id="enviar" disabled>Generar reporte</button>
+<div id="estado"></div>
+
+<div id="reporte"></div>
+
+<script>
+let archivoCorte = null;
+let archivoWansoft = null;
+
+function configurarDropzone(idZona, idInput, onArchivo) {
+  const zona = document.getElementById(idZona);
+  const input = document.getElementById(idInput);
+  zona.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => { if (input.files[0]) onArchivo(input.files[0]); });
+  zona.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('sobre'); });
+  zona.addEventListener('dragleave', () => zona.classList.remove('sobre'));
+  zona.addEventListener('drop', e => {
+    e.preventDefault();
+    zona.classList.remove('sobre');
+    if (e.dataTransfer.files[0]) onArchivo(e.dataTransfer.files[0]);
+  });
+}
+
+function actualizarBoton() {
+  document.getElementById('enviar').disabled = !(archivoCorte && archivoWansoft);
+}
+
+configurarDropzone('dz-corte', 'input-corte', f => {
+  archivoCorte = f;
+  document.getElementById('nombre-corte').textContent = f.name;
+  document.getElementById('dz-corte').classList.add('listo');
+  actualizarBoton();
+});
+
+configurarDropzone('dz-wansoft', 'input-wansoft', f => {
+  archivoWansoft = f;
+  document.getElementById('nombre-wansoft').textContent = f.name;
+  document.getElementById('dz-wansoft').classList.add('listo');
+  actualizarBoton();
+});
+
+function num(v, decimales = 3) {
+  if (typeof v !== 'number') return v;
+  return v.toFixed(decimales);
+}
+
+function renderReporte(r) {
+  const div = document.getElementById('reporte');
+  let html = `<div class="resumen">
+    <div><b>${r.dia_detectado}</b>Día del reporte</div>
+    <div><b>${r.total_platillos_vendidos}</b>Platillos vendidos</div>
+    <div><b>${r.pct_identificado}%</b>Identificados en la receta</div>
+  </div>`;
+
+  if (r.advertencia_confiabilidad) {
+    html += `<div class="advertencia">⚠️ ${r.advertencia_confiabilidad}</div>`;
+  }
+
+  html += `<h2>Comparativo de consumo (teórico vs. real)</h2>
+  <table><thead><tr>
+    <th>Insumo</th><th>Consumo real</th><th>Consumo teórico</th><th>Diferencia</th>
+  </tr></thead><tbody>`;
+  for (const fila of r.comparativo) {
+    const esAlerta = fila.alerta === true;
+    html += `<tr class="${esAlerta ? 'alerta' : ''}">
+      <td>${fila.insumo}${fila.nota ? ' <small>(' + fila.nota + ')</small>' : ''}</td>
+      <td>${num(fila.consumo_real)}</td>
+      <td>${num(fila.consumo_teorico)}</td>
+      <td>${typeof fila.diferencia === 'number' ? num(fila.diferencia) : fila.diferencia}${esAlerta ? ' ⚠️' : ''}</td>
+    </tr>`;
+  }
+  html += `</tbody></table>`;
+
+  if (r.platillos_no_identificados.length) {
+    html += `<h2>Platillos no identificados (${r.total_sin_identificar} unidades) — pendientes de mapear</h2>
+    <div class="pendientes-lista"><table><thead><tr><th>Clave Wansoft</th><th>Nombre</th><th>Cantidad</th></tr></thead><tbody>`;
+    for (const p of r.platillos_no_identificados) {
+      html += `<tr><td>${p.clave}</td><td>${p.nombre}</td><td>${p.cantidad}</td></tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  html += `<h2>Inventario físico del día</h2>
+  <table><thead><tr><th>Producto</th><th>Unidad</th><th>Inicial</th><th>Entrada</th><th>Final</th><th>Consumo real</th></tr></thead><tbody>`;
+  for (const item of r.inventario_crudo) {
+    html += `<tr><td>${item.producto}</td><td>${item.unidad || ''}</td><td>${item.inicial ?? ''}</td><td>${item.entrada ?? ''}</td><td>${item.final ?? ''}</td><td>${num(item.consumo_real)}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+
+  div.innerHTML = html;
+}
+
+document.getElementById('enviar').addEventListener('click', async () => {
+  const estado = document.getElementById('estado');
+  estado.className = '';
+  estado.textContent = 'Procesando...';
+  document.getElementById('reporte').innerHTML = '';
+
+  const formData = new FormData();
+  formData.append('formato_corte', archivoCorte);
+  formData.append('wansoft', archivoWansoft);
+
+  try {
+    const resp = await fetch('/api/reconciliar', { method: 'POST', body: formData });
+    const data = await resp.json();
+    if (!resp.ok) {
+      estado.className = 'error';
+      estado.textContent = data.detail || 'Ocurrió un error.';
+      return;
+    }
+    estado.textContent = '';
+    renderReporte(data);
+  } catch (err) {
+    estado.className = 'error';
+    estado.textContent = 'No se pudo conectar con el servidor: ' + err.message;
+  }
+});
+</script>
+
+</body>
+</html>

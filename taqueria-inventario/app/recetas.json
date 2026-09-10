@@ -1,0 +1,317 @@
+{
+  "PAMS": {
+    "nombre": "PARRILLADA MEGA",
+    "receta_por_unidad": {
+      "carne": 0.36,
+      "pastor": 0.18,
+      "tortillas": 25.0
+    }
+  },
+  "PAMCQ": {
+    "nombre": "PARRILLADA MEGA C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.36,
+      "pastor": 0.18,
+      "queso": 0.15,
+      "tortillas": 25.0
+    }
+  },
+  "PAFS": {
+    "nombre": "PARRILLADA FAMILIAR",
+    "receta_por_unidad": {
+      "carne": 0.24,
+      "pastor": 0.12,
+      "tortillas": 20.0
+    }
+  },
+  "PAFCQ": {
+    "nombre": "PARRILLADA FAMILIAR C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.24,
+      "pastor": 0.12,
+      "queso": 0.1,
+      "tortillas": 20.0
+    }
+  },
+  "PAPS": {
+    "nombre": "PARRILLADA PERSONAL",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "pastor": 0.06,
+      "tortillas": 7.0
+    }
+  },
+  "PAPCQ": {
+    "nombre": "PARRILLADA PERSONAL C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "pastor": 0.06,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "ORDB": {
+    "nombre": "ORDEN DE BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.15,
+      "tortillas": 5.0
+    }
+  },
+  "ORDA": {
+    "nombre": "ORDEN DE BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.15,
+      "tortillas": 5.0
+    }
+  },
+  "ORDP": {
+    "nombre": "ORDEN DE PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.15,
+      "tortillas": 5.0
+    }
+  },
+  "PIRGDEA": {
+    "nombre": "PIRATA GDE",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05
+    }
+  },
+  "CAMPGDE": {
+    "nombre": "CAMPECHANA GDE",
+    "receta_por_unidad": {
+      "carne": 0.06,
+      "pastor": 0.06,
+      "queso": 0.05
+    }
+  },
+  "GGDE": {
+    "nombre": "GRINGA GDE",
+    "receta_por_unidad": {
+      "pastor": 0.06,
+      "queso": 0.05
+    }
+  },
+  "HUAP": {
+    "nombre": "HUARACHE DE PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.12,
+      "queso": 0.05
+    }
+  },
+  "HUAB": {
+    "nombre": "HUARACHE DE BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05
+    }
+  },
+  "HUAA": {
+    "nombre": "HUARACHE DE BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05
+    }
+  },
+  "PIRCHA": {
+    "nombre": "PIRATA CH",
+    "receta_por_unidad": {
+      "carne": 0.06,
+      "queso": 0.05
+    }
+  },
+  "CAMPCH": {
+    "nombre": "CAMPECHANA CH",
+    "receta_por_unidad": {
+      "carne": 0.03,
+      "pastor": 0.03,
+      "queso": 0.05
+    }
+  },
+  "GCH": {
+    "nombre": "GRINGA CH",
+    "receta_por_unidad": {
+      "pastor": 0.03,
+      "queso": 0.05
+    }
+  },
+  "TORB": {
+    "nombre": "TORTA DE BISTECY ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05
+    }
+  },
+  "TORA": {
+    "nombre": "TORTA DE BISTECY ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05
+    }
+  },
+  "TORP": {
+    "nombre": "TORTA DE PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.12,
+      "queso": 0.05
+    }
+  },
+  "ALBS": {
+    "nombre": "ALAMBRE DE BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "tortillas": 7.0
+    }
+  },
+  "ALBCQ": {
+    "nombre": "ALAMBRE DE BISTEC C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "REFALBS": {
+    "nombre": "ALAMBRE DE BISTEC C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "ALPS": {
+    "nombre": "ALAMBRE DE PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.12,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "ALPCQ": {
+    "nombre": "ALAMBRE DE PASTOR C/QUESO",
+    "receta_por_unidad": {
+      "pastor": 0.12,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "COSTB": {
+    "nombre": "COSTRA BISTEC Y ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.1,
+      "queso": 0.1,
+      "tortillas": 3.0
+    }
+  },
+  "COSTA": {
+    "nombre": "COSTRA BISTEC Y ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.1,
+      "queso": 0.1,
+      "tortillas": 3.0
+    }
+  },
+  "COSTP": {
+    "nombre": "COSTRA PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.1,
+      "queso": 0.1,
+      "tortillas": 3.0
+    }
+  },
+  "FUNP": {
+    "nombre": "FUNDIDOS PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.1,
+      "queso": 0.15,
+      "tortillas": 7.0
+    }
+  },
+  "FUNB": {
+    "nombre": "FUNDIDOS BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.15,
+      "tortillas": 7.0
+    }
+  },
+  "FUNN": {
+    "nombre": "FUNDIDO NATURAL",
+    "receta_por_unidad": {
+      "queso": 0.15,
+      "tortillas": 7.0
+    }
+  },
+  "EXTRAT": {
+    "nombre": "EXTRA TORTILLAS",
+    "receta_por_unidad": {
+      "tortillas": 12.0
+    }
+  },
+  "EXTRAQ": {
+    "nombre": "EXTRA DE QUESO",
+    "receta_por_unidad": {
+      "queso": 0.05
+    }
+  },
+  "TAP": {
+    "nombre": "TACO PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.03,
+      "tortillas": 0.01
+    }
+  },
+  "TAB": {
+    "nombre": "TACO BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.03,
+      "tortillas": 0.01
+    }
+  },
+  "TAA": {
+    "nombre": "TACO BISTEC",
+    "receta_por_unidad": {
+      "carne": 0.03,
+      "tortillas": 0.01
+    }
+  },
+  "PIRCH": {
+    "nombre": "MEDIANA  ARCHERA",
+    "receta_por_unidad": {
+      "carne": 0.3,
+      "tortillas": 20.0
+    }
+  },
+  "CCH": {
+    "nombre": "MEDIANA MIXTA",
+    "receta_por_unidad": {
+      "carne": 0.15,
+      "pastor": 0.15,
+      "tortillas": 20.0
+    }
+  },
+  "QUESA": {
+    "nombre": "QUESADILLAS",
+    "receta_por_unidad": {
+      "queso": 0.05,
+      "tortillas": 3.0
+    }
+  },
+  "QUESACAR": {
+    "nombre": "QUESADILLAS CON CARNE",
+    "receta_por_unidad": {
+      "carne": 0.075,
+      "queso": 0.05,
+      "tortillas": 3.0
+    }
+  },
+  "DOM": {
+    "nombre": "QUESADILLAS CON PASTOR",
+    "receta_por_unidad": {
+      "pastor": 0.075,
+      "queso": 0.05,
+      "tortillas": 3.0
+    }
+  }
+}
