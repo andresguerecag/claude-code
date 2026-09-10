@@ -67,6 +67,21 @@
 
   select.mapeo { font-family: inherit; padding: 4px; border-radius: 6px; border: 1px solid #ccc; max-width: 220px; }
   .fila-guardada td { opacity: .45; text-decoration: line-through; }
+
+  .filtros { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; background: #fff; border: 1px solid #eadfce; border-radius: 8px; padding: 14px; margin: 12px 0 20px; }
+  .filtros label { display: block; font-size: .8rem; color: #7a5230; margin-bottom: 3px; }
+  .filtros select, .filtros input[type=date] { font-family: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid #ccc; }
+  .filtros .atajos button { background: #eee; color: var(--negro); padding: 6px 10px; font-size: .85rem; font-weight: normal; }
+  .filtros .atajos button.activo { background: var(--naranja); color: #fff; font-weight: bold; }
+
+  .leyenda { display: flex; gap: 16px; align-items: center; font-size: .85rem; margin: 8px 0; }
+  .leyenda .punto { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: middle; }
+
+  .grafica-barras { display: flex; align-items: flex-end; gap: 10px; height: 220px; padding: 10px 4px 0; overflow-x: auto; background: #fff; border: 1px solid #eadfce; border-radius: 8px; }
+  .grafica-barras .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 44px; height: 100%; }
+  .grafica-barras .barras { display: flex; align-items: flex-end; gap: 3px; height: 100%; }
+  .grafica-barras .barra { width: 14px; border-radius: 4px 4px 0 0; min-height: 2px; }
+  .grafica-barras .fecha-label { font-size: .68rem; color: #7a5230; margin-top: 4px; writing-mode: vertical-rl; text-orientation: mixed; max-height: 60px; }
 </style>
 </head>
 <body>
@@ -77,11 +92,46 @@
     <h1>T-Grill · Conciliación de inventario</h1>
     <p>Sube el formato de corte y el reporte de Wansoft del mismo día</p>
   </div>
-  <div style="margin-left:auto; display:flex; gap:8px;">
+  <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+    <button id="ver-dashboard" style="background:#2563eb; color:#fff; padding:10px 16px;">📊 Dashboard</button>
     <button id="ver-recetas" style="background:var(--naranja-oscuro); color:#fff; padding:10px 16px;">🧾 Recetas</button>
     <button id="ver-historial" style="background:var(--negro); color:#fff; padding:10px 16px;">📋 Historial</button>
   </div>
 </header>
+
+<div id="vista-dashboard" hidden>
+  <h2>Dashboard</h2>
+  <div class="filtros">
+    <div>
+      <label>Sucursal</label>
+      <select id="filtro-sucursal"><option value="todas">Todas</option></select>
+    </div>
+    <div>
+      <label>Desde</label>
+      <input type="date" id="filtro-desde">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" id="filtro-hasta">
+    </div>
+    <div class="atajos" style="display:flex; gap:6px;">
+      <button data-dias="7">7 días</button>
+      <button data-dias="15">15 días</button>
+      <button data-dias="30">30 días</button>
+      <button data-dias="0">Todo</button>
+    </div>
+  </div>
+
+  <div class="resumen" id="dashboard-kpis"></div>
+
+  <h3>Platillos vendidos por día</h3>
+  <div class="leyenda" id="dashboard-leyenda"></div>
+  <div class="grafica-barras" id="dashboard-grafica"></div>
+
+  <h3>Consumo acumulado del período (teórico vs. real)</h3>
+  <table><thead><tr><th>Insumo</th><th>Consumo real</th><th>Consumo teórico</th><th>Diferencia</th></tr></thead>
+  <tbody id="dashboard-merma"></tbody></table>
+</div>
 
 <div id="vista-historial" hidden>
   <h2>Historial de reportes guardados</h2>
@@ -286,7 +336,7 @@ async function descargarExcel() {
 }
 
 function mostrarVista(nombre) {
-  for (const id of ['vista-normal', 'vista-historial', 'vista-recetas']) {
+  for (const id of ['vista-normal', 'vista-historial', 'vista-recetas', 'vista-dashboard']) {
     document.getElementById(id).hidden = (id !== nombre);
   }
 }
@@ -421,6 +471,121 @@ document.getElementById('ver-recetas').addEventListener('click', () => {
 
 document.getElementById('agregar-receta').addEventListener('click', () => {
   document.getElementById('tabla-recetas').prepend(filaReceta({clave: '', nombre: '', receta_por_unidad: {}}));
+});
+
+// --- Dashboard ---
+
+const COLORES_SUCURSAL = ['#e8511c', '#2563eb', '#0f9d58', '#7c3aed'];
+let coloresPorSucursal = {};
+
+function colorDeSucursal(nombre) {
+  if (!(nombre in coloresPorSucursal)) {
+    coloresPorSucursal[nombre] = COLORES_SUCURSAL[Object.keys(coloresPorSucursal).length % COLORES_SUCURSAL.length];
+  }
+  return coloresPorSucursal[nombre];
+}
+
+function fmtFecha(d) {
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}`;
+}
+
+async function cargarDashboard() {
+  mostrarVista('vista-dashboard');
+  const sucursal = document.getElementById('filtro-sucursal').value;
+  const desde = document.getElementById('filtro-desde').value;
+  const hasta = document.getElementById('filtro-hasta').value;
+
+  const params = new URLSearchParams();
+  if (sucursal && sucursal !== 'todas') params.set('sucursal', sucursal);
+  if (desde) params.set('desde', desde);
+  if (hasta) params.set('hasta', hasta);
+
+  const d = await (await fetch('/api/dashboard?' + params.toString())).json();
+
+  // Llenar el selector de sucursal solo la primera vez
+  const select = document.getElementById('filtro-sucursal');
+  if (select.options.length <= 1) {
+    for (const s of d.sucursales) {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      select.appendChild(opt);
+    }
+  }
+
+  // KPIs
+  const kpis = document.getElementById('dashboard-kpis');
+  kpis.innerHTML = `
+    <div><b>${d.resumen.total_platillos_vendidos}</b>Platillos vendidos</div>
+    <div><b>${d.resumen.num_dias}</b>Días en el período</div>
+    <div><b>${d.resumen.total_alertas}</b>Alertas de merma</div>
+    <div><b>${d.resumen.pct_identificado_promedio ?? 'n/d'}${d.resumen.pct_identificado_promedio !== null ? '%' : ''}</b>Identificado promedio</div>
+  `;
+
+  // Leyenda (una entrada por sucursal presente en los datos)
+  coloresPorSucursal = {};
+  const sucursalesEnDias = [...new Set(d.dias.map(x => x.sucursal))].sort();
+  const leyenda = document.getElementById('dashboard-leyenda');
+  leyenda.innerHTML = sucursalesEnDias.length > 1
+    ? sucursalesEnDias.map(s => `<span><span class="punto" style="background:${colorDeSucursal(s)}"></span>${s}</span>`).join('')
+    : '';
+
+  // Grafica de barras: agrupar por fecha
+  const porFecha = {};
+  for (const dia of d.dias) {
+    if (!porFecha[dia.fecha]) porFecha[dia.fecha] = {};
+    porFecha[dia.fecha][dia.sucursal] = dia.total_platillos_vendidos;
+  }
+  const fechas = Object.keys(porFecha).sort();
+  const maxVal = Math.max(1, ...d.dias.map(x => x.total_platillos_vendidos || 0));
+
+  const grafica = document.getElementById('dashboard-grafica');
+  if (!fechas.length) {
+    grafica.innerHTML = '<p style="padding:16px; color:#7a5230;">No hay datos en este período.</p>';
+  } else {
+    grafica.innerHTML = fechas.map(f => {
+      const barras = sucursalesEnDias.map(s => {
+        const v = porFecha[f][s] || 0;
+        const alturaPx = Math.max(2, Math.round((v / maxVal) * 170));
+        return `<div class="barra" title="${s}: ${v} platillos el ${f}" style="height:${alturaPx}px; background:${colorDeSucursal(s)}"></div>`;
+      }).join('');
+      return `<div class="col"><div class="barras">${barras}</div><div class="fecha-label">${fmtFecha(f)}</div></div>`;
+    }).join('');
+  }
+
+  // Merma acumulada del período
+  const tbodyMerma = document.getElementById('dashboard-merma');
+  tbodyMerma.innerHTML = d.merma_por_insumo.map(f => `
+    <tr class="${f.diferencia !== 'no disponible' && Math.abs(f.diferencia) > 2 ? 'alerta' : ''}">
+      <td>${f.insumo}</td><td>${f.consumo_real}</td><td>${f.consumo_teorico}</td><td>${f.diferencia}</td>
+    </tr>`).join('') || '<tr><td colspan="4">Sin datos en este período.</td></tr>';
+}
+
+document.getElementById('ver-dashboard').addEventListener('click', () => {
+  const yaVisible = !document.getElementById('vista-dashboard').hidden;
+  yaVisible ? mostrarVista('vista-normal') : cargarDashboard();
+});
+
+document.getElementById('filtro-sucursal').addEventListener('change', cargarDashboard);
+document.getElementById('filtro-desde').addEventListener('change', cargarDashboard);
+document.getElementById('filtro-hasta').addEventListener('change', cargarDashboard);
+
+document.querySelectorAll('.atajos button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.atajos button').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    const dias = parseInt(btn.dataset.dias, 10);
+    if (dias === 0) {
+      document.getElementById('filtro-desde').value = '';
+      document.getElementById('filtro-hasta').value = '';
+    } else {
+      const hoy = new Date();
+      const desde = new Date(hoy); desde.setDate(desde.getDate() - dias);
+      document.getElementById('filtro-hasta').value = hoy.toISOString().slice(0, 10);
+      document.getElementById('filtro-desde').value = desde.toISOString().slice(0, 10);
+    }
+    cargarDashboard();
+  });
 });
 
 document.getElementById('enviar').addEventListener('click', async () => {

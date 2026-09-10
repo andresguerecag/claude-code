@@ -122,6 +122,11 @@ async def ver_historial():
     return historial.listar_historial()
 
 
+@app.get("/api/dashboard")
+async def ver_dashboard(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
+    return historial.dashboard(sucursal=sucursal, desde=desde, hasta=hasta)
+
+
 @app.get("/api/pendientes-acumulados")
 async def ver_pendientes_acumulados():
     """Platillos no identificados de todo el historial, sumados y ordenados

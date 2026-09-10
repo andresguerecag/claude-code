@@ -115,6 +115,80 @@ def pendientes_acumulados() -> list[dict]:
     return sorted(acumulado.values(), key=lambda x: x["cantidad_total"], reverse=True)
 
 
+def dashboard(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None) -> dict:
+    """
+    Resumen filtrable para el dashboard: ventas por dia (por sucursal),
+    alertas, y consumo acumulado por insumo en el periodo. Todo calculado
+    sobre lo que ya esta en el historial -- no vuelve a leer excels.
+    """
+    sucursales_vistas: set[str] = set()
+    dias = []
+    merma_acum: dict[str, dict] = {}
+    total_vendido = 0.0
+    total_alertas = 0
+    suma_pct = 0.0
+    num_reportes_pct = 0
+
+    for fecha, suc, reporte_json, _creado_en in _todos_los_reportes():
+        sucursales_vistas.add(suc)
+        if sucursal and sucursal != "todas" and suc != sucursal:
+            continue
+        if desde and fecha < desde:
+            continue
+        if hasta and fecha > hasta:
+            continue
+
+        r = json.loads(reporte_json)
+        num_alertas = sum(1 for f in r.get("comparativo", []) if f.get("alerta") is True)
+        dias.append({
+            "fecha": fecha,
+            "sucursal": suc,
+            "total_platillos_vendidos": r.get("total_platillos_vendidos", 0),
+            "num_alertas": num_alertas,
+            "pct_identificado": r.get("pct_identificado"),
+        })
+        total_vendido += r.get("total_platillos_vendidos", 0) or 0
+        total_alertas += num_alertas
+        if r.get("pct_identificado") is not None:
+            suma_pct += r["pct_identificado"]
+            num_reportes_pct += 1
+
+        for f in r.get("comparativo", []):
+            insumo = f["insumo"]
+            if insumo not in merma_acum:
+                merma_acum[insumo] = {"insumo": insumo, "consumo_real": 0.0, "consumo_teorico": 0.0, "con_dato": False}
+            if isinstance(f.get("consumo_real"), (int, float)) and isinstance(f.get("consumo_teorico"), (int, float)):
+                merma_acum[insumo]["consumo_real"] += f["consumo_real"]
+                merma_acum[insumo]["consumo_teorico"] += f["consumo_teorico"]
+                merma_acum[insumo]["con_dato"] = True
+
+    dias.sort(key=lambda d: (d["fecha"], d["sucursal"]))
+
+    merma_lista = []
+    for insumo, v in merma_acum.items():
+        if not v["con_dato"]:
+            merma_lista.append({"insumo": insumo, "consumo_real": "no disponible", "consumo_teorico": "no disponible", "diferencia": "no disponible"})
+        else:
+            merma_lista.append({
+                "insumo": insumo,
+                "consumo_real": round(v["consumo_real"], 2),
+                "consumo_teorico": round(v["consumo_teorico"], 2),
+                "diferencia": round(v["consumo_teorico"] - v["consumo_real"], 2),
+            })
+
+    return {
+        "sucursales": sorted(sucursales_vistas),
+        "dias": dias,
+        "merma_por_insumo": merma_lista,
+        "resumen": {
+            "total_platillos_vendidos": total_vendido,
+            "total_alertas": total_alertas,
+            "num_dias": len(dias),
+            "pct_identificado_promedio": round(suma_pct / num_reportes_pct, 1) if num_reportes_pct else None,
+        },
+    }
+
+
 def obtener_reporte(fecha: str, sucursal: str) -> dict | None:
     if db.usando_postgres():
         db.inicializar_tablas()
