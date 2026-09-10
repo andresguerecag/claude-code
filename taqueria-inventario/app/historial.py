@@ -72,6 +72,30 @@ def listar_historial() -> list[dict]:
     return resumen
 
 
+def pendientes_acumulados() -> list[dict]:
+    """
+    Junta los platillos no identificados de TODOS los dias guardados, sumando
+    cuanto se ha vendido de cada uno en total. Pensado para una sesion de
+    'vamos a afinar las recetas de una vez' -- prioriza por volumen en vez
+    de ir dia por dia.
+    """
+    con = _conectar()
+    filas = con.execute("SELECT reporte_json FROM reportes").fetchall()
+    con.close()
+
+    acumulado: dict[str, dict] = {}
+    for (reporte_json,) in filas:
+        r = json.loads(reporte_json)
+        for p in r.get("platillos_no_identificados", []):
+            clave = p["clave"]
+            if clave not in acumulado:
+                acumulado[clave] = {"clave": clave, "nombre": p["nombre"], "cantidad_total": 0, "dias": 0}
+            acumulado[clave]["cantidad_total"] += p["cantidad"]
+            acumulado[clave]["dias"] += 1
+
+    return sorted(acumulado.values(), key=lambda x: x["cantidad_total"], reverse=True)
+
+
 def obtener_reporte(fecha: str, sucursal: str) -> dict | None:
     con = _conectar()
     fila = con.execute(

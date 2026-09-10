@@ -92,6 +92,8 @@
 <div id="vista-recetas" hidden>
   <h2>Tabla de recetas</h2>
   <p>Cuánto de cada insumo lleva cada platillo por unidad vendida. Corrige lo que esté mal y da "Guardar" — se usa desde el próximo reporte. Deja vacío el insumo que no aplique (no pongas 0 si no estás segura).</p>
+  <div id="pendientes-acumulados-box"></div>
+
   <button id="agregar-receta" style="background:var(--amarillo); color:var(--negro); padding:8px 14px; margin-bottom:10px;">+ Agregar platillo nuevo</button>
   <table><thead><tr>
     <th>Clave</th><th>Nombre</th><th>Carne (kg)</th><th>Pastor (kg)</th><th>Queso (kg)</th><th>Tortillas (pza)</th><th>Telera (pza)</th><th></th>
@@ -331,9 +333,37 @@ async function cargarRecetas() {
   const tbody = document.getElementById('tabla-recetas');
   tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
   const recetas = await (await fetch('/api/recetas')).json();
+  recetasDisponibles = recetas.map(r => ({ clave: r.clave, nombre: r.nombre }));
   tbody.innerHTML = '';
   for (const r of recetas) {
     tbody.appendChild(filaReceta(r));
+  }
+  await cargarPendientesAcumulados();
+}
+
+async function cargarPendientesAcumulados() {
+  const box = document.getElementById('pendientes-acumulados-box');
+  box.innerHTML = '<p>Cargando pendientes acumulados...</p>';
+  const pendientes = await (await fetch('/api/pendientes-acumulados')).json();
+  if (!pendientes.length) {
+    box.innerHTML = '<p>🎉 No hay platillos pendientes de identificar en todo el historial guardado.</p>';
+    return;
+  }
+  let html = `<h3>Pendientes acumulados de todo el historial (${pendientes.length} claves distintas)</h3>
+  <p>Ordenados por cuánto se han vendido en total — empieza por los de arriba, son los que más afectan el cálculo.</p>
+  <table><thead><tr><th>Clave</th><th>Nombre</th><th>Vendidos (todos los días)</th><th>Días que aparece</th><th>¿A qué corresponde?</th><th></th></tr></thead>
+  <tbody id="tabla-pendientes-acum"></tbody></table>`;
+  box.innerHTML = html;
+  const tbody = document.getElementById('tabla-pendientes-acum');
+  for (const p of pendientes) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.clave}</td><td>${p.nombre}</td><td>${p.cantidad_total}</td><td>${p.dias}</td>
+      <td><select class="mapeo">${opcionesRecetas()}</select></td>
+      <td><button class="guardar-mapeo">Guardar</button></td>`;
+    const select = tr.querySelector('select.mapeo');
+    const boton = tr.querySelector('button.guardar-mapeo');
+    boton.addEventListener('click', () => guardarMapeo(p.clave, select, tr));
+    tbody.appendChild(tr);
   }
 }
 

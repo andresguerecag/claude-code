@@ -3,19 +3,40 @@ App web sencilla: arrastras el "Formato de corte" (excel que manda la
 sucursal cada noche) y el reporte de ventas de Wansoft, y te regresa el
 reporte de conciliacion de inventario del dia.
 """
+import os
 import re
+import secrets
 import tempfile
 from pathlib import Path
 
-from fastapi import Body, FastAPI, File, HTTPException, UploadFile
+from fastapi import Body, Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 
 from . import exportar, historial, reconciliacion
 
-app = FastAPI(title="Conciliacion de inventario - Taqueria")
-
 STATIC_DIR = Path(__file__).parent / "static"
+
+# Contraseña compartida para proteger la app cuando esté en internet. Se lee
+# de variables de entorno (nunca escrita en el código) -- si no se configura
+# ninguna, la app queda SIN contraseña (útil para correrla local en tu compu
+# sin que te pida usuario/clave cada vez).
+_APP_USUARIO = os.environ.get("APP_USUARIO")
+_APP_PASSWORD = os.environ.get("APP_PASSWORD")
+_seguridad = HTTPBasic(auto_error=False)
+
+
+def requiere_acceso(credenciales: HTTPBasicCredentials | None = Depends(_seguridad)):
+    if not _APP_USUARIO or not _APP_PASSWORD:
+        return  # sin variables de entorno configuradas -> app abierta (uso local)
+    ok_usuario = credenciales is not None and secrets.compare_digest(credenciales.username, _APP_USUARIO)
+    ok_clave = credenciales is not None and secrets.compare_digest(credenciales.password, _APP_PASSWORD)
+    if not (ok_usuario and ok_clave):
+        raise HTTPException(status_code=401, detail="Acceso no autorizado", headers={"WWW-Authenticate": "Basic"})
+
+
+app = FastAPI(title="Conciliacion de inventario - Taqueria", dependencies=[Depends(requiere_acceso)])
 
 
 def _detectar_metadatos_wansoft(path_wansoft: str) -> dict:
@@ -99,6 +120,13 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
 @app.get("/api/historial")
 async def ver_historial():
     return historial.listar_historial()
+
+
+@app.get("/api/pendientes-acumulados")
+async def ver_pendientes_acumulados():
+    """Platillos no identificados de todo el historial, sumados y ordenados
+    por volumen -- para priorizar una sesión de afinar recetas."""
+    return historial.pendientes_acumulados()
 
 
 @app.get("/api/historial/{fecha}/{sucursal}")
