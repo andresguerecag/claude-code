@@ -504,15 +504,21 @@ def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str,
 
     total_vendido = sum(v.cantidad for v in ventas)
     total_identificado = sum(c for _, _, c in match.ventas_identificadas)
-    pct_identificado = round(100 * total_identificado / total_vendido, 1) if total_vendido else 0.0
+    total_ignorado = sum(v.cantidad for v in match.ventas_ignoradas)
+    # Los "ignorados" (ej. refrescos, que se comparan distinto y nunca
+    # necesitaron receta) NO cuentan como pendientes -- se excluyen del total
+    # para no ensuciar el % de confianza con algo que ya se resolvio a
+    # proposito. Solo lo genuinamente sin identificar resta confianza.
+    total_relevante = total_vendido - total_ignorado
+    pct_identificado = round(100 * total_identificado / total_relevante, 1) if total_relevante else 100.0
 
     advertencia = None
     if pct_identificado < 80:
         advertencia = (
-            f"Solo se pudo identificar el {pct_identificado}% de las unidades vendidas ese dia "
-            "contra la tabla de recetas. El consumo TEORICO de este reporte es un minimo, no el "
-            "real -- probablemente mas bajo de lo que deberia. Las alertas de este dia hay que "
-            "tomarlas con cautela hasta completar el diccionario de claves (ver pendientes)."
+            f"Solo se pudo identificar el {pct_identificado}% de las unidades vendidas ese dia que "
+            "necesitan receta (sin contar las marcadas 'ignorar'). El consumo TEORICO de este reporte "
+            "es un minimo, no el real -- probablemente mas bajo de lo que deberia. Las alertas de este "
+            "dia hay que tomarlas con cautela hasta completar el diccionario de claves (ver pendientes)."
         )
 
     claves_receta_disponibles = [
