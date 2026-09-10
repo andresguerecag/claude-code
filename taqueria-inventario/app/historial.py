@@ -1,11 +1,10 @@
 """
-Historial de reportes ya generados, guardado en un archivo de base de datos
-local (SQLite -- no requiere instalar nada aparte ni hostear nada, es un
-archivo mas dentro de la carpeta de la app, como un Excel).
+Historial de reportes ya generados.
 
-Si en algun momento varias personas en distintas computadoras necesitan ver
-el mismo historial al mismo tiempo, esto es lo que habria que mover a un
-servidor con hosting -- mientras tanto, vive tranquilamente en local.
+Usa Postgres (Supabase) cuando la app esta hosteada (DATABASE_URL
+configurada), para que sobreviva a que el hosting gratis borre el disco en
+cada redeploy. Si no hay DATABASE_URL (al correr local en tu compu para
+probar), usa un archivo SQLite local -- no necesitas internet para probar.
 """
 from __future__ import annotations
 
@@ -13,10 +12,12 @@ import json
 import sqlite3
 from pathlib import Path
 
+from . import db
+
 DB_PATH = Path(__file__).parent / "historial.db"
 
 
-def _conectar() -> sqlite3.Connection:
+def _conectar_sqlite() -> sqlite3.Connection:
     con = sqlite3.connect(DB_PATH)
     con.execute(
         """
@@ -33,8 +34,25 @@ def _conectar() -> sqlite3.Connection:
 
 
 def guardar_reporte(fecha: str, sucursal: str, reporte: dict) -> None:
-    """Guarda (o reemplaza, si ya existia) el reporte de ese dia+sucursal."""
-    con = _conectar()
+    reporte_json = json.dumps(reporte, ensure_ascii=False)
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO reportes (fecha, sucursal, reporte_json, creado_en)
+                VALUES (%s, %s, %s, now())
+                ON CONFLICT (fecha, sucursal) DO UPDATE SET
+                    reporte_json = EXCLUDED.reporte_json,
+                    creado_en = EXCLUDED.creado_en
+                """,
+                (fecha, sucursal, reporte_json),
+            )
+        con.close()
+        return
+
+    con = _conectar_sqlite()
     with con:
         con.execute(
             """
@@ -44,21 +62,33 @@ def guardar_reporte(fecha: str, sucursal: str, reporte: dict) -> None:
                 reporte_json = excluded.reporte_json,
                 creado_en = excluded.creado_en
             """,
-            (fecha, sucursal, json.dumps(reporte, ensure_ascii=False)),
+            (fecha, sucursal, reporte_json),
         )
     con.close()
 
 
-def listar_historial() -> list[dict]:
-    """Resumen de todos los dias guardados, mas reciente primero."""
-    con = _conectar()
+def _todos_los_reportes() -> list[tuple[str, str, str, str]]:
+    """(fecha, sucursal, reporte_json, creado_en) de todos los dias."""
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con.cursor() as cur:
+            cur.execute("SELECT fecha, sucursal, reporte_json, creado_en::text FROM reportes ORDER BY fecha DESC, sucursal ASC")
+            filas = cur.fetchall()
+        con.close()
+        return filas
+
+    con = _conectar_sqlite()
     filas = con.execute(
         "SELECT fecha, sucursal, reporte_json, creado_en FROM reportes ORDER BY fecha DESC, sucursal ASC"
     ).fetchall()
     con.close()
+    return filas
 
+
+def listar_historial() -> list[dict]:
     resumen = []
-    for fecha, sucursal, reporte_json, creado_en in filas:
+    for fecha, sucursal, reporte_json, creado_en in _todos_los_reportes():
         r = json.loads(reporte_json)
         num_alertas = sum(1 for f in r.get("comparativo", []) if f.get("alerta") is True)
         resumen.append({
@@ -73,18 +103,8 @@ def listar_historial() -> list[dict]:
 
 
 def pendientes_acumulados() -> list[dict]:
-    """
-    Junta los platillos no identificados de TODOS los dias guardados, sumando
-    cuanto se ha vendido de cada uno en total. Pensado para una sesion de
-    'vamos a afinar las recetas de una vez' -- prioriza por volumen en vez
-    de ir dia por dia.
-    """
-    con = _conectar()
-    filas = con.execute("SELECT reporte_json FROM reportes").fetchall()
-    con.close()
-
     acumulado: dict[str, dict] = {}
-    for (reporte_json,) in filas:
+    for _fecha, _sucursal, reporte_json, _creado_en in _todos_los_reportes():
         r = json.loads(reporte_json)
         for p in r.get("platillos_no_identificados", []):
             clave = p["clave"]
@@ -92,17 +112,22 @@ def pendientes_acumulados() -> list[dict]:
                 acumulado[clave] = {"clave": clave, "nombre": p["nombre"], "cantidad_total": 0, "dias": 0}
             acumulado[clave]["cantidad_total"] += p["cantidad"]
             acumulado[clave]["dias"] += 1
-
     return sorted(acumulado.values(), key=lambda x: x["cantidad_total"], reverse=True)
 
 
 def obtener_reporte(fecha: str, sucursal: str) -> dict | None:
-    con = _conectar()
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con.cursor() as cur:
+            cur.execute("SELECT reporte_json FROM reportes WHERE fecha = %s AND sucursal = %s", (fecha, sucursal))
+            fila = cur.fetchone()
+        con.close()
+        return json.loads(fila[0]) if fila else None
+
+    con = _conectar_sqlite()
     fila = con.execute(
-        "SELECT reporte_json FROM reportes WHERE fecha = ? AND sucursal = ?",
-        (fecha, sucursal),
+        "SELECT reporte_json FROM reportes WHERE fecha = ? AND sucursal = ?", (fecha, sucursal)
     ).fetchone()
     con.close()
-    if fila is None:
-        return None
-    return json.loads(fila[0])
+    return json.loads(fila[0]) if fila else None

@@ -24,6 +24,8 @@ from pathlib import Path
 
 import openpyxl
 
+from . import db
+
 RECETAS_PATH = Path(__file__).parent / "recetas.json"
 MAPEO_MANUAL_PATH = Path(__file__).parent / "mapeo_manual.json"
 IGNORAR = "IGNORAR"
@@ -42,23 +44,91 @@ TOLERANCIAS_DEFAULT = {
 PREFIJOS_CONOCIDOS = ["DOM ", "PLATAF ", "REF "]
 
 
-def _cargar_recetas() -> dict:
+def _recetas_desde_json() -> dict:
     with open(RECETAS_PATH, encoding="utf-8") as f:
         return json.load(f)
+
+
+def _sembrar_pg_si_vacio() -> None:
+    """La primera vez que la app corre contra una base de datos Postgres
+    nueva (recien hosteada), no hay nada guardado todavia -- se siembra con
+    lo que ya viene en recetas.json/mapeo_manual.json (el conocimiento ya
+    validado contra datos reales), para no empezar de cero."""
+    con = db.conectar()
+    with con, con.cursor() as cur:
+        cur.execute("SELECT COUNT(*) FROM recetas")
+        if cur.fetchone()[0] == 0:
+            for clave, info in _recetas_desde_json().items():
+                cur.execute(
+                    "INSERT INTO recetas (clave, nombre, receta_json) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+                    (clave, info["nombre"], json.dumps(info["receta_por_unidad"], ensure_ascii=False)),
+                )
+        cur.execute("SELECT COUNT(*) FROM mapeo_manual")
+        if cur.fetchone()[0] == 0 and MAPEO_MANUAL_PATH.exists():
+            with open(MAPEO_MANUAL_PATH, encoding="utf-8") as f:
+                mapeo_inicial = json.load(f)
+            for clave, valor in mapeo_inicial.items():
+                cur.execute(
+                    "INSERT INTO mapeo_manual (clave, valor) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                    (clave, valor),
+                )
+    con.close()
+
+
+def _cargar_recetas() -> dict:
+    """clave -> {nombre, receta_por_unidad}, desde Postgres si esta
+    hosteada, o desde recetas.json si corre local."""
+    if not db.usando_postgres():
+        return _recetas_desde_json()
+
+    db.inicializar_tablas()
+    _sembrar_pg_si_vacio()
+    con = db.conectar()
+    with con.cursor() as cur:
+        cur.execute("SELECT clave, nombre, receta_json FROM recetas")
+        filas = cur.fetchall()
+    con.close()
+    return {clave: {"nombre": nombre, "receta_por_unidad": json.loads(receta_json)} for clave, nombre, receta_json in filas}
 
 
 def cargar_mapeo_manual() -> dict:
     """Diccionario clave_normalizada -> clave_receta (o IGNORAR) que se va
     llenando con las correcciones que la familia guarda desde el reporte."""
-    if not MAPEO_MANUAL_PATH.exists():
-        return {}
-    with open(MAPEO_MANUAL_PATH, encoding="utf-8") as f:
-        return json.load(f)
+    if not db.usando_postgres():
+        if not MAPEO_MANUAL_PATH.exists():
+            return {}
+        with open(MAPEO_MANUAL_PATH, encoding="utf-8") as f:
+            return json.load(f)
+
+    db.inicializar_tablas()
+    _sembrar_pg_si_vacio()
+    con = db.conectar()
+    with con.cursor() as cur:
+        cur.execute("SELECT clave, valor FROM mapeo_manual")
+        filas = cur.fetchall()
+    con.close()
+    return dict(filas)
 
 
 def guardar_mapeo_manual(clave_wansoft: str, clave_receta_o_ignorar: str) -> None:
+    clave_norm = _normalizar(clave_wansoft)
+
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO mapeo_manual (clave, valor) VALUES (%s, %s)
+                ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor
+                """,
+                (clave_norm, clave_receta_o_ignorar),
+            )
+        con.close()
+        return
+
     mapeo = cargar_mapeo_manual()
-    mapeo[_normalizar(clave_wansoft)] = clave_receta_o_ignorar
+    mapeo[clave_norm] = clave_receta_o_ignorar
     with open(MAPEO_MANUAL_PATH, "w", encoding="utf-8") as f:
         json.dump(mapeo, f, indent=2, ensure_ascii=False)
 
@@ -75,25 +145,50 @@ def listar_recetas() -> list[dict]:
 
 
 def guardar_receta(clave: str, nombre: str, receta_por_unidad: dict) -> None:
-    """Crea o edita una fila de la tabla de recetas (recetas.json). Los
-    insumos con valor None/vacio se omiten (no se guarda un 0 que no es
-    real)."""
+    """Crea o edita una fila de la tabla de recetas. Los insumos con valor
+    None/vacio se omiten (no se guarda un 0 que no es real)."""
     clave = clave.strip().upper()
     if not clave:
         raise ValueError("La clave no puede estar vacia")
-    recetas = _cargar_recetas()
+    nombre_final = nombre.strip() or clave
     receta_limpia = {
         k: float(v) for k, v in receta_por_unidad.items()
         if k in INSUMOS_VALIDOS and v not in (None, "")
     }
-    recetas[clave] = {"nombre": nombre.strip() or clave, "receta_por_unidad": receta_limpia}
+
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO recetas (clave, nombre, receta_json) VALUES (%s, %s, %s)
+                ON CONFLICT (clave) DO UPDATE SET nombre = EXCLUDED.nombre, receta_json = EXCLUDED.receta_json
+                """,
+                (clave, nombre_final, json.dumps(receta_limpia, ensure_ascii=False)),
+            )
+        con.close()
+        return
+
+    recetas = _cargar_recetas()
+    recetas[clave] = {"nombre": nombre_final, "receta_por_unidad": receta_limpia}
     with open(RECETAS_PATH, "w", encoding="utf-8") as f:
         json.dump(recetas, f, indent=2, ensure_ascii=False)
 
 
 def eliminar_receta(clave: str) -> None:
+    clave = clave.strip().upper()
+
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute("DELETE FROM recetas WHERE clave = %s", (clave,))
+        con.close()
+        return
+
     recetas = _cargar_recetas()
-    recetas.pop(clave.strip().upper(), None)
+    recetas.pop(clave, None)
     with open(RECETAS_PATH, "w", encoding="utf-8") as f:
         json.dump(recetas, f, indent=2, ensure_ascii=False)
 
