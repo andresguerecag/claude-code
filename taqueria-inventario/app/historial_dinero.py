@@ -139,6 +139,20 @@ def obtener_reporte(fecha: str, sucursal: str) -> dict | None:
     return json.loads(fila[0]) if fila else None
 
 
+def total_efectivo_mes(sucursal: str, anio_mes: str) -> float:
+    """Suma el efectivo capturado en los cortes de ese mes (anio_mes en
+    formato 'YYYY-MM') -- lo usa colchon.py para calcular 'debo tener'."""
+    total = 0.0
+    for fecha, suc, reporte_json, _creado_en in _todos_los_reportes():
+        if suc != sucursal or not fecha.startswith(anio_mes):
+            continue
+        r = json.loads(reporte_json)
+        efvo = (r.get("ingresos") or {}).get("efectivo")
+        if isinstance(efvo, (int, float)):
+            total += efvo
+    return total
+
+
 def pendientes_acumulados() -> list[dict]:
     """Conceptos de gasto sin categorizar de todo el historial, sumados y
     ordenados por monto -- para priorizar una sesion de categorizar."""

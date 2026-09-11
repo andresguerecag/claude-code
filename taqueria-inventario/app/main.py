@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 
-from . import dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
+from . import colchon, dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -338,6 +338,46 @@ async def guardar_mapeo_gasto(payload: dict = Body(...)):
     if not concepto or not categoria_o_ignorar:
         raise HTTPException(status_code=400, detail="Falta 'concepto' o 'categoria_o_ignorar'.")
     dinero.guardar_mapeo_gasto(concepto, categoria_o_ignorar)
+    return {"ok": True}
+
+
+@app.get("/api/dinero/colchon")
+async def ver_colchon(sucursal: str, mes: str):
+    """mes en formato 'YYYY-MM'."""
+    return colchon.calcular_debo_tener(sucursal, mes)
+
+
+@app.post("/api/dinero/colchon/inicial")
+async def guardar_colchon_inicial(payload: dict = Body(...)):
+    """Colchon inicial del mes (el sobrante real del mes anterior) -- se
+    captura a mano, nunca se asume $0."""
+    sucursal = payload.get("sucursal")
+    mes = payload.get("mes")
+    monto = payload.get("monto")
+    if not sucursal or not mes or monto is None:
+        raise HTTPException(status_code=400, detail="Falta 'sucursal', 'mes' o 'monto'.")
+    colchon.guardar_colchon_inicial(sucursal, mes, float(monto))
+    return {"ok": True}
+
+
+@app.post("/api/dinero/colchon/salida")
+async def agregar_salida_efectivo(payload: dict = Body(...)):
+    """Registra una salida grande de efectivo (nomina, compra al mayoreo) --
+    usa las mismas categorias que los gastos chicos del corte diario."""
+    fecha = payload.get("fecha")
+    sucursal = payload.get("sucursal")
+    concepto = payload.get("concepto")
+    categoria = payload.get("categoria")
+    monto = payload.get("monto")
+    if not fecha or not sucursal or not concepto or not categoria or monto is None:
+        raise HTTPException(status_code=400, detail="Falta algun campo obligatorio.")
+    nuevo_id = colchon.agregar_salida_efectivo(fecha, sucursal, concepto, categoria, float(monto))
+    return {"ok": True, "id": nuevo_id}
+
+
+@app.delete("/api/dinero/colchon/salida/{id_salida}")
+async def eliminar_salida_efectivo(id_salida: int):
+    colchon.eliminar_salida_efectivo(id_salida)
     return {"ok": True}
 
 

@@ -262,6 +262,43 @@
 
   <div id="dinero-reporte"></div>
 
+  <h2>Colchón de efectivo mensual</h2>
+  <p>Cuánto efectivo deberían tener en caja: el colchón con el que arrancó el mes (el sobrante real del mes anterior — captúralo a mano una vez al mes) más lo que entró en efectivo por los cortes, menos las salidas grandes de efectivo (nómina completa, compras al mayoreo).</p>
+  <div class="filtros">
+    <div>
+      <label>Sucursal</label>
+      <input type="text" id="colchon-sucursal" list="lista-sucursales" placeholder="Ej. Santa Catarina">
+    </div>
+    <div>
+      <label>Mes</label>
+      <input type="month" id="colchon-mes">
+    </div>
+  </div>
+  <div id="colchon-resumen"></div>
+
+  <h3>Salidas grandes de efectivo del mes</h3>
+  <div class="subir-mini" style="align-items:flex-end;">
+    <div>
+      <label style="display:block; font-size:.8rem; color:#7a5230; margin-bottom:3px;">Fecha</label>
+      <input type="date" id="salida-fecha" style="padding:9px 8px; border-radius:6px; border:1px solid #ccc; font-family:inherit;">
+    </div>
+    <div style="flex:1 1 160px;">
+      <label style="display:block; font-size:.8rem; color:#7a5230; margin-bottom:3px;">Concepto</label>
+      <input type="text" id="salida-concepto" placeholder="Ej. nómina de septiembre" style="width:100%; padding:9px 8px; border-radius:6px; border:1px solid #ccc; font-family:inherit;">
+    </div>
+    <div>
+      <label style="display:block; font-size:.8rem; color:#7a5230; margin-bottom:3px;">Categoría</label>
+      <select id="salida-categoria" style="padding:9px 8px; border-radius:6px; border:1px solid #ccc; font-family:inherit;"></select>
+    </div>
+    <div>
+      <label style="display:block; font-size:.8rem; color:#7a5230; margin-bottom:3px;">Monto</label>
+      <input type="number" step="0.01" id="salida-monto" placeholder="0.00" style="width:110px; padding:9px 8px; border-radius:6px; border:1px solid #ccc; font-family:inherit;">
+    </div>
+    <button id="agregar-salida">+ Agregar</button>
+  </div>
+  <table><thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Monto</th><th></th></tr></thead>
+  <tbody id="tabla-salidas-efectivo"></tbody></table>
+
   <h2>Categorías de gasto</h2>
   <p>Categorías fijas del Estado Financiero. Los conceptos en texto libre del corte (ej. "SUPER") se asignan a mano en cada reporte, en "Gastos sin categorizar" — nunca se adivinan.</p>
   <button id="agregar-categoria" style="background:var(--amarillo); color:var(--negro); padding:8px 14px; margin-bottom:10px;">+ Agregar categoría</button>
@@ -819,7 +856,106 @@ async function cargarCategorias() {
   for (const c of categorias) {
     tbody.appendChild(filaCategoria(c));
   }
+  document.getElementById('salida-categoria').innerHTML = categoriasDisponibles.map(c => `<option value="${c}">${c}</option>`).join('');
 }
+
+// --- Colchón de efectivo mensual ---
+
+async function cargarColchon() {
+  const sucursal = document.getElementById('colchon-sucursal').value.trim();
+  const mes = document.getElementById('colchon-mes').value;
+  const box = document.getElementById('colchon-resumen');
+  const tbody = document.getElementById('tabla-salidas-efectivo');
+  if (!sucursal || !mes) {
+    box.innerHTML = '<p>Indica sucursal y mes para ver el colchón.</p>';
+    tbody.innerHTML = '';
+    return;
+  }
+  box.innerHTML = '<p>Cargando...</p>';
+  const params = new URLSearchParams({ sucursal, mes });
+  const r = await (await fetch('/api/dinero/colchon?' + params.toString())).json();
+
+  let html = `<div class="resumen">
+    <div><b>${fmtMoneda(r.entrada_efectivo_mes)}</b>Efectivo de los cortes</div>
+    <div><b>${fmtMoneda(r.salida_efectivo_mes)}</b>Salidas grandes</div>
+    <div><b>${r.debo_tener !== null ? fmtMoneda(r.debo_tener) : 'no disponible'}</b>Debo tener</div>
+  </div>`;
+
+  if (r.colchon_inicial === null) {
+    html += `<div class="advertencia">⚠️ Falta capturar el colchón inicial de ${mes} (el sobrante real del mes anterior) para calcular "debo tener".
+      <div style="margin-top:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <input type="number" step="0.01" id="colchon-inicial-input" placeholder="0.00" style="padding:8px; border-radius:6px; border:1px solid #ccc;">
+        <button id="guardar-colchon-inicial">Guardar colchón inicial</button>
+      </div>
+    </div>`;
+  } else {
+    html += `<p>Colchón inicial de ${mes}: <b>${fmtMoneda(r.colchon_inicial)}</b> <button id="editar-colchon-inicial" style="background:#eee; color:var(--negro); padding:4px 10px; font-size:.8rem;">Editar</button></p>`;
+  }
+
+  box.innerHTML = html;
+
+  const botonGuardarInicial = document.getElementById('guardar-colchon-inicial');
+  if (botonGuardarInicial) {
+    botonGuardarInicial.addEventListener('click', async () => {
+      const monto = document.getElementById('colchon-inicial-input').value;
+      if (monto === '') { alert('Falta el monto.'); return; }
+      await fetch('/api/dinero/colchon/inicial', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sucursal, mes, monto: parseFloat(monto) }),
+      });
+      cargarColchon();
+    });
+  }
+  const botonEditarInicial = document.getElementById('editar-colchon-inicial');
+  if (botonEditarInicial) {
+    botonEditarInicial.addEventListener('click', async () => {
+      const nuevo = prompt('Nuevo colchón inicial de ' + mes + ':', r.colchon_inicial);
+      if (nuevo === null || nuevo.trim() === '') return;
+      await fetch('/api/dinero/colchon/inicial', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sucursal, mes, monto: parseFloat(nuevo) }),
+      });
+      cargarColchon();
+    });
+  }
+
+  tbody.innerHTML = r.salidas.length
+    ? r.salidas.map(s => `<tr>
+        <td>${s.fecha}</td><td>${s.concepto}</td><td>${s.categoria}</td><td>${fmtMoneda(s.monto)}</td>
+        <td><button class="borrar-salida" data-id="${s.id}" style="background:#b00020; color:#fff;">Borrar</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="5">Sin salidas grandes registradas este mes.</td></tr>';
+
+  tbody.querySelectorAll('.borrar-salida').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('¿Borrar esta salida de efectivo? No se puede deshacer.')) return;
+      await fetch(`/api/dinero/colchon/salida/${btn.dataset.id}`, { method: 'DELETE' });
+      cargarColchon();
+    });
+  });
+}
+
+document.getElementById('colchon-sucursal').addEventListener('change', cargarColchon);
+document.getElementById('colchon-mes').addEventListener('change', cargarColchon);
+
+document.getElementById('agregar-salida').addEventListener('click', async () => {
+  const sucursal = document.getElementById('colchon-sucursal').value.trim();
+  const fecha = document.getElementById('salida-fecha').value;
+  const concepto = document.getElementById('salida-concepto').value.trim();
+  const categoria = document.getElementById('salida-categoria').value;
+  const monto = document.getElementById('salida-monto').value;
+  if (!sucursal || !fecha || !concepto || !categoria || monto === '') {
+    alert('Falta algún campo (sucursal, fecha, concepto, categoría o monto).');
+    return;
+  }
+  await fetch('/api/dinero/colchon/salida', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fecha, sucursal, concepto, categoria, monto: parseFloat(monto) }),
+  });
+  document.getElementById('salida-concepto').value = '';
+  document.getElementById('salida-monto').value = '';
+  cargarColchon();
+});
 
 document.getElementById('agregar-categoria').addEventListener('click', () => {
   document.getElementById('tabla-categorias').prepend(filaCategoria({ nombre: '', grupo: 'General' }));
@@ -890,9 +1026,24 @@ async function cargarVistaDinero() {
     ayer.setDate(ayer.getDate() - 1);
     document.getElementById('dinero-fecha').value = ayer.toISOString().slice(0, 10);
   }
+  if (!document.getElementById('colchon-mes').value) {
+    document.getElementById('colchon-mes').value = new Date().toISOString().slice(0, 7);
+  }
+  if (!document.getElementById('salida-fecha').value) {
+    document.getElementById('salida-fecha').value = new Date().toISOString().slice(0, 10);
+  }
   await cargarCategorias();
   await mostrarDineroHistorial();
+  await cargarColchon();
 }
+
+document.getElementById('dinero-sucursal').addEventListener('change', () => {
+  const colchonSucursal = document.getElementById('colchon-sucursal');
+  if (!colchonSucursal.value) {
+    colchonSucursal.value = document.getElementById('dinero-sucursal').value.trim();
+    cargarColchon();
+  }
+});
 
 document.getElementById('ver-dinero').addEventListener('click', () => {
   const yaVisible = !document.getElementById('vista-dinero').hidden;

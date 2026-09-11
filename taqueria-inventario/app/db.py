@@ -72,4 +72,23 @@ def inicializar_tablas():
                 valor TEXT NOT NULL
             )
         """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS salidas_efectivo (
+                id SERIAL PRIMARY KEY,
+                fecha TEXT NOT NULL,
+                sucursal TEXT NOT NULL,
+                concepto TEXT NOT NULL,
+                categoria TEXT NOT NULL,
+                monto DOUBLE PRECISION NOT NULL,
+                creado_en TIMESTAMP NOT NULL DEFAULT now()
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS colchon_inicial (
+                sucursal TEXT NOT NULL,
+                anio_mes TEXT NOT NULL,
+                monto DOUBLE PRECISION NOT NULL,
+                PRIMARY KEY (sucursal, anio_mes)
+            )
+        """)
     con.close()
