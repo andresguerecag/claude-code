@@ -66,7 +66,7 @@ def _detectar_metadatos_wansoft(path_wansoft: str) -> dict:
     return {"fecha": fecha_completa, "dia": dia, "sucursal": sucursal}
 
 
-def _elegir_hoja(path_formato_corte: str, dia: str) -> str:
+def _elegir_hoja(path_formato_corte: str, dia: str, origen_fecha: str = "la fecha indicada") -> str:
     import openpyxl
 
     wb = openpyxl.load_workbook(path_formato_corte, read_only=True)
@@ -75,7 +75,8 @@ def _elegir_hoja(path_formato_corte: str, dia: str) -> str:
             return candidato
     raise HTTPException(
         status_code=400,
-        detail=f"El reporte de Wansoft es del dia {dia}, pero el formato de corte no tiene una hoja para ese dia.",
+        detail=f"{origen_fecha} es del dia {dia}, pero el formato de corte no tiene una hoja para ese dia. "
+        "Verifica que subiste el 'Formato de corte' correcto (no el 'Formato de efectivo').",
     )
 
 
@@ -99,7 +100,7 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
                 status_code=400,
                 detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo de Wansoft.",
             )
-        hoja = _elegir_hoja(str(path_corte), meta["dia"])
+        hoja = _elegir_hoja(str(path_corte), meta["dia"], origen_fecha="El reporte de Wansoft")
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -179,7 +180,7 @@ async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: Uploa
         meta = _detectar_metadatos_wansoft(str(path_wansoft))
         if meta["dia"] is None:
             raise HTTPException(status_code=400, detail="No pude encontrar la fecha en el archivo de Wansoft.")
-        hoja = _elegir_hoja(str(path_corte), meta["dia"])
+        hoja = _elegir_hoja(str(path_corte), meta["dia"], origen_fecha="El reporte de Wansoft")
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -262,7 +263,7 @@ async def reconciliar_dinero(
         dia = fecha.split("-")[-1] if fecha else ""
         if not dia:
             raise HTTPException(status_code=400, detail="Falta indicar la fecha.")
-        hoja = _elegir_hoja(str(path_corte), dia)
+        hoja = _elegir_hoja(str(path_corte), dia, origen_fecha="La fecha que indicaste")
 
         try:
             reporte = dinero.generar_reporte_dinero(str(path_corte), hoja)

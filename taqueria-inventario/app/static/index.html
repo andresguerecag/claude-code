@@ -15,7 +15,6 @@
     --naranja: #f5821f;
     --naranja-oscuro: #e8511c;
     --amarillo: #ffcc00;
-    --azul: #3b82f6;
     --verde: #22c55e;
     --rojo: #ef4444;
   }
@@ -47,8 +46,8 @@
 
   .kicker { font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 800; margin: 28px 0 8px; }
   .kicker.naranja { color: var(--naranja); }
-  .kicker.azul { color: var(--azul); }
-  .kicker.verde { color: var(--verde); }
+  .kicker.inv { color: var(--naranja-oscuro); }
+  .kicker.din { color: var(--amarillo); }
 
   h1 { font-size: 1.5rem; margin: 0 0 6px; }
   h2 { font-size: 1.1rem; margin: 30px 0 10px; color: var(--texto); }
@@ -56,14 +55,14 @@
   .subtitulo { color: var(--tenue); font-size: .92rem; margin: 0 0 22px; max-width: 620px; }
 
   .seccion { border: 1px solid var(--borde); border-radius: 14px; padding: 20px 22px 24px; margin: 18px 0; background: #0d0d0d; }
-  .seccion.azul { border-top: 3px solid var(--azul); }
-  .seccion.verde { border-top: 3px solid var(--verde); }
+  .seccion.inv { border-top: 3px solid var(--naranja-oscuro); }
+  .seccion.din { border-top: 3px solid var(--amarillo); }
   .seccion-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; margin: 0 0 14px; }
 
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 6px 0 18px; }
   .kpi { background: var(--bg-card); border: 1px solid var(--borde); border-top: 3px solid var(--naranja); border-radius: 10px; padding: 12px 14px; }
-  .kpi.azul { border-top-color: var(--azul); }
-  .kpi.verde { border-top-color: var(--verde); }
+  .kpi.inv { border-top-color: var(--naranja-oscuro); }
+  .kpi.din { border-top-color: var(--amarillo); }
   .kpi b { display: block; font-size: 1.3rem; margin-bottom: 2px; }
   .kpi span { color: var(--tenue); font-size: .78rem; }
 
@@ -84,10 +83,8 @@
   button { font-family: inherit; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .9rem; }
   .btn-naranja { background: var(--naranja-oscuro); color: #fff; padding: 11px 18px; }
   .btn-naranja:disabled { background: #4a3626; color: #8a7a6a; cursor: not-allowed; }
-  .btn-azul { background: var(--azul); color: #fff; padding: 11px 18px; }
-  .btn-azul:disabled { background: #26344a; color: #7a8aa0; cursor: not-allowed; }
-  .btn-verde { background: var(--verde); color: #06280f; padding: 11px 18px; }
-  .btn-verde:disabled { background: #1c3324; color: #6a8a76; cursor: not-allowed; }
+  .btn-din { background: var(--amarillo); color: #2a2200; padding: 11px 18px; }
+  .btn-din:disabled { background: #4a4020; color: #8a805a; cursor: not-allowed; }
   .btn-fantasma { background: var(--bg-card); color: var(--texto); border: 1px solid var(--borde); padding: 8px 14px; font-weight: 600; }
   .btn-peligro { background: transparent; color: var(--rojo); border: 1px solid #4a2323; padding: 6px 12px; font-size: .82rem; }
   .btn-chico { padding: 6px 12px; font-size: .82rem; }
@@ -121,8 +118,8 @@
 
   .tabs { display: flex; gap: 6px; margin: 4px 0 18px; }
   .tabs button { background: var(--bg-card); color: var(--tenue); border: 1px solid var(--borde); padding: 9px 16px; border-radius: 8px; font-size: .88rem; font-weight: 700; }
-  .tabs button.activo.tab-azul { background: rgba(59,130,246,.14); color: var(--azul); border-color: var(--azul); }
-  .tabs button.activo.tab-verde { background: rgba(34,197,94,.14); color: var(--verde); border-color: var(--verde); }
+  .tabs button.activo.tab-inv { background: rgba(232,81,28,.14); color: var(--naranja-oscuro); border-color: var(--naranja-oscuro); }
+  .tabs button.activo.tab-din { background: rgba(255,204,0,.16); color: var(--amarillo); border-color: var(--amarillo); }
 
   .advertencia { background: rgba(255,204,0,.08); border: 1px solid #6b5a12; border-radius: 10px; padding: 13px 15px; margin: 14px 0; font-size: .9rem; }
   .alerta-caja { background: rgba(239,68,68,.08); border: 1px solid #6b1f1f; border-radius: 10px; padding: 13px 15px; margin: 14px 0; color: var(--rojo); font-weight: 700; }
@@ -200,7 +197,7 @@
   </tr></thead>
   <tbody id="dashboard-comparativo"></tbody></table>
 
-  <div class="seccion azul">
+  <div class="seccion inv">
     <div class="seccion-titulo">📦 Inventario</div>
     <div class="kpis" id="kpis-inventario"></div>
     <h3>Consumo acumulado del período</h3>
@@ -212,7 +209,7 @@
     </div>
   </div>
 
-  <div class="seccion verde">
+  <div class="seccion din">
     <div class="seccion-titulo">💰 Dinero</div>
     <div class="kpis" id="kpis-dinero"></div>
     <h3>Gastos por categoría</h3>
@@ -223,7 +220,7 @@
 
 <!-- ============ INVENTARIO ============ -->
 <div id="vista-inventario" hidden>
-  <div class="kicker azul">Inventario</div>
+  <div class="kicker inv">Inventario</div>
   <h1>Subir corte del día</h1>
   <p class="subtitulo">Sube el formato de corte y el reporte de Wansoft del mismo día.</p>
 
@@ -242,7 +239,7 @@
       <div class="archivo" id="nombre-wansoft"></div>
       <input type="file" id="input-wansoft" accept=".xlsx">
     </div>
-    <button id="enviar" class="btn-azul" disabled>Generar reporte</button>
+    <button id="enviar" class="btn-naranja" disabled>Generar reporte</button>
   </div>
   <div id="estado"></div>
 
@@ -251,7 +248,7 @@
 
 <!-- ============ DINERO ============ -->
 <div id="vista-dinero" hidden>
-  <div class="kicker verde">Dinero</div>
+  <div class="kicker din">Dinero</div>
   <h1>Cuadre de caja del día</h1>
   <p class="subtitulo">Sube el mismo formato de corte (no hace falta Wansoft). Indica la sucursal a mano.</p>
 
@@ -278,7 +275,7 @@
       <label>Fecha del corte</label>
       <input type="date" id="dinero-fecha">
     </div>
-    <button id="dinero-enviar" class="btn-verde" disabled>Generar reporte</button>
+    <button id="dinero-enviar" class="btn-din" disabled>Generar reporte</button>
   </div>
   <div id="dinero-estado"></div>
 
@@ -292,8 +289,8 @@
   <p class="subtitulo">Consulta, filtra o borra los reportes de inventario y dinero.</p>
 
   <div class="tabs">
-    <button id="tab-hist-inventario" class="activo tab-azul">📦 Inventario</button>
-    <button id="tab-hist-dinero" class="tab-verde">💰 Dinero</button>
+    <button id="tab-hist-inventario" class="activo tab-inv">📦 Inventario</button>
+    <button id="tab-hist-dinero" class="tab-din">💰 Dinero</button>
   </div>
 
   <div id="hist-panel-inventario">
@@ -337,7 +334,7 @@
 
 <!-- ============ RECETAS (config de inventario) ============ -->
 <div id="vista-recetas" hidden>
-  <div class="kicker azul">Inventario · Configuración</div>
+  <div class="kicker inv">Inventario · Configuración</div>
   <h1>Tabla de recetas</h1>
   <p class="subtitulo">Cuánto de cada insumo lleva cada platillo por unidad vendida. Corrige y da "Guardar" — se usa desde el próximo reporte. Deja vacío lo que no aplique.</p>
   <div id="pendientes-acumulados-box"></div>
@@ -350,7 +347,7 @@
 
 <!-- ============ CATEGORÍAS (config de dinero) ============ -->
 <div id="vista-categorias" hidden>
-  <div class="kicker verde">Dinero · Configuración</div>
+  <div class="kicker din">Dinero · Configuración</div>
   <h1>Categorías de gasto</h1>
   <p class="subtitulo">Categorías fijas del Estado Financiero. Los conceptos en texto libre del corte (ej. "SUPER") se asignan a mano en cada reporte — nunca se adivinan.</p>
 
@@ -360,7 +357,7 @@
 
 <!-- ============ COLCHÓN (config de dinero) ============ -->
 <div id="vista-colchon" hidden>
-  <div class="kicker verde">Dinero · Configuración</div>
+  <div class="kicker din">Dinero · Configuración</div>
   <h1>Colchón de efectivo mensual</h1>
   <p class="subtitulo">Cuánto efectivo deberían tener en caja: el colchón con el que arrancó el mes (captúralo a mano una vez al mes) más el efectivo de los cortes, menos las salidas grandes (nómina, compras al mayoreo).</p>
 
@@ -394,7 +391,7 @@
       <label>Monto</label>
       <input type="number" step="0.01" id="salida-monto" placeholder="0.00" style="width: 110px;">
     </div>
-    <button id="agregar-salida" class="btn-verde">+ Agregar</button>
+    <button id="agregar-salida" class="btn-din">+ Agregar</button>
   </div>
   <table><thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Monto</th><th></th></tr></thead>
   <tbody id="tabla-salidas-efectivo"></tbody></table>
@@ -505,10 +502,10 @@ function renderReporte(r) {
   recetasDisponibles = r.recetas_disponibles || [];
   const div = document.getElementById('reporte');
   let html = `<div class="kpis">
-    <div class="kpi azul"><b>${r.fecha || r.dia_detectado}</b><span>Fecha</span></div>
-    <div class="kpi azul"><b>${r.sucursal || '—'}</b><span>Sucursal</span></div>
-    <div class="kpi azul"><b>${r.total_platillos_vendidos}</b><span>Platillos vendidos</span></div>
-    <div class="kpi azul"><b>${r.pct_identificado}%</b><span>Identificado</span></div>
+    <div class="kpi inv"><b>${r.fecha || r.dia_detectado}</b><span>Fecha</span></div>
+    <div class="kpi inv"><b>${r.sucursal || '—'}</b><span>Sucursal</span></div>
+    <div class="kpi inv"><b>${r.total_platillos_vendidos}</b><span>Platillos vendidos</span></div>
+    <div class="kpi inv"><b>${r.pct_identificado}%</b><span>Identificado</span></div>
   </div>`;
   html += `<button id="exportar" class="btn-fantasma btn-chico">⬇ Descargar Excel</button>`;
   if (r.advertencia_confiabilidad) html += `<div class="advertencia">⚠️ ${r.advertencia_confiabilidad}</div>`;
@@ -730,12 +727,12 @@ function renderReporteDinero(r) {
   const div = document.getElementById('dinero-reporte');
   const ing = r.ingresos || {};
   let html = `<div class="kpis">
-    <div class="kpi verde"><b>${r.fecha || 'no disponible'}</b><span>Fecha</span></div>
-    <div class="kpi verde"><b>${r.sucursal || '—'}</b><span>Sucursal</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(ing.efectivo)}</b><span>Efectivo</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(ing.total_tarjeta)}</b><span>Tarjeta</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(ing.total_plataforma)}</b><span>Plataformas</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(ing.venta_sistema)}</b><span>Venta sistema</span></div>
+    <div class="kpi din"><b>${r.fecha || 'no disponible'}</b><span>Fecha</span></div>
+    <div class="kpi din"><b>${r.sucursal || '—'}</b><span>Sucursal</span></div>
+    <div class="kpi din"><b>${fmtMoneda(ing.efectivo)}</b><span>Efectivo</span></div>
+    <div class="kpi din"><b>${fmtMoneda(ing.total_tarjeta)}</b><span>Tarjeta</span></div>
+    <div class="kpi din"><b>${fmtMoneda(ing.total_plataforma)}</b><span>Plataformas</span></div>
+    <div class="kpi din"><b>${fmtMoneda(ing.venta_sistema)}</b><span>Venta sistema</span></div>
   </div>`;
 
   if (r.sobra_falta === null || r.sobra_falta === undefined) {
@@ -885,16 +882,16 @@ async function cargarColchon() {
   const r = await (await fetch('/api/dinero/colchon?' + params.toString())).json();
 
   let html = `<div class="kpis">
-    <div class="kpi verde"><b>${fmtMoneda(r.entrada_efectivo_mes)}</b><span>Efectivo de los cortes</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(r.salida_efectivo_mes)}</b><span>Salidas grandes</span></div>
-    <div class="kpi verde"><b>${r.debo_tener !== null ? fmtMoneda(r.debo_tener) : 'no disponible'}</b><span>Debo tener</span></div>
+    <div class="kpi din"><b>${fmtMoneda(r.entrada_efectivo_mes)}</b><span>Efectivo de los cortes</span></div>
+    <div class="kpi din"><b>${fmtMoneda(r.salida_efectivo_mes)}</b><span>Salidas grandes</span></div>
+    <div class="kpi din"><b>${r.debo_tener !== null ? fmtMoneda(r.debo_tener) : 'no disponible'}</b><span>Debo tener</span></div>
   </div>`;
 
   if (r.colchon_inicial === null) {
     html += `<div class="advertencia">⚠️ Falta capturar el colchón inicial de ${mes}.
       <div style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <input type="number" step="0.01" id="colchon-inicial-input" placeholder="0.00">
-        <button id="guardar-colchon-inicial" class="btn-verde btn-chico">Guardar colchón inicial</button>
+        <button id="guardar-colchon-inicial" class="btn-din btn-chico">Guardar colchón inicial</button>
       </div>
     </div>`;
   } else {
@@ -1109,16 +1106,16 @@ async function cargarDashboard() {
   }
 
   document.getElementById('kpis-inventario').innerHTML = `
-    <div class="kpi azul"><b>${d.resumen.total_platillos_vendidos}</b><span>Platillos vendidos</span></div>
-    <div class="kpi azul"><b>${d.resumen.num_dias}</b><span>Días en el período</span></div>
-    <div class="kpi azul"><b>${d.resumen.total_alertas}</b><span>Alertas de merma</span></div>
-    <div class="kpi azul"><b>${d.resumen.pct_identificado_promedio ?? 'n/d'}${d.resumen.pct_identificado_promedio !== null ? '%' : ''}</b><span>Identificado promedio</span></div>`;
+    <div class="kpi inv"><b>${d.resumen.total_platillos_vendidos}</b><span>Platillos vendidos</span></div>
+    <div class="kpi inv"><b>${d.resumen.num_dias}</b><span>Días en el período</span></div>
+    <div class="kpi inv"><b>${d.resumen.total_alertas}</b><span>Alertas de merma</span></div>
+    <div class="kpi inv"><b>${d.resumen.pct_identificado_promedio ?? 'n/d'}${d.resumen.pct_identificado_promedio !== null ? '%' : ''}</b><span>Identificado promedio</span></div>`;
 
   document.getElementById('kpis-dinero').innerHTML = `
-    <div class="kpi verde"><b>${fmtMoneda(dd.resumen.total_ingresos_efectivo)}</b><span>Efectivo total</span></div>
-    <div class="kpi verde"><b>${fmtMoneda(dd.resumen.total_gastos)}</b><span>Gastos totales</span></div>
-    <div class="kpi verde"><b>${dd.resumen.total_alertas_caja}</b><span>Alertas de caja</span></div>
-    <div class="kpi verde"><b>${dd.resumen.pct_categorizado_promedio ?? 'n/d'}${dd.resumen.pct_categorizado_promedio !== null ? '%' : ''}</b><span>Categorizado promedio</span></div>`;
+    <div class="kpi din"><b>${fmtMoneda(dd.resumen.total_ingresos_efectivo)}</b><span>Efectivo total</span></div>
+    <div class="kpi din"><b>${fmtMoneda(dd.resumen.total_gastos)}</b><span>Gastos totales</span></div>
+    <div class="kpi din"><b>${dd.resumen.total_alertas_caja}</b><span>Alertas de caja</span></div>
+    <div class="kpi din"><b>${dd.resumen.pct_categorizado_promedio ?? 'n/d'}${dd.resumen.pct_categorizado_promedio !== null ? '%' : ''}</b><span>Categorizado promedio</span></div>`;
 
   // Comparativo unificado por sucursal
   const porSucursalInv = {};
