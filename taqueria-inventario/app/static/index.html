@@ -239,7 +239,7 @@
       <div class="archivo" id="nombre-wansoft"></div>
       <input type="file" id="input-wansoft" accept=".xlsx">
     </div>
-    <button id="enviar" class="btn-naranja" disabled>Generar reporte</button>
+    <button id="enviar" class="btn-naranja">Generar reporte</button>
   </div>
   <div id="estado"></div>
 
@@ -275,7 +275,7 @@
       <label>Fecha del corte</label>
       <input type="date" id="dinero-fecha">
     </div>
-    <button id="dinero-enviar" class="btn-din" disabled>Generar reporte</button>
+    <button id="dinero-enviar" class="btn-din">Generar reporte</button>
   </div>
   <div id="dinero-estado"></div>
 
@@ -462,13 +462,11 @@ configurarDropzone('dz-corte', 'input-corte', f => {
   archivoCorte = f;
   document.getElementById('nombre-corte').textContent = f.name;
   document.getElementById('dz-corte').classList.add('listo');
-  document.getElementById('enviar').disabled = !(archivoCorte && archivoWansoft);
 });
 configurarDropzone('dz-wansoft', 'input-wansoft', f => {
   archivoWansoft = f;
   document.getElementById('nombre-wansoft').textContent = f.name;
   document.getElementById('dz-wansoft').classList.add('listo');
-  document.getElementById('enviar').disabled = !(archivoCorte && archivoWansoft);
 });
 
 function opcionesRecetas() {
@@ -577,6 +575,9 @@ async function descargarExcel() {
 
 document.getElementById('enviar').addEventListener('click', async () => {
   const estado = document.getElementById('estado');
+  estado.className = 'error';
+  if (!archivoCorte) { estado.textContent = 'Falta subir el Formato de corte.'; return; }
+  if (!archivoWansoft) { estado.textContent = 'Falta subir el reporte de Wansoft.'; return; }
   estado.className = '';
   estado.textContent = 'Procesando...';
   document.getElementById('reporte').innerHTML = '';
@@ -687,15 +688,7 @@ configurarDropzone('dz-dinero-corte', 'input-dinero-corte', f => {
   archivoDineroCorte = f;
   document.getElementById('nombre-dinero-corte').textContent = f.name;
   document.getElementById('dz-dinero-corte').classList.add('listo');
-  actualizarBotonDinero();
 });
-function actualizarBotonDinero() {
-  const sucursal = document.getElementById('dinero-sucursal').value.trim();
-  const fecha = document.getElementById('dinero-fecha').value;
-  document.getElementById('dinero-enviar').disabled = !(archivoDineroCorte && sucursal && fecha);
-}
-document.getElementById('dinero-sucursal').addEventListener('input', actualizarBotonDinero);
-document.getElementById('dinero-fecha').addEventListener('change', actualizarBotonDinero);
 
 function opcionesCategorias() {
   let html = `<option value="">-- elegir --</option>`;
@@ -786,13 +779,19 @@ function renderReporteDinero(r) {
 
 document.getElementById('dinero-enviar').addEventListener('click', async () => {
   const estado = document.getElementById('dinero-estado');
+  const sucursal = document.getElementById('dinero-sucursal').value.trim();
+  const fecha = document.getElementById('dinero-fecha').value;
+  estado.className = 'error';
+  if (!archivoDineroCorte) { estado.textContent = 'Falta subir el Formato de corte.'; return; }
+  if (!sucursal) { estado.textContent = 'Falta indicar la sucursal.'; return; }
+  if (!fecha) { estado.textContent = 'Falta indicar la fecha del corte.'; return; }
   estado.className = '';
   estado.textContent = 'Procesando...';
   document.getElementById('dinero-reporte').innerHTML = '';
   const formData = new FormData();
   formData.append('formato_corte', archivoDineroCorte);
-  formData.append('sucursal', document.getElementById('dinero-sucursal').value.trim());
-  formData.append('fecha', document.getElementById('dinero-fecha').value);
+  formData.append('sucursal', sucursal);
+  formData.append('fecha', fecha);
   try {
     const resp = await fetch('/api/dinero/reconciliar', { method: 'POST', body: formData });
     const data = await resp.json();
