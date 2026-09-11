@@ -51,4 +51,25 @@ def inicializar_tablas():
                 valor TEXT NOT NULL
             )
         """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS reportes_dinero (
+                fecha TEXT NOT NULL,
+                sucursal TEXT NOT NULL,
+                reporte_json TEXT NOT NULL,
+                creado_en TIMESTAMP NOT NULL DEFAULT now(),
+                PRIMARY KEY (fecha, sucursal)
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS categorias_gasto (
+                nombre TEXT PRIMARY KEY,
+                grupo TEXT NOT NULL
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS mapeo_gastos (
+                concepto TEXT PRIMARY KEY,
+                valor TEXT NOT NULL
+            )
+        """)
     con.close()

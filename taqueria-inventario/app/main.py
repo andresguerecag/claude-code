@@ -9,12 +9,12 @@ import secrets
 import tempfile
 from pathlib import Path
 
-from fastapi import Body, Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi import Body, Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 
-from . import exportar, historial, reconciliacion, resumen_ia
+from . import dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -235,6 +235,109 @@ async def guardar_receta(payload: dict = Body(...)):
 @app.delete("/api/recetas/{clave}")
 async def eliminar_receta(clave: str):
     reconciliacion.eliminar_receta(clave)
+    return {"ok": True}
+
+
+def _leer_fecha_hoja_corte(path_corte: str, hoja: str) -> str | None:
+    return dinero.leer_fecha_del_corte(path_corte, hoja)
+
+
+@app.post("/api/dinero/reconciliar")
+async def reconciliar_dinero(
+    formato_corte: UploadFile = File(...),
+    sucursal: str = Form(...),
+    fecha: str = Form(...),
+):
+    """A diferencia del inventario, aqui solo se sube el Formato de corte
+    (no hace falta Wansoft) -- pero ese archivo no trae el nombre de la
+    sucursal, asi que se pide en el formulario. La fecha exacta se toma del
+    propio archivo cuando esta disponible (mas confiable que lo que se
+    escriba a mano)."""
+    if not sucursal.strip():
+        raise HTTPException(status_code=400, detail="Falta indicar la sucursal.")
+    with tempfile.TemporaryDirectory() as tmp:
+        path_corte = Path(tmp) / "formato_corte.xlsx"
+        path_corte.write_bytes(await formato_corte.read())
+
+        dia = fecha.split("-")[-1] if fecha else ""
+        if not dia:
+            raise HTTPException(status_code=400, detail="Falta indicar la fecha.")
+        hoja = _elegir_hoja(str(path_corte), dia)
+
+        try:
+            reporte = dinero.generar_reporte_dinero(str(path_corte), hoja)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        fecha_detectada = _leer_fecha_hoja_corte(str(path_corte), hoja) or fecha
+        reporte["fecha"] = fecha_detectada
+        reporte["sucursal"] = sucursal.strip()
+        historial_dinero.guardar_reporte(fecha_detectada, sucursal.strip(), reporte)
+        return reporte
+
+
+@app.get("/api/dinero/historial")
+async def ver_historial_dinero(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
+    return historial_dinero.listar_historial(sucursal=sucursal, desde=desde, hasta=hasta)
+
+
+@app.get("/api/dinero/historial/{fecha}/{sucursal}")
+async def ver_reporte_historial_dinero(fecha: str, sucursal: str):
+    reporte = historial_dinero.obtener_reporte(fecha, sucursal)
+    if reporte is None:
+        raise HTTPException(status_code=404, detail="No hay reporte de dinero guardado para esa fecha y sucursal.")
+    return reporte
+
+
+@app.delete("/api/dinero/historial/{fecha}/{sucursal}")
+async def borrar_reporte_historial_dinero(fecha: str, sucursal: str):
+    historial_dinero.eliminar_reporte(fecha, sucursal)
+    return {"ok": True}
+
+
+@app.get("/api/dinero/dashboard")
+async def ver_dashboard_dinero(sucursal: str | None = None, desde: str | None = None, hasta: str | None = None):
+    return historial_dinero.dashboard(sucursal=sucursal, desde=desde, hasta=hasta)
+
+
+@app.get("/api/dinero/pendientes-acumulados")
+async def ver_pendientes_acumulados_dinero():
+    return historial_dinero.pendientes_acumulados()
+
+
+@app.get("/api/dinero/categorias")
+async def listar_categorias_gasto():
+    return dinero.listar_categorias()
+
+
+@app.post("/api/dinero/categorias")
+async def guardar_categoria_gasto(payload: dict = Body(...)):
+    nombre = payload.get("nombre")
+    grupo = payload.get("grupo", "General")
+    if not nombre:
+        raise HTTPException(status_code=400, detail="Falta 'nombre'.")
+    try:
+        dinero.guardar_categoria(nombre, grupo)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True}
+
+
+@app.delete("/api/dinero/categorias/{nombre}")
+async def eliminar_categoria_gasto(nombre: str):
+    dinero.eliminar_categoria(nombre)
+    return {"ok": True}
+
+
+@app.post("/api/dinero/mapeo")
+async def guardar_mapeo_gasto(payload: dict = Body(...)):
+    """Asigna manualmente un concepto de gasto en texto libre (ej. 'SUPER')
+    a una categoria fija, o IGNORAR si no debe contar (nunca se adivina)."""
+    concepto = payload.get("concepto")
+    categoria_o_ignorar = payload.get("categoria_o_ignorar")
+    if not concepto or not categoria_o_ignorar:
+        raise HTTPException(status_code=400, detail="Falta 'concepto' o 'categoria_o_ignorar'.")
+    dinero.guardar_mapeo_gasto(concepto, categoria_o_ignorar)
     return {"ok": True}
 
 
