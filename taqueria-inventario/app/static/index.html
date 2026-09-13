@@ -473,7 +473,58 @@ function opcionesRecetas() {
   let html = `<option value="">-- elegir --</option>`;
   for (const r of recetasDisponibles) html += `<option value="${r.clave}">${r.clave} — ${r.nombre}</option>`;
   html += `<option value="IGNORAR">Ignorar (no lleva receta / no comparar)</option>`;
+  html += `<option value="__NUEVA__">+ Agregar receta nueva...</option>`;
   return html;
+}
+
+// Convierte las dos últimas celdas de una fila (opción + botón) en un
+// formulario chico para crear una opción que no existía en el menú --
+// usado cuando algo no encaja en ninguna receta/categoría existente.
+function mostrarFormularioNuevaOpcion(tr, camposHtml, textoBoton, onCrear) {
+  const celdaOpcion = tr.querySelector('.celda-opcion');
+  const celdaAccion = tr.querySelector('.celda-accion');
+  celdaOpcion.innerHTML = camposHtml;
+  celdaAccion.innerHTML = `<button class="crear-nueva btn-fantasma btn-chico">${textoBoton}</button>`;
+  celdaAccion.querySelector('.crear-nueva').addEventListener('click', function () {
+    onCrear(tr, this);
+  });
+}
+
+function activarFilaPendienteReceta(tr, p) {
+  const select = tr.querySelector('select.mapeo');
+  tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeo(p.clave, select, tr));
+  select.addEventListener('change', () => {
+    if (select.value !== '__NUEVA__') return;
+    mostrarFormularioNuevaOpcion(
+      tr,
+      `<input type="text" class="nueva-clave" value="${p.clave}" placeholder="Clave" style="width:70px">
+       <input type="text" class="nueva-nombre" value="${p.nombre}" placeholder="Nombre" style="width:140px">`,
+      'Crear y guardar',
+      async (fila, boton) => {
+        const claveNueva = fila.querySelector('.nueva-clave').value.trim();
+        const nombreNueva = fila.querySelector('.nueva-nombre').value.trim();
+        if (!claveNueva) { alert('Falta la clave de la receta nueva.'); return; }
+        boton.disabled = true; boton.textContent = 'Creando...';
+        try {
+          const r1 = await fetch('/api/recetas', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clave: claveNueva, nombre: nombreNueva, receta_por_unidad: {} }),
+          });
+          if (!r1.ok) throw new Error();
+          const r2 = await fetch('/api/mapeo', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clave: p.clave, receta_o_ignorar: claveNueva }),
+          });
+          if (!r2.ok) throw new Error();
+          recetasDisponibles.push({ clave: claveNueva, nombre: nombreNueva });
+          fila.classList.add('fila-guardada');
+          boton.textContent = 'Creado y guardado ✓';
+        } catch {
+          boton.disabled = false; boton.textContent = 'Error, reintentar';
+        }
+      }
+    );
+  });
 }
 
 async function guardarMapeo(clave, selectEl, filaEl) {
@@ -544,10 +595,9 @@ function renderReporte(r) {
     for (const p of r.platillos_no_identificados) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${p.clave}</td><td>${p.nombre}</td><td>${p.cantidad}</td>
-        <td><select class="mapeo">${opcionesRecetas()}</select></td>
-        <td><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
-      const select = tr.querySelector('select.mapeo');
-      tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeo(p.clave, select, tr));
+        <td class="celda-opcion"><select class="mapeo">${opcionesRecetas()}</select></td>
+        <td class="celda-accion"><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
+      activarFilaPendienteReceta(tr, p);
       tbody.appendChild(tr);
     }
   }
@@ -626,10 +676,9 @@ async function cargarPendientesAcumulados() {
   for (const p of pendientes) {
     const tr = document.createElement('tr');
     tr.innerHTML = `<td>${p.clave}</td><td>${p.nombre}</td><td>${p.cantidad_total}</td><td>${p.dias}</td>
-      <td><select class="mapeo">${opcionesRecetas()}</select></td>
-      <td><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
-    const select = tr.querySelector('select.mapeo');
-    tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeo(p.clave, select, tr));
+      <td class="celda-opcion"><select class="mapeo">${opcionesRecetas()}</select></td>
+      <td class="celda-accion"><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
+    activarFilaPendienteReceta(tr, p);
     tbody.appendChild(tr);
   }
 }
@@ -694,7 +743,45 @@ function opcionesCategorias() {
   let html = `<option value="">-- elegir --</option>`;
   for (const c of categoriasDisponibles) html += `<option value="${c}">${c}</option>`;
   html += `<option value="IGNORAR">Ignorar (no clasificar)</option>`;
+  html += `<option value="__NUEVA__">+ Agregar categoría nueva...</option>`;
   return html;
+}
+
+function activarFilaGastoPendiente(tr, g) {
+  const select = tr.querySelector('select.mapeo');
+  tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeoGasto(g.concepto, select, tr));
+  select.addEventListener('change', () => {
+    if (select.value !== '__NUEVA__') return;
+    mostrarFormularioNuevaOpcion(
+      tr,
+      `<input type="text" class="nueva-cat-nombre" value="${g.concepto}" placeholder="Nombre" style="width:150px">
+       <input type="text" class="nueva-cat-grupo" value="General" placeholder="Grupo" style="width:100px">`,
+      'Crear y guardar',
+      async (fila, boton) => {
+        const nombreNuevo = fila.querySelector('.nueva-cat-nombre').value.trim();
+        const grupoNuevo = fila.querySelector('.nueva-cat-grupo').value.trim() || 'General';
+        if (!nombreNuevo) { alert('Falta el nombre de la categoría nueva.'); return; }
+        boton.disabled = true; boton.textContent = 'Creando...';
+        try {
+          const r1 = await fetch('/api/dinero/categorias', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre: nombreNuevo, grupo: grupoNuevo }),
+          });
+          if (!r1.ok) throw new Error();
+          const r2 = await fetch('/api/dinero/mapeo', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ concepto: g.concepto, categoria_o_ignorar: nombreNuevo }),
+          });
+          if (!r2.ok) throw new Error();
+          categoriasDisponibles.push(nombreNuevo);
+          fila.classList.add('fila-guardada');
+          boton.textContent = 'Creado y guardado ✓';
+        } catch {
+          boton.disabled = false; boton.textContent = 'Error, reintentar';
+        }
+      }
+    );
+  });
 }
 
 async function guardarMapeoGasto(concepto, selectEl, filaEl) {
@@ -768,10 +855,9 @@ function renderReporteDinero(r) {
     for (const g of r.gastos_sin_categorizar) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${g.concepto}</td><td>${fmtMoneda(g.monto)}</td>
-        <td><select class="mapeo">${opcionesCategorias()}</select></td>
-        <td><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
-      const select = tr.querySelector('select.mapeo');
-      tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeoGasto(g.concepto, select, tr));
+        <td class="celda-opcion"><select class="mapeo">${opcionesCategorias()}</select></td>
+        <td class="celda-accion"><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>`;
+      activarFilaGastoPendiente(tr, g);
       tbody.appendChild(tr);
     }
   }
