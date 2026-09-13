@@ -39,6 +39,7 @@ TOLERANCIAS_DEFAULT = {
     "queso": 0.3,        # kg
     "tortillas": 3.0,    # piezas o kg segun el producto (ver nota abajo)
     "telera": 2,         # piezas
+    "refrescos": 1,      # piezas -- la familia espera que cuadre casi exacto
 }
 
 PREFIJOS_CONOCIDOS = ["DOM ", "PLATAF ", "REF "]
@@ -133,7 +134,7 @@ def guardar_mapeo_manual(clave_wansoft: str, clave_receta_o_ignorar: str) -> Non
         json.dump(mapeo, f, indent=2, ensure_ascii=False)
 
 
-INSUMOS_VALIDOS = ["carne", "pastor", "queso", "tortillas", "telera"]
+INSUMOS_VALIDOS = ["carne", "pastor", "queso", "tortillas", "telera", "refrescos"]
 
 
 def listar_recetas() -> list[dict]:
@@ -430,6 +431,7 @@ INSUMO_A_PRODUCTOS_INVENTARIO = {
     "queso": ["QUESO CHIHUAHUA"],
     "tortillas": ["TORTILLA"],
     "telera": ["TELERA"],
+    "refrescos": ["REFRESCO 600"],
 }
 
 # Productos que se comparan 1:1 directo contra la cantidad vendida (sin

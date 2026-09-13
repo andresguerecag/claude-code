@@ -341,7 +341,7 @@
 
   <button id="agregar-receta" class="btn-fantasma btn-chico" style="margin: 6px 0 10px;">+ Agregar platillo nuevo</button>
   <table><thead><tr>
-    <th>Clave</th><th>Nombre</th><th>Carne (kg)</th><th>Pastor (kg)</th><th>Queso (kg)</th><th>Tortillas (pza)</th><th>Telera (pza)</th><th></th>
+    <th>Clave</th><th>Nombre</th><th>Carne (kg)</th><th>Pastor (kg)</th><th>Queso (kg)</th><th>Tortillas (pza)</th><th>Telera (pza)</th><th>Refrescos (pza)</th><th></th>
   </tr></thead><tbody id="tabla-recetas"></tbody></table>
 </div>
 
@@ -652,7 +652,7 @@ document.getElementById('enviar').addEventListener('click', async () => {
 async function cargarRecetas() {
   mostrarVista('vista-recetas');
   const tbody = document.getElementById('tabla-recetas');
-  tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9">Cargando...</td></tr>';
   const recetas = await (await fetch('/api/recetas')).json();
   recetasDisponibles = recetas.map(r => ({ clave: r.clave, nombre: r.nombre }));
   tbody.innerHTML = '';
@@ -694,6 +694,7 @@ function filaReceta(r) {
     <td><input type="number" step="0.01" class="queso" value="${receta.queso ?? ''}" style="width:70px"></td>
     <td><input type="number" step="0.1" class="tortillas" value="${receta.tortillas ?? ''}" style="width:70px"></td>
     <td><input type="number" step="0.1" class="telera" value="${receta.telera ?? ''}" style="width:70px"></td>
+    <td><input type="number" step="1" class="refrescos" value="${receta.refrescos ?? ''}" style="width:70px"></td>
     <td><button class="guardar-receta btn-fantasma btn-chico">Guardar</button></td>`;
   tr.querySelector('.guardar-receta').addEventListener('click', async () => {
     const boton = tr.querySelector('.guardar-receta');
@@ -707,6 +708,7 @@ function filaReceta(r) {
         queso: tr.querySelector('.queso').value || null,
         tortillas: tr.querySelector('.tortillas').value || null,
         telera: tr.querySelector('.telera').value || null,
+        refrescos: tr.querySelector('.refrescos').value || null,
       },
     };
     boton.disabled = true; boton.textContent = 'Guardando...';
