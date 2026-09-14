@@ -66,6 +66,34 @@ def _detectar_metadatos_wansoft(path_wansoft: str) -> dict:
     return {"fecha": fecha_completa, "dia": dia, "sucursal": sucursal}
 
 
+def _resolver_fecha_dia_sucursal(path_wansoft: str, fecha_elegida: str | None) -> dict:
+    """Decide que dia/hoja usar. Si la usuaria elige una fecha a mano (nuevo
+    selector), esa manda -- pero si el propio Wansoft trae una fecha
+    distinta, se avisa en vez de proceder callado (podria ser que subio el
+    archivo de otro dia por error)."""
+    meta = _detectar_metadatos_wansoft(path_wansoft)
+    if meta["sucursal"] is None:
+        raise HTTPException(status_code=400, detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo de Wansoft.")
+
+    if fecha_elegida:
+        dia = fecha_elegida.split("-")[-1]
+        if meta["dia"] and meta["dia"] != dia:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Elegiste el dia {dia}, pero el reporte de Wansoft dice que es del dia {meta['dia']}. "
+                "Verifica que subiste el Wansoft del mismo dia que elegiste.",
+            )
+        return {"dia": dia, "fecha": fecha_elegida, "sucursal": meta["sucursal"], "origen": "La fecha que elegiste"}
+
+    if meta["dia"] is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No pude encontrar la fecha ('Reporte del: ...') en el archivo de Wansoft. "
+            "Verifica que sea el reporte de Ventas Por Platillo Por Grupo sin editar, o elige la fecha a mano.",
+        )
+    return {"dia": meta["dia"], "fecha": meta["fecha"], "sucursal": meta["sucursal"], "origen": "El reporte de Wansoft"}
+
+
 def _elegir_hoja(path_formato_corte: str, dia: str, origen_fecha: str = "la fecha indicada") -> str:
     import openpyxl
 
@@ -81,26 +109,19 @@ def _elegir_hoja(path_formato_corte: str, dia: str, origen_fecha: str = "la fech
 
 
 @app.post("/api/reconciliar")
-async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile = File(...)):
+async def reconciliar(
+    formato_corte: UploadFile = File(...),
+    wansoft: UploadFile = File(...),
+    fecha: str | None = Form(None),
+):
     with tempfile.TemporaryDirectory() as tmp:
         path_corte = Path(tmp) / "formato_corte.xlsx"
         path_wansoft = Path(tmp) / "wansoft.xlsx"
         path_corte.write_bytes(await formato_corte.read())
         path_wansoft.write_bytes(await wansoft.read())
 
-        meta = _detectar_metadatos_wansoft(str(path_wansoft))
-        if meta["dia"] is None:
-            raise HTTPException(
-                status_code=400,
-                detail="No pude encontrar la fecha ('Reporte del: ...') en el archivo de Wansoft. "
-                "Verifica que sea el reporte de Ventas Por Platillo Por Grupo sin editar.",
-            )
-        if meta["sucursal"] is None:
-            raise HTTPException(
-                status_code=400,
-                detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo de Wansoft.",
-            )
-        hoja = _elegir_hoja(str(path_corte), meta["dia"], origen_fecha="El reporte de Wansoft")
+        info = _resolver_fecha_dia_sucursal(str(path_wansoft), fecha)
+        hoja = _elegir_hoja(str(path_corte), info["dia"], origen_fecha=info["origen"])
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -111,10 +132,10 @@ async def reconciliar(formato_corte: UploadFile = File(...), wansoft: UploadFile
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        reporte["dia_detectado"] = meta["dia"]
-        reporte["fecha"] = meta["fecha"]
-        reporte["sucursal"] = meta["sucursal"]
-        historial.guardar_reporte(meta["fecha"], meta["sucursal"], reporte)
+        reporte["dia_detectado"] = info["dia"]
+        reporte["fecha"] = info["fecha"]
+        reporte["sucursal"] = info["sucursal"]
+        historial.guardar_reporte(info["fecha"], info["sucursal"], reporte)
         return reporte
 
 
@@ -169,7 +190,11 @@ async def ver_reporte_historial(fecha: str, sucursal: str):
 
 
 @app.post("/api/exportar")
-async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: UploadFile = File(...)):
+async def exportar_reporte(
+    formato_corte: UploadFile = File(...),
+    wansoft: UploadFile = File(...),
+    fecha: str | None = Form(None),
+):
     """Regenera el mismo reporte y lo entrega como Excel descargable."""
     with tempfile.TemporaryDirectory() as tmp:
         path_corte = Path(tmp) / "formato_corte.xlsx"
@@ -177,10 +202,8 @@ async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: Uploa
         path_corte.write_bytes(await formato_corte.read())
         path_wansoft.write_bytes(await wansoft.read())
 
-        meta = _detectar_metadatos_wansoft(str(path_wansoft))
-        if meta["dia"] is None:
-            raise HTTPException(status_code=400, detail="No pude encontrar la fecha en el archivo de Wansoft.")
-        hoja = _elegir_hoja(str(path_corte), meta["dia"], origen_fecha="El reporte de Wansoft")
+        info = _resolver_fecha_dia_sucursal(str(path_wansoft), fecha)
+        hoja = _elegir_hoja(str(path_corte), info["dia"], origen_fecha=info["origen"])
 
         try:
             reporte = reconciliacion.generar_reporte(
@@ -188,12 +211,12 @@ async def exportar_reporte(formato_corte: UploadFile = File(...), wansoft: Uploa
             )
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
-        reporte["dia_detectado"] = meta["dia"]
-        reporte["fecha"] = meta["fecha"]
-        reporte["sucursal"] = meta["sucursal"]
+        reporte["dia_detectado"] = info["dia"]
+        reporte["fecha"] = info["fecha"]
+        reporte["sucursal"] = info["sucursal"]
 
     buffer = exportar.generar_excel_reporte(reporte)
-    nombre_archivo = f"conciliacion_{meta['fecha']}_{meta['sucursal'].replace(' ', '-')}.xlsx"
+    nombre_archivo = f"conciliacion_{info['fecha']}_{info['sucursal'].replace(' ', '-')}.xlsx"
     return StreamingResponse(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

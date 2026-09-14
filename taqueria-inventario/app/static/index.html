@@ -222,7 +222,7 @@
 <div id="vista-inventario" hidden>
   <div class="kicker inv">Inventario</div>
   <h1>Subir corte del día</h1>
-  <p class="subtitulo">Sube el formato de corte y el reporte de Wansoft del mismo día.</p>
+  <p class="subtitulo">Sube el formato de corte y el reporte de Wansoft del mismo día, e indica la fecha — el formato de corte trae una hoja por día, así que va a buscar directamente la de ese día.</p>
 
   <div class="enlaces-config">
     <button class="enlace" id="link-recetas">🧾 Editar recetas</button>
@@ -238,6 +238,10 @@
       <strong>Reporte de Wansoft</strong><br>Ventas por platillo
       <div class="archivo" id="nombre-wansoft"></div>
       <input type="file" id="input-wansoft" accept=".xlsx">
+    </div>
+    <div>
+      <label>Fecha del corte</label>
+      <input type="date" id="inv-fecha">
     </div>
     <button id="enviar" class="btn-naranja">Generar reporte</button>
   </div>
@@ -608,6 +612,7 @@ async function descargarExcel() {
   const formData = new FormData();
   formData.append('formato_corte', archivoCorte);
   formData.append('wansoft', archivoWansoft);
+  formData.append('fecha', document.getElementById('inv-fecha').value);
   const resp = await fetch('/api/exportar', { method: 'POST', body: formData });
   if (!resp.ok) { alert('No se pudo generar el Excel.'); return; }
   const blob = await resp.blob();
@@ -623,17 +628,26 @@ async function descargarExcel() {
   URL.revokeObjectURL(url);
 }
 
+if (!document.getElementById('inv-fecha').value) {
+  const ayerInv = new Date();
+  ayerInv.setDate(ayerInv.getDate() - 1);
+  document.getElementById('inv-fecha').value = ayerInv.toISOString().slice(0, 10);
+}
+
 document.getElementById('enviar').addEventListener('click', async () => {
   const estado = document.getElementById('estado');
+  const fechaInv = document.getElementById('inv-fecha').value;
   estado.className = 'error';
   if (!archivoCorte) { estado.textContent = 'Falta subir el Formato de corte.'; return; }
   if (!archivoWansoft) { estado.textContent = 'Falta subir el reporte de Wansoft.'; return; }
+  if (!fechaInv) { estado.textContent = 'Falta indicar la fecha del corte.'; return; }
   estado.className = '';
   estado.textContent = 'Procesando...';
   document.getElementById('reporte').innerHTML = '';
   const formData = new FormData();
   formData.append('formato_corte', archivoCorte);
   formData.append('wansoft', archivoWansoft);
+  formData.append('fecha', fechaInv);
   try {
     const resp = await fetch('/api/reconciliar', { method: 'POST', body: formData });
     const data = await resp.json();
