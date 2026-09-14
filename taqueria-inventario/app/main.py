@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 
-from . import colchon, dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
+from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -403,6 +403,67 @@ async def agregar_salida_efectivo(payload: dict = Body(...)):
 async def eliminar_salida_efectivo(id_salida: int):
     colchon.eliminar_salida_efectivo(id_salida)
     return {"ok": True}
+
+
+@app.get("/api/compras")
+async def listar_compras(
+    ingrediente: str | None = None, proveedor: str | None = None,
+    desde: str | None = None, hasta: str | None = None,
+):
+    return compras.listar_compras(ingrediente=ingrediente, proveedor=proveedor, desde=desde, hasta=hasta)
+
+
+@app.post("/api/compras")
+async def agregar_compra(payload: dict = Body(...)):
+    fecha = payload.get("fecha")
+    ingrediente = payload.get("ingrediente")
+    proveedor = payload.get("proveedor")
+    cantidad = payload.get("cantidad")
+    unidad = payload.get("unidad")
+    precio_total = payload.get("precio_total")
+    notas = payload.get("notas", "")
+    if not fecha or not ingrediente or not proveedor or precio_total is None:
+        raise HTTPException(status_code=400, detail="Falta fecha, ingrediente, proveedor o precio.")
+    try:
+        nuevo_id = compras.agregar_compra(
+            fecha, ingrediente, proveedor,
+            float(cantidad) if cantidad not in (None, "") else None,
+            unidad or None, float(precio_total), notas,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"ok": True, "id": nuevo_id}
+
+
+@app.delete("/api/compras/{id_compra}")
+async def eliminar_compra(id_compra: int):
+    compras.eliminar_compra(id_compra)
+    return {"ok": True}
+
+
+@app.get("/api/compras/estadisticas")
+async def estadisticas_compra(ingrediente: str):
+    return {
+        "historial": compras.historial_ingrediente(ingrediente),
+        "estadisticas": compras.estadisticas_ingrediente(ingrediente),
+    }
+
+
+@app.get("/api/compras/asesor/disponible")
+async def asesor_disponible():
+    return {"disponible": asesor_compras.disponible()}
+
+
+@app.post("/api/compras/asesor")
+async def preguntar_asesor(payload: dict = Body(...)):
+    pregunta = payload.get("pregunta")
+    ingrediente = payload.get("ingrediente")
+    if not pregunta or not ingrediente:
+        raise HTTPException(status_code=400, detail="Falta la pregunta o el ingrediente.")
+    respuesta = asesor_compras.preguntar(pregunta, ingrediente)
+    if respuesta is None:
+        raise HTTPException(status_code=503, detail="El asesor con IA no está configurado (falta ANTHROPIC_API_KEY).")
+    return {"respuesta": respuesta}
 
 
 @app.get("/")

@@ -48,6 +48,7 @@
   .kicker.naranja { color: var(--naranja); }
   .kicker.inv { color: var(--naranja-oscuro); }
   .kicker.din { color: var(--amarillo); }
+  .kicker.cmp { color: var(--verde); }
 
   h1 { font-size: 1.5rem; margin: 0 0 6px; }
   h2 { font-size: 1.1rem; margin: 30px 0 10px; color: var(--texto); }
@@ -57,12 +58,14 @@
   .seccion { border: 1px solid var(--borde); border-radius: 14px; padding: 20px 22px 24px; margin: 18px 0; background: #0d0d0d; }
   .seccion.inv { border-top: 3px solid var(--naranja-oscuro); }
   .seccion.din { border-top: 3px solid var(--amarillo); }
+  .seccion.cmp { border-top: 3px solid var(--verde); }
   .seccion-titulo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; margin: 0 0 14px; }
 
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 6px 0 18px; }
   .kpi { background: var(--bg-card); border: 1px solid var(--borde); border-top: 3px solid var(--naranja); border-radius: 10px; padding: 12px 14px; }
   .kpi.inv { border-top-color: var(--naranja-oscuro); }
   .kpi.din { border-top-color: var(--amarillo); }
+  .kpi.cmp { border-top-color: var(--verde); }
   .kpi b { display: block; font-size: 1.3rem; margin-bottom: 2px; }
   .kpi span { color: var(--tenue); font-size: .78rem; }
 
@@ -85,6 +88,8 @@
   .btn-naranja:disabled { background: #4a3626; color: #8a7a6a; cursor: not-allowed; }
   .btn-din { background: var(--amarillo); color: #2a2200; padding: 11px 18px; }
   .btn-din:disabled { background: #4a4020; color: #8a805a; cursor: not-allowed; }
+  .btn-cmp { background: var(--verde); color: #06280f; padding: 11px 18px; }
+  .btn-cmp:disabled { background: #1c3324; color: #6a8a76; cursor: not-allowed; }
   .btn-fantasma { background: var(--bg-card); color: var(--texto); border: 1px solid var(--borde); padding: 8px 14px; font-weight: 600; }
   .btn-peligro { background: transparent; color: var(--rojo); border: 1px solid #4a2323; padding: 6px 12px; font-size: .82rem; }
   .btn-chico { padding: 6px 12px; font-size: .82rem; }
@@ -159,6 +164,7 @@
     <button id="nav-dashboard" class="activo">Dashboard</button>
     <button id="nav-inventario">Inventario</button>
     <button id="nav-dinero">Dinero</button>
+    <button id="nav-compras">Compras</button>
     <button id="nav-historial">Historial</button>
   </nav>
 </header>
@@ -286,6 +292,94 @@
   <div id="dinero-reporte"></div>
 </div>
 
+<!-- ============ COMPRAS ============ -->
+<div id="vista-compras" hidden>
+  <div class="kicker cmp">Compras</div>
+  <h1>Base de datos de compras</h1>
+  <p class="subtitulo">Registra cada compra de insumos (dónde, cuánto, a qué precio) para llevar el historial y poder preguntar si un precio conviene.</p>
+
+  <h3>Agregar compra</h3>
+  <div class="subida" style="align-items: flex-end;">
+    <div>
+      <label>Fecha</label>
+      <input type="date" id="compra-fecha">
+    </div>
+    <div style="flex: 1 1 150px;">
+      <label>Ingrediente</label>
+      <input type="text" id="compra-ingrediente" placeholder="Ej. Aceite" style="width: 100%;">
+    </div>
+    <div style="flex: 1 1 130px;">
+      <label>Proveedor</label>
+      <input type="text" id="compra-proveedor" placeholder="Ej. Sam's" style="width: 100%;">
+    </div>
+    <div>
+      <label>Cantidad</label>
+      <input type="number" step="0.01" id="compra-cantidad" placeholder="Ej. 2" style="width: 80px;">
+    </div>
+    <div>
+      <label>Unidad</label>
+      <input type="text" id="compra-unidad" placeholder="L, kg..." style="width: 80px;">
+    </div>
+    <div>
+      <label>Precio total</label>
+      <input type="number" step="0.01" id="compra-precio" placeholder="0.00" style="width: 100px;">
+    </div>
+    <button id="agregar-compra" class="btn-cmp">+ Agregar</button>
+  </div>
+  <div id="compra-estado"></div>
+
+  <h3>Historial de compras</h3>
+  <div class="filtros">
+    <div>
+      <label>Ingrediente</label>
+      <input type="text" id="compras-filtro-ingrediente" placeholder="Todos">
+    </div>
+    <div>
+      <label>Proveedor</label>
+      <input type="text" id="compras-filtro-proveedor" placeholder="Todos">
+    </div>
+    <div>
+      <label>Desde</label>
+      <input type="date" id="compras-filtro-desde">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" id="compras-filtro-hasta">
+    </div>
+  </div>
+  <table><thead><tr><th>Fecha</th><th>Ingrediente</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th><th></th></tr></thead>
+  <tbody id="tabla-compras"></tbody></table>
+
+  <div class="seccion cmp">
+    <div class="seccion-titulo">🛒 Asesor de compras</div>
+    <p class="subtitulo">¿Viste un ingrediente en oferta? Escribe el ingrediente y el precio que viste, y lo comparamos contra lo que has pagado antes.</p>
+    <div class="subida" style="align-items: flex-end;">
+      <div style="flex: 1 1 150px;">
+        <label>Ingrediente</label>
+        <input type="text" id="asesor-ingrediente" placeholder="Ej. Aceite" style="width: 100%;">
+      </div>
+      <div>
+        <label>Proveedor (opcional)</label>
+        <input type="text" id="asesor-proveedor" placeholder="Ej. Sam's" style="width: 110px;">
+      </div>
+      <div>
+        <label>Cantidad</label>
+        <input type="number" step="0.01" id="asesor-cantidad" placeholder="Ej. 2" style="width: 80px;">
+      </div>
+      <div>
+        <label>Unidad</label>
+        <input type="text" id="asesor-unidad" placeholder="L, kg..." style="width: 80px;">
+      </div>
+      <div>
+        <label>Precio total que viste</label>
+        <input type="number" step="0.01" id="asesor-precio" placeholder="0.00" style="width: 100px;">
+      </div>
+      <button id="consultar-asesor" class="btn-cmp">Comparar</button>
+    </div>
+    <div id="asesor-resultado"></div>
+  </div>
+</div>
+
 <!-- ============ HISTORIAL (unificado con pestañas) ============ -->
 <div id="vista-historial" hidden>
   <div class="kicker naranja">Historial</div>
@@ -410,8 +504,8 @@
 // ============================================================
 // Navegación
 // ============================================================
-const VISTAS = ['vista-dashboard', 'vista-inventario', 'vista-dinero', 'vista-historial', 'vista-recetas', 'vista-categorias', 'vista-colchon'];
-const NAV_POR_VISTA = { 'vista-dashboard': 'nav-dashboard', 'vista-inventario': 'nav-inventario', 'vista-dinero': 'nav-dinero', 'vista-historial': 'nav-historial' };
+const VISTAS = ['vista-dashboard', 'vista-inventario', 'vista-dinero', 'vista-compras', 'vista-historial', 'vista-recetas', 'vista-categorias', 'vista-colchon'];
+const NAV_POR_VISTA = { 'vista-dashboard': 'nav-dashboard', 'vista-inventario': 'nav-inventario', 'vista-dinero': 'nav-dinero', 'vista-compras': 'nav-compras', 'vista-historial': 'nav-historial' };
 
 function mostrarVista(nombre) {
   for (const id of VISTAS) document.getElementById(id).hidden = (id !== nombre);
@@ -425,6 +519,7 @@ document.getElementById('ir-inicio').addEventListener('click', () => { mostrarVi
 document.getElementById('nav-dashboard').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
 document.getElementById('nav-inventario').addEventListener('click', () => mostrarVista('vista-inventario'));
 document.getElementById('nav-dinero').addEventListener('click', () => mostrarVista('vista-dinero'));
+document.getElementById('nav-compras').addEventListener('click', () => { mostrarVista('vista-compras'); cargarVistaCompras(); });
 document.getElementById('nav-historial').addEventListener('click', () => { mostrarVista('vista-historial'); mostrarHistorial(); });
 document.getElementById('link-recetas').addEventListener('click', cargarRecetas);
 document.getElementById('link-categorias').addEventListener('click', () => { mostrarVista('vista-categorias'); cargarCategorias(); });
@@ -911,6 +1006,172 @@ if (!document.getElementById('dinero-fecha').value) {
   ayer.setDate(ayer.getDate() - 1);
   document.getElementById('dinero-fecha').value = ayer.toISOString().slice(0, 10);
 }
+
+// ============================================================
+// Compras
+// ============================================================
+let asesorIaDisponible = null;
+
+async function cargarVistaCompras() {
+  if (!document.getElementById('compra-fecha').value) {
+    document.getElementById('compra-fecha').value = new Date().toISOString().slice(0, 10);
+  }
+  await cargarTablaCompras();
+}
+
+document.getElementById('agregar-compra').addEventListener('click', async () => {
+  const estado = document.getElementById('compra-estado');
+  const fecha = document.getElementById('compra-fecha').value;
+  const ingrediente = document.getElementById('compra-ingrediente').value.trim();
+  const proveedor = document.getElementById('compra-proveedor').value.trim();
+  const cantidad = document.getElementById('compra-cantidad').value;
+  const unidad = document.getElementById('compra-unidad').value.trim();
+  const precio_total = document.getElementById('compra-precio').value;
+  estado.className = 'error';
+  if (!fecha) { estado.textContent = 'Falta la fecha.'; return; }
+  if (!ingrediente) { estado.textContent = 'Falta el ingrediente.'; return; }
+  if (!proveedor) { estado.textContent = 'Falta el proveedor.'; return; }
+  if (precio_total === '') { estado.textContent = 'Falta el precio total.'; return; }
+  estado.className = '';
+  estado.textContent = 'Guardando...';
+  try {
+    const resp = await fetch('/api/compras', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fecha, ingrediente, proveedor,
+        cantidad: cantidad === '' ? null : parseFloat(cantidad),
+        unidad: unidad || null,
+        precio_total: parseFloat(precio_total),
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { estado.className = 'error'; estado.textContent = data.detail || 'Ocurrió un error.'; return; }
+    estado.textContent = 'Guardado ✓';
+    document.getElementById('compra-ingrediente').value = '';
+    document.getElementById('compra-proveedor').value = '';
+    document.getElementById('compra-cantidad').value = '';
+    document.getElementById('compra-unidad').value = '';
+    document.getElementById('compra-precio').value = '';
+    await cargarTablaCompras();
+  } catch (err) {
+    estado.className = 'error';
+    estado.textContent = 'No se pudo conectar con el servidor: ' + err.message;
+  }
+});
+
+async function cargarTablaCompras() {
+  const tbody = document.getElementById('tabla-compras');
+  tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+  const ingrediente = document.getElementById('compras-filtro-ingrediente').value.trim();
+  const proveedor = document.getElementById('compras-filtro-proveedor').value.trim();
+  const desde = document.getElementById('compras-filtro-desde').value;
+  const hasta = document.getElementById('compras-filtro-hasta').value;
+  const params = new URLSearchParams();
+  if (ingrediente) params.set('ingrediente', ingrediente);
+  if (proveedor) params.set('proveedor', proveedor);
+  if (desde) params.set('desde', desde);
+  if (hasta) params.set('hasta', hasta);
+  const lista = await (await fetch('/api/compras?' + params.toString())).json();
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8">Sin compras registradas con estos filtros.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(c => `<tr>
+    <td>${c.fecha}</td><td>${c.ingrediente}</td><td>${c.proveedor}</td>
+    <td>${c.cantidad ?? ''}</td><td>${c.unidad || ''}</td>
+    <td>${fmtMoneda(c.precio_total)}</td>
+    <td>${c.precio_unitario !== null ? fmtMoneda(c.precio_unitario) : 'no disponible'}</td>
+    <td><button class="borrar-compra btn-peligro" data-id="${c.id}">Borrar</button></td>
+  </tr>`).join('');
+  tbody.querySelectorAll('.borrar-compra').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('¿Borrar esta compra? No se puede deshacer.')) return;
+      await fetch(`/api/compras/${btn.dataset.id}`, { method: 'DELETE' });
+      cargarTablaCompras();
+    });
+  });
+}
+
+document.getElementById('compras-filtro-ingrediente').addEventListener('input', cargarTablaCompras);
+document.getElementById('compras-filtro-proveedor').addEventListener('input', cargarTablaCompras);
+document.getElementById('compras-filtro-desde').addEventListener('change', cargarTablaCompras);
+document.getElementById('compras-filtro-hasta').addEventListener('change', cargarTablaCompras);
+
+document.getElementById('consultar-asesor').addEventListener('click', async () => {
+  const ingrediente = document.getElementById('asesor-ingrediente').value.trim();
+  const proveedor = document.getElementById('asesor-proveedor').value.trim();
+  const cantidad = document.getElementById('asesor-cantidad').value;
+  const unidad = document.getElementById('asesor-unidad').value.trim();
+  const precioTotal = document.getElementById('asesor-precio').value;
+  const div = document.getElementById('asesor-resultado');
+  if (!ingrediente || precioTotal === '') {
+    div.innerHTML = '<div class="advertencia">⚠️ Indica al menos el ingrediente y el precio que viste.</div>';
+    return;
+  }
+  div.innerHTML = '<p class="subtitulo">Buscando historial...</p>';
+
+  const { historial, estadisticas } = await (await fetch('/api/compras/estadisticas?' + new URLSearchParams({ ingrediente }))).json();
+  const precioNuevo = parseFloat(precioTotal);
+  const cantidadNum = cantidad === '' ? null : parseFloat(cantidad);
+  const precioUnitarioNuevo = cantidadNum ? precioNuevo / cantidadNum : precioNuevo;
+
+  let html = `<div class="kpis">
+    <div class="kpi cmp"><b>${fmtMoneda(precioUnitarioNuevo)}</b><span>Precio unitario que viste</span></div>
+    <div class="kpi cmp"><b>${estadisticas.precio_promedio !== null ? fmtMoneda(estadisticas.precio_promedio) : 'no disponible'}</b><span>Promedio histórico</span></div>
+    <div class="kpi cmp"><b>${estadisticas.precio_minimo !== null ? fmtMoneda(estadisticas.precio_minimo) : 'no disponible'}</b><span>Mínimo histórico</span></div>
+    <div class="kpi cmp"><b>${estadisticas.precio_maximo !== null ? fmtMoneda(estadisticas.precio_maximo) : 'no disponible'}</b><span>Máximo histórico</span></div>
+  </div>`;
+
+  if (estadisticas.precio_promedio === null) {
+    html += `<div class="advertencia">⚠️ No hay compras anteriores registradas de "${ingrediente}" — todavía no hay con qué comparar. Registra esta compra para empezar a construir el historial.</div>`;
+  } else if (precioUnitarioNuevo <= estadisticas.precio_promedio) {
+    html += `<div class="ok-caja">✓ Este precio está en o por debajo del promedio histórico — pinta como buen momento para comprar.</div>`;
+  } else {
+    html += `<div class="alerta-caja">⚠️ Este precio está por arriba del promedio histórico (${fmtMoneda(estadisticas.precio_promedio)}).</div>`;
+  }
+
+  if (historial.length) {
+    html += `<h3>Compras anteriores de "${ingrediente}" (${estadisticas.num_compras})</h3>
+    <table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th></tr></thead><tbody>`;
+    for (const c of historial) {
+      html += `<tr><td>${c.fecha}</td><td>${c.proveedor}</td><td>${c.cantidad ?? ''}</td><td>${c.unidad || ''}</td>
+        <td>${fmtMoneda(c.precio_total)}</td><td>${c.precio_unitario !== null ? fmtMoneda(c.precio_unitario) : 'no disponible'}</td></tr>`;
+    }
+    html += `</tbody></table>`;
+  }
+
+  html += `<div id="asesor-ia-box"></div>`;
+  div.innerHTML = html;
+
+  if (asesorIaDisponible === null) {
+    asesorIaDisponible = await (await fetch('/api/compras/asesor/disponible')).json().then(r => r.disponible);
+  }
+  if (asesorIaDisponible) {
+    const iaBox = document.getElementById('asesor-ia-box');
+    iaBox.innerHTML = `<button id="preguntar-ia" class="btn-fantasma btn-chico">🧠 Preguntarle a la IA</button><div id="asesor-ia-texto"></div>`;
+    document.getElementById('preguntar-ia').addEventListener('click', async () => {
+      const boton = document.getElementById('preguntar-ia');
+      const texto = document.getElementById('asesor-ia-texto');
+      boton.disabled = true;
+      texto.textContent = 'Pensando...';
+      const partes = [`Vi ${ingrediente} a ${fmtMoneda(precioNuevo)}`];
+      if (cantidadNum) partes.push(`por ${cantidadNum} ${unidad || 'unidad(es)'}`);
+      if (proveedor) partes.push(`en ${proveedor}`);
+      const pregunta = partes.join(' ') + '. ¿Conviene comprarlo?';
+      try {
+        const resp = await fetch('/api/compras/asesor', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pregunta, ingrediente }),
+        });
+        const data = await resp.json();
+        texto.textContent = resp.ok ? data.respuesta : (data.detail || 'No se pudo generar la respuesta.');
+      } catch (err) {
+        texto.textContent = 'Error: ' + err.message;
+      }
+      boton.disabled = false;
+    });
+  }
+});
 
 // ============================================================
 // Categorías de gasto

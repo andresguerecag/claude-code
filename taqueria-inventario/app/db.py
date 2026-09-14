@@ -91,4 +91,17 @@ def inicializar_tablas():
                 PRIMARY KEY (sucursal, anio_mes)
             )
         """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS compras (
+                id SERIAL PRIMARY KEY,
+                fecha TEXT NOT NULL,
+                ingrediente TEXT NOT NULL,
+                proveedor TEXT NOT NULL,
+                cantidad DOUBLE PRECISION,
+                unidad TEXT,
+                precio_total DOUBLE PRECISION NOT NULL,
+                notas TEXT,
+                creado_en TIMESTAMP NOT NULL DEFAULT now()
+            )
+        """)
     con.close()
