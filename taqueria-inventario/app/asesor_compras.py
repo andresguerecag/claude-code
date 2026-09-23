@@ -17,15 +17,21 @@ _API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 SYSTEM = """Eres un asistente que ayuda a los dueños de una taquería (T-Grill) a decidir \
 si conviene comprar un ingrediente a cierto precio (ej. "vi el aceite en oferta en Sam's, \
-¿conviene comprarlo?"). Te doy la pregunta y el historial de compras pasadas de ese \
-ingrediente (fecha, proveedor, cantidad, unidad, precio unitario).
+¿conviene comprarlo?"). Te doy la pregunta y una comparación ya calculada del precio nuevo \
+contra el historial de compras pasadas de ese ingrediente.
+
+Importante sobre la comparación: el precio nuevo y el historico solo se comparan cuando \
+estan en la MISMA unidad base (kg, litro o pieza) -- si "num_comparables" es 0 o \
+"unidad_base" viene null, significa que no hay con que comparar en esa misma unidad \
+(aunque existan compras de ese ingrediente en otra unidad distinta, que no se pueden \
+mezclar). En ese caso dilo explicitamente.
 
 Responde en español sencillo, corto y directo (máximo 5-6 líneas):
-- Compara el precio de ahora contra el promedio/mínimo/máximo histórico.
+- Compara el precio normalizado de ahora contra el promedio/mínimo/máximo histórico
+  (ya viene todo en la misma unidad base -- no hace falta que conviertas nada).
 - Di claramente si conviene comprar o no, y por qué, en un tono práctico.
-- Si el historial viene vacío o muy corto, dilo explícitamente y dí que hace falta más \
-historial para poder comparar con confianza -- NUNCA inventes un precio de referencia \
-que no esté en los datos.
+- Si no hay comparables (num_comparables = 0), dilo explícitamente y dí que hace falta más \
+historial en esa misma unidad -- NUNCA inventes un precio de referencia que no esté en los datos.
 - Nunca inventes proveedores, fechas o precios que no estén en los datos que te doy."""
 
 
@@ -33,19 +39,17 @@ def disponible() -> bool:
     return bool(_API_KEY)
 
 
-def preguntar(pregunta: str, ingrediente: str) -> str | None:
+def preguntar(pregunta: str, ingrediente: str, cantidad: float | None, unidad: str | None, precio_total: float) -> str | None:
     if not _API_KEY:
         return None
 
     import anthropic
 
-    historial = compras.historial_ingrediente(ingrediente)
-    estadisticas = compras.estadisticas_ingrediente(ingrediente)
+    comparacion = compras.comparar_precio(ingrediente, cantidad, unidad, precio_total)
     contexto = {
         "pregunta": pregunta,
         "ingrediente_consultado": ingrediente,
-        "estadisticas_historicas": estadisticas,
-        "compras_pasadas": historial,
+        "comparacion": comparacion,
     }
 
     client = anthropic.Anthropic(api_key=_API_KEY)

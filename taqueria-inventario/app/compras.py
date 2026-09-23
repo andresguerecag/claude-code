@@ -13,12 +13,14 @@ Misma logica dual Postgres/SQLite que el resto de la app.
 """
 from __future__ import annotations
 
+import json
 import sqlite3
 from pathlib import Path
 
 from . import db
 
 DB_PATH = Path(__file__).parent / "historial.db"
+INICIALES_PATH = Path(__file__).parent / "compras_iniciales.json"
 
 
 def _conectar_sqlite() -> sqlite3.Connection:
@@ -39,6 +41,54 @@ def _conectar_sqlite() -> sqlite3.Connection:
         """
     )
     return con
+
+
+def _compras_iniciales() -> list[dict]:
+    if not INICIALES_PATH.exists():
+        return []
+    with open(INICIALES_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _sembrar_si_vacio() -> None:
+    """La primera vez que corre (base de datos vacia, ya sea local o recien
+    hosteada), se siembra con el catalogo real de precios que compartio la
+    familia (ver compras_iniciales.json) -- no arranca de cero. Despues de
+    eso, esta funcion ya no hace nada (la tabla deja de estar vacia)."""
+    iniciales = _compras_iniciales()
+    if not iniciales:
+        return
+
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM compras")
+            if cur.fetchone()[0] == 0:
+                for c in iniciales:
+                    cur.execute(
+                        """
+                        INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"), c["precio_total"], c.get("notas", "")),
+                    )
+        con.close()
+        return
+
+    con = _conectar_sqlite()
+    with con:
+        count = con.execute("SELECT COUNT(*) FROM compras").fetchone()[0]
+        if count == 0:
+            for c in iniciales:
+                con.execute(
+                    """
+                    INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"), c["precio_total"], c.get("notas", "")),
+                )
+    con.close()
 
 
 def _normalizar(texto: str) -> str:
@@ -100,13 +150,45 @@ def eliminar_compra(id_compra: int) -> None:
     con.close()
 
 
+#
+# Distintas compras del mismo ingrediente a veces vienen en unidades
+# distintas pero equivalentes (ej. aceite por mililitro una vez y por litro
+# otra) -- si se promedian tal cual, el resultado no significa nada. Aqui se
+# normalizan las unidades conocidas (peso, volumen, pieza) a una unidad base
+# por familia para poder comparar de verdad. Una unidad que no se reconoce
+# (ej. "paq.", "caja", texto de bulto) se deja tal cual y NUNCA se mezcla
+# con otra familia -- mejor no comparar que comparar mal.
+_UNIDADES_EQUIVALENTES = {
+    "kg": ("kg", 1.0), "kilo": ("kg", 1.0), "kilos": ("kg", 1.0), "kilogramo": ("kg", 1.0), "kilogramos": ("kg", 1.0),
+    "g": ("kg", 0.001), "gr": ("kg", 0.001), "grs": ("kg", 0.001), "gramo": ("kg", 0.001), "gramos": ("kg", 0.001),
+    "l": ("l", 1.0), "lt": ("l", 1.0), "litro": ("l", 1.0), "litros": ("l", 1.0),
+    "ml": ("l", 0.001), "mililitro": ("l", 0.001), "mililitros": ("l", 0.001),
+    "pza": ("pza", 1.0), "pzas": ("pza", 1.0), "pieza": ("pza", 1.0), "piezas": ("pza", 1.0), "unidad": ("pza", 1.0),
+}
+
+
+def _familia_unidad(unidad: str | None) -> tuple[str, float] | None:
+    """(unidad_base, factor_a_unidad_base) para unidades conocidas, o None
+    si la unidad es libre/no reconocida con confianza."""
+    if not unidad:
+        return None
+    return _UNIDADES_EQUIVALENTES.get(str(unidad).strip().lower())
+
+
 def _fila_a_dict(fila) -> dict:
     id_, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas = fila
-    precio_unitario = round(precio_total / cantidad, 2) if cantidad else None
+    precio_unitario = round(precio_total / cantidad, 4) if cantidad else None
+    unidad_base = precio_normalizado = None
+    familia = _familia_unidad(unidad)
+    if precio_unitario is not None and familia:
+        unidad_base, factor = familia
+        precio_normalizado = round(precio_unitario / factor, 2)
     return {
         "id": id_, "fecha": fecha, "ingrediente": ingrediente, "proveedor": proveedor,
         "cantidad": cantidad, "unidad": unidad, "precio_total": precio_total,
-        "precio_unitario": precio_unitario, "notas": notas,
+        "precio_unitario": round(precio_unitario, 2) if precio_unitario is not None else None,
+        "unidad_base": unidad_base, "precio_normalizado": precio_normalizado,
+        "notas": notas,
     }
 
 
@@ -116,6 +198,7 @@ def listar_compras(
 ) -> list[dict]:
     """Todas las compras, mas recientes primero. 'ingrediente'/'proveedor'
     filtran por coincidencia parcial (insensible a mayusculas)."""
+    _sembrar_si_vacio()
     if db.usando_postgres():
         db.inicializar_tablas()
         con = db.conectar()
@@ -154,17 +237,34 @@ def historial_ingrediente(ingrediente: str, limite: int = 20) -> list[dict]:
     return listar_compras(ingrediente=ingrediente)[:limite]
 
 
-def estadisticas_ingrediente(ingrediente: str) -> dict:
-    """Precio unitario promedio/minimo/maximo historico de un ingrediente,
-    calculado solo con compras que tienen cantidad (para poder sacar
-    precio unitario) -- nunca se inventa un precio si no hay historial."""
-    compras_previas = historial_ingrediente(ingrediente, limite=1000)
-    precios = [c["precio_unitario"] for c in compras_previas if c["precio_unitario"] is not None]
-    if not precios:
-        return {"num_compras": len(compras_previas), "precio_promedio": None, "precio_minimo": None, "precio_maximo": None}
+def comparar_precio(ingrediente: str, cantidad: float | None, unidad: str | None, precio_total: float) -> dict:
+    """Compara un precio nuevo contra el historial de ese ingrediente.
+
+    Solo promedia contra compras que esten en la MISMA unidad base (peso,
+    volumen o pieza) -- nunca mezcla, por ejemplo, un precio por mililitro
+    contra uno por litro. Si la unidad del precio nuevo no se reconoce, o no
+    hay historial en esa misma unidad, lo dice explicitamente en vez de dar
+    un promedio que mezclaria unidades distintas."""
+    historial = historial_ingrediente(ingrediente, limite=1000)
+    precio_unitario_visto = round(precio_total / cantidad, 2) if cantidad else round(precio_total, 2)
+
+    familia = _familia_unidad(unidad)
+    unidad_base = precio_normalizado_visto = None
+    comparables = []
+    if familia:
+        unidad_base, factor = familia
+        precio_normalizado_visto = round(precio_unitario_visto / factor, 2) if cantidad else None
+        comparables = [c for c in historial if c["unidad_base"] == unidad_base and c["precio_normalizado"] is not None]
+
+    precios = [c["precio_normalizado"] for c in comparables]
     return {
-        "num_compras": len(compras_previas),
-        "precio_promedio": round(sum(precios) / len(precios), 2),
-        "precio_minimo": round(min(precios), 2),
-        "precio_maximo": round(max(precios), 2),
+        "precio_unitario_visto": precio_unitario_visto,
+        "unidad_base": unidad_base,
+        "precio_normalizado_visto": precio_normalizado_visto,
+        "num_compras": len(historial),
+        "num_comparables": len(comparables),
+        "precio_promedio": round(sum(precios) / len(precios), 2) if precios else None,
+        "precio_minimo": round(min(precios), 2) if precios else None,
+        "precio_maximo": round(max(precios), 2) if precios else None,
+        "historial": historial,
     }

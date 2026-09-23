@@ -441,12 +441,9 @@ async def eliminar_compra(id_compra: int):
     return {"ok": True}
 
 
-@app.get("/api/compras/estadisticas")
-async def estadisticas_compra(ingrediente: str):
-    return {
-        "historial": compras.historial_ingrediente(ingrediente),
-        "estadisticas": compras.estadisticas_ingrediente(ingrediente),
-    }
+@app.get("/api/compras/comparar")
+async def comparar_precio_compra(ingrediente: str, precio_total: float, cantidad: float | None = None, unidad: str | None = None):
+    return compras.comparar_precio(ingrediente, cantidad, unidad, precio_total)
 
 
 @app.get("/api/compras/asesor/disponible")
@@ -458,9 +455,12 @@ async def asesor_disponible():
 async def preguntar_asesor(payload: dict = Body(...)):
     pregunta = payload.get("pregunta")
     ingrediente = payload.get("ingrediente")
-    if not pregunta or not ingrediente:
-        raise HTTPException(status_code=400, detail="Falta la pregunta o el ingrediente.")
-    respuesta = asesor_compras.preguntar(pregunta, ingrediente)
+    precio_total = payload.get("precio_total")
+    cantidad = payload.get("cantidad")
+    unidad = payload.get("unidad")
+    if not pregunta or not ingrediente or precio_total is None:
+        raise HTTPException(status_code=400, detail="Falta la pregunta, el ingrediente o el precio.")
+    respuesta = asesor_compras.preguntar(pregunta, ingrediente, cantidad, unidad, float(precio_total))
     if respuesta is None:
         raise HTTPException(status_code=503, detail="El asesor con IA no está configurado (falta ANTHROPIC_API_KEY).")
     return {"respuesta": respuesta}

@@ -1110,34 +1110,42 @@ document.getElementById('consultar-asesor').addEventListener('click', async () =
   }
   div.innerHTML = '<p class="subtitulo">Buscando historial...</p>';
 
-  const { historial, estadisticas } = await (await fetch('/api/compras/estadisticas?' + new URLSearchParams({ ingrediente }))).json();
-  const precioNuevo = parseFloat(precioTotal);
-  const cantidadNum = cantidad === '' ? null : parseFloat(cantidad);
-  const precioUnitarioNuevo = cantidadNum ? precioNuevo / cantidadNum : precioNuevo;
+  const params = { ingrediente, precio_total: precioTotal };
+  if (cantidad !== '') params.cantidad = cantidad;
+  if (unidad) params.unidad = unidad;
+  const cmp = await (await fetch('/api/compras/comparar?' + new URLSearchParams(params))).json();
 
   let html = `<div class="kpis">
-    <div class="kpi cmp"><b>${fmtMoneda(precioUnitarioNuevo)}</b><span>Precio unitario que viste</span></div>
-    <div class="kpi cmp"><b>${estadisticas.precio_promedio !== null ? fmtMoneda(estadisticas.precio_promedio) : 'no disponible'}</b><span>Promedio histórico</span></div>
-    <div class="kpi cmp"><b>${estadisticas.precio_minimo !== null ? fmtMoneda(estadisticas.precio_minimo) : 'no disponible'}</b><span>Mínimo histórico</span></div>
-    <div class="kpi cmp"><b>${estadisticas.precio_maximo !== null ? fmtMoneda(estadisticas.precio_maximo) : 'no disponible'}</b><span>Máximo histórico</span></div>
+    <div class="kpi cmp"><b>${fmtMoneda(cmp.precio_unitario_visto)}</b><span>Precio unitario que viste${cmp.unidad_base ? ' (' + (unidad || '') + ')' : ''}</span></div>
+    <div class="kpi cmp"><b>${cmp.precio_promedio !== null ? fmtMoneda(cmp.precio_promedio) : 'no disponible'}</b><span>Promedio histórico${cmp.unidad_base ? ' (por ' + cmp.unidad_base + ')' : ''}</span></div>
+    <div class="kpi cmp"><b>${cmp.precio_minimo !== null ? fmtMoneda(cmp.precio_minimo) : 'no disponible'}</b><span>Mínimo histórico</span></div>
+    <div class="kpi cmp"><b>${cmp.precio_maximo !== null ? fmtMoneda(cmp.precio_maximo) : 'no disponible'}</b><span>Máximo histórico</span></div>
   </div>`;
 
-  if (estadisticas.precio_promedio === null) {
-    html += `<div class="advertencia">⚠️ No hay compras anteriores registradas de "${ingrediente}" — todavía no hay con qué comparar. Registra esta compra para empezar a construir el historial.</div>`;
-  } else if (precioUnitarioNuevo <= estadisticas.precio_promedio) {
+  if (!cmp.unidad_base) {
+    html += `<div class="advertencia">⚠️ No reconozco la unidad "${unidad || '(vacía)'}" para poder comparar de forma exacta (uso kg, g, l, ml o pza) — indícala para que la comparación sea precisa.</div>`;
+  } else if (cmp.num_comparables === 0) {
+    html += `<div class="advertencia">⚠️ No hay compras anteriores de "${ingrediente}" registradas en la misma unidad (${cmp.unidad_base}) — todavía no hay con qué comparar de forma exacta. Registra esta compra para empezar a construir el historial.</div>`;
+  } else if (cmp.precio_normalizado_visto <= cmp.precio_promedio) {
     html += `<div class="ok-caja">✓ Este precio está en o por debajo del promedio histórico — pinta como buen momento para comprar.</div>`;
   } else {
-    html += `<div class="alerta-caja">⚠️ Este precio está por arriba del promedio histórico (${fmtMoneda(estadisticas.precio_promedio)}).</div>`;
+    html += `<div class="alerta-caja">⚠️ Este precio está por arriba del promedio histórico (${fmtMoneda(cmp.precio_promedio)} por ${cmp.unidad_base}).</div>`;
   }
 
-  if (historial.length) {
-    html += `<h3>Compras anteriores de "${ingrediente}" (${estadisticas.num_compras})</h3>
+  if (cmp.historial.length) {
+    let hayAtenuadas = false;
+    html += `<h3>Compras anteriores de "${ingrediente}" (${cmp.num_compras})</h3>
     <table><thead><tr><th>Fecha</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th></tr></thead><tbody>`;
-    for (const c of historial) {
-      html += `<tr><td>${c.fecha}</td><td>${c.proveedor}</td><td>${c.cantidad ?? ''}</td><td>${c.unidad || ''}</td>
+    for (const c of cmp.historial) {
+      const mismaUnidad = cmp.unidad_base && c.unidad_base === cmp.unidad_base;
+      if (!mismaUnidad) hayAtenuadas = true;
+      html += `<tr${mismaUnidad ? '' : ' style="opacity:.5"'}><td>${c.fecha}</td><td>${c.proveedor}</td><td>${c.cantidad ?? ''}</td><td>${c.unidad || ''}</td>
         <td>${fmtMoneda(c.precio_total)}</td><td>${c.precio_unitario !== null ? fmtMoneda(c.precio_unitario) : 'no disponible'}</td></tr>`;
     }
     html += `</tbody></table>`;
+    if (hayAtenuadas) {
+      html += `<p class="subtitulo">Las filas atenuadas son de una unidad distinta — no entraron al promedio para no mezclar peras con manzanas.</p>`;
+    }
   }
 
   html += `<div id="asesor-ia-box"></div>`;
@@ -1154,14 +1162,18 @@ document.getElementById('consultar-asesor').addEventListener('click', async () =
       const texto = document.getElementById('asesor-ia-texto');
       boton.disabled = true;
       texto.textContent = 'Pensando...';
-      const partes = [`Vi ${ingrediente} a ${fmtMoneda(precioNuevo)}`];
-      if (cantidadNum) partes.push(`por ${cantidadNum} ${unidad || 'unidad(es)'}`);
+      const partes = [`Vi ${ingrediente} a ${fmtMoneda(parseFloat(precioTotal))}`];
+      if (cantidad !== '') partes.push(`por ${cantidad} ${unidad || 'unidad(es)'}`);
       if (proveedor) partes.push(`en ${proveedor}`);
       const pregunta = partes.join(' ') + '. ¿Conviene comprarlo?';
       try {
         const resp = await fetch('/api/compras/asesor', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pregunta, ingrediente }),
+          body: JSON.stringify({
+            pregunta, ingrediente, precio_total: parseFloat(precioTotal),
+            cantidad: cantidad === '' ? null : parseFloat(cantidad),
+            unidad: unidad || null,
+          }),
         });
         const data = await resp.json();
         texto.textContent = resp.ok ? data.respuesta : (data.detail || 'No se pudo generar la respuesta.');
