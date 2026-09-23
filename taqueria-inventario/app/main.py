@@ -3,16 +3,19 @@ App web sencilla: arrastras el "Formato de corte" (excel que manda la
 sucursal cada noche) y el reporte de ventas de Wansoft, y te regresa el
 reporte de conciliacion de inventario del dia.
 """
+import logging
 import os
 import re
 import secrets
 import tempfile
 from pathlib import Path
 
-from fastapi import Body, Depends, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import Body, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
+
+_logger = logging.getLogger("uvicorn.error")
 
 from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
 
@@ -37,6 +40,19 @@ def requiere_acceso(credenciales: HTTPBasicCredentials | None = Depends(_segurid
 
 
 app = FastAPI(title="Conciliacion de inventario - Taqueria", dependencies=[Depends(requiere_acceso)])
+
+
+@app.exception_handler(Exception)
+async def manejar_error_inesperado(request: Request, exc: Exception):
+    """Si algo truena sin que lo hayamos previsto, esto evita que el
+    navegador reciba una pagina de error en HTML (que no se puede leer como
+    JSON y confunde con un mensaje tipo "Unexpected token") -- en vez de
+    eso regresa el mensaje real del error, para poder diagnosticarlo."""
+    _logger.exception("Error inesperado en %s", request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Error inesperado del servidor ({type(exc).__name__}): {exc}"},
+    )
 
 
 def _detectar_metadatos_wansoft(path_wansoft: str) -> dict:
