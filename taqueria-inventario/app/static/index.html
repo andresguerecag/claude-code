@@ -313,6 +313,10 @@
       <input type="text" id="compra-proveedor" placeholder="Ej. Sam's" style="width: 100%;">
     </div>
     <div>
+      <label>Sucursal (opcional)</label>
+      <input type="text" id="compra-sucursal" list="lista-sucursales" placeholder="Ambas" style="width: 110px;">
+    </div>
+    <div>
       <label>Cantidad</label>
       <input type="number" step="0.01" id="compra-cantidad" placeholder="Ej. 2" style="width: 80px;">
     </div>
@@ -339,6 +343,10 @@
       <input type="text" id="compras-filtro-proveedor" placeholder="Todos">
     </div>
     <div>
+      <label>Sucursal</label>
+      <input type="text" id="compras-filtro-sucursal" list="lista-sucursales" placeholder="Todas">
+    </div>
+    <div>
       <label>Desde</label>
       <input type="date" id="compras-filtro-desde">
     </div>
@@ -347,7 +355,7 @@
       <input type="date" id="compras-filtro-hasta">
     </div>
   </div>
-  <table><thead><tr><th>Fecha</th><th>Ingrediente</th><th>Proveedor</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th><th></th></tr></thead>
+  <table><thead><tr><th>Fecha</th><th>Ingrediente</th><th>Proveedor</th><th>Sucursal</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th><th></th></tr></thead>
   <tbody id="tabla-compras"></tbody></table>
 
   <div class="seccion cmp">
@@ -1024,6 +1032,7 @@ document.getElementById('agregar-compra').addEventListener('click', async () => 
   const fecha = document.getElementById('compra-fecha').value;
   const ingrediente = document.getElementById('compra-ingrediente').value.trim();
   const proveedor = document.getElementById('compra-proveedor').value.trim();
+  const sucursal = document.getElementById('compra-sucursal').value.trim();
   const cantidad = document.getElementById('compra-cantidad').value;
   const unidad = document.getElementById('compra-unidad').value.trim();
   const precio_total = document.getElementById('compra-precio').value;
@@ -1039,6 +1048,7 @@ document.getElementById('agregar-compra').addEventListener('click', async () => 
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         fecha, ingrediente, proveedor,
+        sucursal: sucursal || null,
         cantidad: cantidad === '' ? null : parseFloat(cantidad),
         unidad: unidad || null,
         precio_total: parseFloat(precio_total),
@@ -1049,6 +1059,7 @@ document.getElementById('agregar-compra').addEventListener('click', async () => 
     estado.textContent = 'Guardado ✓';
     document.getElementById('compra-ingrediente').value = '';
     document.getElementById('compra-proveedor').value = '';
+    document.getElementById('compra-sucursal').value = '';
     document.getElementById('compra-cantidad').value = '';
     document.getElementById('compra-unidad').value = '';
     document.getElementById('compra-precio').value = '';
@@ -1061,23 +1072,25 @@ document.getElementById('agregar-compra').addEventListener('click', async () => 
 
 async function cargarTablaCompras() {
   const tbody = document.getElementById('tabla-compras');
-  tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9">Cargando...</td></tr>';
   const ingrediente = document.getElementById('compras-filtro-ingrediente').value.trim();
   const proveedor = document.getElementById('compras-filtro-proveedor').value.trim();
+  const sucursal = document.getElementById('compras-filtro-sucursal').value.trim();
   const desde = document.getElementById('compras-filtro-desde').value;
   const hasta = document.getElementById('compras-filtro-hasta').value;
   const params = new URLSearchParams();
   if (ingrediente) params.set('ingrediente', ingrediente);
   if (proveedor) params.set('proveedor', proveedor);
+  if (sucursal) params.set('sucursal', sucursal);
   if (desde) params.set('desde', desde);
   if (hasta) params.set('hasta', hasta);
   const lista = await (await fetch('/api/compras?' + params.toString())).json();
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="8">Sin compras registradas con estos filtros.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9">Sin compras registradas con estos filtros.</td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(c => `<tr>
-    <td>${c.fecha}</td><td>${c.ingrediente}</td><td>${c.proveedor}</td>
+    <td>${c.fecha}</td><td>${c.ingrediente}</td><td>${c.proveedor}</td><td>${c.sucursal || ''}</td>
     <td>${c.cantidad ?? ''}</td><td>${c.unidad || ''}</td>
     <td>${fmtMoneda(c.precio_total)}</td>
     <td>${c.precio_unitario !== null ? fmtMoneda(c.precio_unitario) : 'no disponible'}</td>
@@ -1094,6 +1107,7 @@ async function cargarTablaCompras() {
 
 document.getElementById('compras-filtro-ingrediente').addEventListener('input', cargarTablaCompras);
 document.getElementById('compras-filtro-proveedor').addEventListener('input', cargarTablaCompras);
+document.getElementById('compras-filtro-sucursal').addEventListener('input', cargarTablaCompras);
 document.getElementById('compras-filtro-desde').addEventListener('change', cargarTablaCompras);
 document.getElementById('compras-filtro-hasta').addEventListener('change', cargarTablaCompras);
 

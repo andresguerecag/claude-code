@@ -6,7 +6,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 62.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -15,7 +16,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 100.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -24,7 +26,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 62.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -33,7 +36,8 @@
     "cantidad": 1.0,
     "unidad": "paq.",
     "precio_total": 101.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -42,7 +46,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 48.0,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -51,7 +56,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 68.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -60,7 +66,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 76.72,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -69,7 +76,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 125.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -78,7 +86,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 118.1,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -87,7 +96,8 @@
     "cantidad": 0.5,
     "unidad": "kilo",
     "precio_total": 38.9,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -96,7 +106,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 158.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -105,7 +116,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 183.46,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -114,7 +126,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 128.0,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -123,7 +136,8 @@
     "cantidad": 3.0,
     "unidad": "kg",
     "precio_total": 49.9,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -132,7 +146,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 60.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -141,7 +156,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 58.9,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -150,7 +166,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 110.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -159,7 +176,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 33.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -168,7 +186,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 50.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -177,7 +196,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 160.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -186,7 +206,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 160.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -195,7 +216,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 20.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -204,7 +226,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 18.9,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -213,7 +236,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 28.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -222,7 +246,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 15.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -231,7 +256,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 47.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -240,7 +266,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 50.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -249,7 +276,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 82.0,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -258,7 +286,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 30.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -267,7 +296,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 48.9,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -276,7 +306,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 1100.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -285,7 +316,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 28.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -294,7 +326,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 19.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -303,7 +336,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 45.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -312,7 +346,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 31.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -321,7 +356,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 20.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -330,7 +366,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 8.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -339,7 +376,8 @@
     "cantidad": 800.0,
     "unidad": "grs (40-50 piezas)",
     "precio_total": 27.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -348,7 +386,8 @@
     "cantidad": 1.0,
     "unidad": "pkt",
     "precio_total": 51.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -357,7 +396,8 @@
     "cantidad": 1.0,
     "unidad": "pkt",
     "precio_total": 51.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -366,7 +406,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 66.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -375,7 +416,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 27.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -384,7 +426,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -393,7 +436,8 @@
     "cantidad": 10.0,
     "unidad": "pza",
     "precio_total": 128.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -402,7 +446,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 201.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -411,7 +456,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -420,7 +466,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -429,7 +476,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -438,7 +486,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 117.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -447,7 +496,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 117.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -456,7 +506,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 201.3,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -465,7 +516,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 201.29,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -474,7 +526,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -483,7 +536,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 201.3,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -492,7 +546,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 233.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -501,7 +556,8 @@
     "cantidad": 6.0,
     "unidad": "pza",
     "precio_total": 201.3,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -510,7 +566,8 @@
     "cantidad": 100.0,
     "unidad": "pza",
     "precio_total": 9.77,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -519,7 +576,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 62.16,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -528,7 +586,8 @@
     "cantidad": 200.0,
     "unidad": "pza",
     "precio_total": 426.2,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -537,7 +596,8 @@
     "cantidad": null,
     "unidad": "Kg",
     "precio_total": 65.71,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -546,7 +606,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 25.75,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -555,7 +616,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 13.32,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -564,7 +626,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 32.85,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -573,7 +636,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 235.3,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -582,7 +646,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 65.71,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -591,7 +656,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 10.65,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -600,7 +666,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 23.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -609,7 +676,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 52.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -618,7 +686,8 @@
     "cantidad": 1.1,
     "unidad": "kg",
     "precio_total": 30.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -627,7 +696,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 22.5,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -636,7 +706,8 @@
     "cantidad": 800.0,
     "unidad": "ml",
     "precio_total": 30.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -645,7 +716,8 @@
     "cantidad": 1.0,
     "unidad": "lt",
     "precio_total": 37.69,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -654,7 +726,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 7.5,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -663,7 +736,8 @@
     "cantidad": 1.0,
     "unidad": "pza",
     "precio_total": 7.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -672,7 +746,8 @@
     "cantidad": 1.0,
     "unidad": "lt",
     "precio_total": 36.07,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -681,7 +756,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 43.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -690,7 +766,8 @@
     "cantidad": 1.0,
     "unidad": "kg",
     "precio_total": 40.0,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -699,7 +776,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 23.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -708,7 +786,8 @@
     "cantidad": 1.0,
     "unidad": "lt",
     "precio_total": 18.0,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -717,7 +796,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 42.9,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -726,7 +806,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 24.9,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -735,7 +816,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 33.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -744,7 +826,8 @@
     "cantidad": null,
     "unidad": null,
     "precio_total": 36.0,
-    "notas": "Catálogo de precios Sept 2026 (proveedor actual)"
+    "notas": "Catálogo de precios Sept 2026 (proveedor actual)",
+    "sucursal": null
   },
   {
     "fecha": "2026-09-23",
@@ -753,6 +836,2007 @@
     "cantidad": 1.0,
     "unidad": "lt",
     "precio_total": 29.053,
-    "notas": "Catálogo de precios Sept 2026 (comparación)"
+    "notas": "Catálogo de precios Sept 2026 (comparación)",
+    "sucursal": null
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tocino reb",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 158.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tocino reb",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 158.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "salchicha para asar",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.9,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "salchicha para asar",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.9,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "queso chihuahua",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 125.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "queso chihuahua",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 125.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "jamon cocido",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 68.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "jamon cocido",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 68.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "queso chihuahua tem",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 125.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "queso chihuahua tem",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 125.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "salchicha viena",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 38.9,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "salchicha viena",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 38.9,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chorizo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 91.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chorizo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 128.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "PIERNA DE PUERCO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 62.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "PIERNA DE PUERCO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 62.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "DIEZMILLO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 100.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "DIEZMILLO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 100.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CORTADILLO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 62.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CORTADILLO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 62.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Aguacate",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 68.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Aguacate",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 65.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Ajo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 130.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Ajo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 155.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Cebolla",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 11.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Cebolla",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 12.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Serrano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Serrano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 22.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Cilantro 1/2",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 55.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Cilantro 1/2",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 100.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "lechuga PZA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 20.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "lechuga PZA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 20.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "limon",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 26.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "limon",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 26.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "nopal x kilo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 26.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "nopal x kilo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 16.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tomate",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 36.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tomate",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 40.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "piña PZA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 24.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "piña PZA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "morron verde",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 65.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "morron verde",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 68.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "jalapeño",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 36.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "jalapeño",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "fresadilla",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chile cas",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 170.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chile cas",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 77.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tomatillo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 45.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tomatillo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 17.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chile cambray 500gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 80.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "chile cambray 500gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 140.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "oregano 100 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 35.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "oregano 100 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 301.27,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "japones",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 120.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "rabano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 20.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "rabano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "mejorana 200 g",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 130.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "comino 200 g",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 40.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "laurel 200g",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 35.2,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "ajo en polvo 200gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 40.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tomillo molido200 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 26.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "pimienta molida 200 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 72.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cebolla molida 200 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 40.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "oregano molido200 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 56.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "clavo molido 200gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 120.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "consome de pollo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 50.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "teleras",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 6.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "teleras",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 8.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "totopos",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 50.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "totopos",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 56.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "masa",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "PAQ BURRO GRANDE",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 51.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "PAQ BURRO GRANDE",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 47.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "PAQ BURRO CHICO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "amarilla #12800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "amarilla #12800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 27.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "TOTOPO NATURAL",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 60.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "piratas",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 51.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "piratas",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 47.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "pirata grande",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 51.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "masa amarilla",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "masa amarilla",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "totopo agranel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 56.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "26",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 10.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "AGUA MINERAL 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 192.24,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CIEL AGUA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 119.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CIEL AGUA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 119.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "COCA COLA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 231.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "COCA COLA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 223.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "COCA COLA LIGHT",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 231.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "COCA COLA ZERO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 192.24,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FANTA 600",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 231.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FANTA 600",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FRESCA TORONJA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FRESCA TORONJA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FUZE TEA DURAZNO 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 110.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FUZE TEA DURAZNO 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 102.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FUZE TEA NEGRO 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 110.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "FUZE TEA NEGRO 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 102.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA DURAZNO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 183.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA DURAZNO",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA MANZANA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 183.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA MANZANA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA PONCHE",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 183.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA PONCHE",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA UVA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 183.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JOYA UVA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "JUGO NARANJA 200 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 33.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "SANGRIA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 183.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "SPRITE LIMA LIMON 400",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 157.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Sprite lima limon 600",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 231.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Sprite lima limon 600",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 212.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "T CH SANGRIA 600 ML",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 231.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 10 x 20 ciento",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 8.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 10 x 20 ciento",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 8.19,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 60 x 90",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.13,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 60 x 90",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.13,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 90 x 1.20 valladolid",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 32.76,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "bolsa 90 x 1.20 valladolid",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 32.76,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "caharola 855 REYMA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 16.3,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "caharola 855 REYMA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 163.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "camiseta chica color",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 55.17,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "camiseta mediana color poliseda bio rey",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 55.17,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "camiseta mediana color poliseda bio rey",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.18,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "charola 1014",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 27.58,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "charola 1014",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 27.58,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cuchara grande mty",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 29.31,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cuchara grande mty",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 10.34,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "plato 10 liso",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.87,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "plato 10 liso",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 504.2,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "rollo 20 x 30 poliseda",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 54.31,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "rollo 20 x 30 poliseda",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 54.31,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "sal porcionada",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 77.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "sal porcionada",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 77.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "servilleta marly",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 34.48,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 412",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 19.83,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 414",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 27.59,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 414",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 27.59,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 416 ranura",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 38.79,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 416 ranura",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 18.11,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tazon 4 a reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 9.49,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tazon 716 reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 22.42,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tazon 716 reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 22.42,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tazon 8 a reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 12.07,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tazon 8 a reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 11.21,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tenedor mediano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 258.6,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tenedor mediano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 258.6,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vaso 0 primo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.27,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vaso 0 primo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 21.55,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vaso 12 plastico reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 31.04,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vaso 12 plastico reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 33.62,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vitafilm 12 coreano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 228.45,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vitafilm 12 coreano",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 228.45,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cofia negra",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 112.07,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cofia negra",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 112.07,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CUCHARA MEDIANA mty caja",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 258.6,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "TAZON 732 REYMA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 24.14,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "TAZON 732 REYMA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 24.14,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CAMISETA GRANDE COLOR",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 55.17,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CAMISETA GRANDE COLOR",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.18,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "charola 855 mariel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 18.97,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "charola 855 mariel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 163.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "TAPA 414 REYMA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 21.55,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "vaso termino 112 reyma",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 13.8,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Tazon 708 a CONVERMEX",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 17.24,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CAMISETA GRANDE BLANCA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.18,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CAMISETA MDIANA BLANCA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.18,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CUCHARA GRANDE MTY ECONOMICA",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 10.34,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Tenedor mediano mty granel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 29.31,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tapa 416  reyma ranurada",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 18.11,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Amarilla #12800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Amarilla #12800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Amarilla 800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Amarilla 800",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 23.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "totopo agranel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 60.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "totopo agranel",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 56.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "paq burro grande",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "paq burro grande",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 47.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "paq pirata chico",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 49.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "paq pirata chico",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 47.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "CAJA ROLLO SECANTE",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 340.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "ACEITE AU",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "knorr 130 gr",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 25.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "servta au",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 36.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "servta au",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 32.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "cj vinagre",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 35.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "frijolin",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "frijolin",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 29.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "maiz pozolero",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 58.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "maiz pozolero",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 53.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "sal fluora",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 29.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "zuko",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 6.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "zuko",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 6.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "aceite canola",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "zuko",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 6.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "tang",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Santa Catarina",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 5.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "costeña jalapeños",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 29.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Maggi Jugo",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 47.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "Aderezo de mayonesa",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 130.5,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
+  },
+  {
+    "fecha": "2026-09-23",
+    "ingrediente": "au pinto",
+    "proveedor": "(sin especificar)",
+    "sucursal": "Garcia",
+    "cantidad": null,
+    "unidad": null,
+    "precio_total": 30.0,
+    "notas": "Precio registrado por la dueña anterior (fecha exacta no confirmada; se marcó como vigente/reciente)"
   }
 ]

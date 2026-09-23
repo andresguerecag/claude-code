@@ -40,6 +40,9 @@ def _conectar_sqlite() -> sqlite3.Connection:
         )
         """
     )
+    columnas = {fila[1] for fila in con.execute("PRAGMA table_info(compras)")}
+    if "sucursal" not in columnas:
+        con.execute("ALTER TABLE compras ADD COLUMN sucursal TEXT")
     return con
 
 
@@ -68,10 +71,11 @@ def _sembrar_si_vacio() -> None:
                 for c in iniciales:
                     cur.execute(
                         """
-                        INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                         """,
-                        (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"), c["precio_total"], c.get("notas", "")),
+                        (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"),
+                         c["precio_total"], c.get("notas", ""), c.get("sucursal")),
                     )
         con.close()
         return
@@ -83,10 +87,11 @@ def _sembrar_si_vacio() -> None:
             for c in iniciales:
                 con.execute(
                     """
-                    INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """,
-                    (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"), c["precio_total"], c.get("notas", "")),
+                    (c["fecha"], c["ingrediente"], c["proveedor"], c.get("cantidad"), c.get("unidad"),
+                     c["precio_total"], c.get("notas", ""), c.get("sucursal")),
                 )
     con.close()
 
@@ -97,7 +102,7 @@ def _normalizar(texto: str) -> str:
 
 def agregar_compra(
     fecha: str, ingrediente: str, proveedor: str, cantidad: float | None,
-    unidad: str | None, precio_total: float, notas: str = "",
+    unidad: str | None, precio_total: float, notas: str = "", sucursal: str | None = None,
 ) -> int:
     ingrediente = ingrediente.strip()
     proveedor = proveedor.strip()
@@ -105,6 +110,7 @@ def agregar_compra(
         raise ValueError("Falta el ingrediente.")
     if not proveedor:
         raise ValueError("Falta el proveedor.")
+    sucursal = sucursal.strip() if sucursal else None
 
     if db.usando_postgres():
         db.inicializar_tablas()
@@ -112,10 +118,10 @@ def agregar_compra(
         with con, con.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
-                VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
+                INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id
                 """,
-                (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas),
+                (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal),
             )
             nuevo_id = cur.fetchone()[0]
         con.close()
@@ -125,10 +131,10 @@ def agregar_compra(
     with con:
         cur = con.execute(
             """
-            INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO compras (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas),
+            (fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal),
         )
         nuevo_id = cur.lastrowid
     con.close()
@@ -176,7 +182,7 @@ def _familia_unidad(unidad: str | None) -> tuple[str, float] | None:
 
 
 def _fila_a_dict(fila) -> dict:
-    id_, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas = fila
+    id_, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal = fila
     precio_unitario = round(precio_total / cantidad, 4) if cantidad else None
     unidad_base = precio_normalizado = None
     familia = _familia_unidad(unidad)
@@ -188,23 +194,23 @@ def _fila_a_dict(fila) -> dict:
         "cantidad": cantidad, "unidad": unidad, "precio_total": precio_total,
         "precio_unitario": round(precio_unitario, 2) if precio_unitario is not None else None,
         "unidad_base": unidad_base, "precio_normalizado": precio_normalizado,
-        "notas": notas,
+        "notas": notas, "sucursal": sucursal,
     }
 
 
 def listar_compras(
     ingrediente: str | None = None, proveedor: str | None = None,
-    desde: str | None = None, hasta: str | None = None,
+    desde: str | None = None, hasta: str | None = None, sucursal: str | None = None,
 ) -> list[dict]:
-    """Todas las compras, mas recientes primero. 'ingrediente'/'proveedor'
-    filtran por coincidencia parcial (insensible a mayusculas)."""
+    """Todas las compras, mas recientes primero. 'ingrediente'/'proveedor'/
+    'sucursal' filtran por coincidencia parcial (insensible a mayusculas)."""
     _sembrar_si_vacio()
     if db.usando_postgres():
         db.inicializar_tablas()
         con = db.conectar()
         with con.cursor() as cur:
             cur.execute(
-                "SELECT id, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas "
+                "SELECT id, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal "
                 "FROM compras ORDER BY fecha DESC, id DESC"
             )
             filas = cur.fetchall()
@@ -212,7 +218,7 @@ def listar_compras(
     else:
         con = _conectar_sqlite()
         filas = con.execute(
-            "SELECT id, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas "
+            "SELECT id, fecha, ingrediente, proveedor, cantidad, unidad, precio_total, notas, sucursal "
             "FROM compras ORDER BY fecha DESC, id DESC"
         ).fetchall()
         con.close()
@@ -224,6 +230,9 @@ def listar_compras(
     if proveedor:
         obj = _normalizar(proveedor)
         resultado = [c for c in resultado if obj in _normalizar(c["proveedor"])]
+    if sucursal:
+        obj = _normalizar(sucursal)
+        resultado = [c for c in resultado if c["sucursal"] and obj in _normalizar(c["sucursal"])]
     if desde:
         resultado = [c for c in resultado if c["fecha"] >= desde]
     if hasta:

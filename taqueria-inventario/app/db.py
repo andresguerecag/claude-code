@@ -104,4 +104,7 @@ def inicializar_tablas():
                 creado_en TIMESTAMP NOT NULL DEFAULT now()
             )
         """)
+        # ADD COLUMN IF NOT EXISTS por si la tabla ya se habia creado antes
+        # de que "sucursal" existiera -- no truena en despliegues ya vivos.
+        cur.execute("ALTER TABLE compras ADD COLUMN IF NOT EXISTS sucursal TEXT")
     con.close()

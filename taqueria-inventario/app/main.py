@@ -408,9 +408,9 @@ async def eliminar_salida_efectivo(id_salida: int):
 @app.get("/api/compras")
 async def listar_compras(
     ingrediente: str | None = None, proveedor: str | None = None,
-    desde: str | None = None, hasta: str | None = None,
+    desde: str | None = None, hasta: str | None = None, sucursal: str | None = None,
 ):
-    return compras.listar_compras(ingrediente=ingrediente, proveedor=proveedor, desde=desde, hasta=hasta)
+    return compras.listar_compras(ingrediente=ingrediente, proveedor=proveedor, desde=desde, hasta=hasta, sucursal=sucursal)
 
 
 @app.post("/api/compras")
@@ -422,13 +422,14 @@ async def agregar_compra(payload: dict = Body(...)):
     unidad = payload.get("unidad")
     precio_total = payload.get("precio_total")
     notas = payload.get("notas", "")
+    sucursal = payload.get("sucursal")
     if not fecha or not ingrediente or not proveedor or precio_total is None:
         raise HTTPException(status_code=400, detail="Falta fecha, ingrediente, proveedor o precio.")
     try:
         nuevo_id = compras.agregar_compra(
             fecha, ingrediente, proveedor,
             float(cantidad) if cantidad not in (None, "") else None,
-            unidad or None, float(precio_total), notas,
+            unidad or None, float(precio_total), notas, sucursal or None,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
