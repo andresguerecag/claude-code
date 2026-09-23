@@ -73,7 +73,12 @@ def _resolver_fecha_dia_sucursal(path_wansoft: str, fecha_elegida: str | None) -
     archivo de otro dia por error)."""
     meta = _detectar_metadatos_wansoft(path_wansoft)
     if meta["sucursal"] is None:
-        raise HTTPException(status_code=400, detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo de Wansoft.")
+        raise HTTPException(
+            status_code=400,
+            detail="No pude encontrar la sucursal ('Sucursal: ...') en el archivo que subiste como Wansoft. "
+            "Verifica que sea el reporte 'Ventas Por Platillo Por Grupo' que exporta Wansoft "
+            "(no otro archivo, como el control diario que se lleva aparte).",
+        )
 
     if fecha_elegida:
         dia = fecha_elegida.split("-")[-1]
