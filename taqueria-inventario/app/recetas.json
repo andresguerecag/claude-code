@@ -140,21 +140,24 @@
     "nombre": "TORTA DE BISTECY ARRACHERA",
     "receta_por_unidad": {
       "carne": 0.12,
-      "queso": 0.05
+      "queso": 0.05,
+      "telera": 1.0
     }
   },
   "TORA": {
     "nombre": "TORTA DE BISTECY ARRACHERA",
     "receta_por_unidad": {
       "carne": 0.12,
-      "queso": 0.05
+      "queso": 0.05,
+      "telera": 1.0
     }
   },
   "TORP": {
     "nombre": "TORTA DE PASTOR",
     "receta_por_unidad": {
       "pastor": 0.12,
-      "queso": 0.05
+      "queso": 0.05,
+      "telera": 1.0
     }
   },
   "ALBS": {
