@@ -11,7 +11,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from . import db
+from . import db, dinero
 
 DB_PATH = Path(__file__).parent / "historial.db"
 
@@ -155,11 +155,24 @@ def total_efectivo_mes(sucursal: str, anio_mes: str) -> float:
 
 def pendientes_acumulados() -> list[dict]:
     """Conceptos de gasto sin categorizar de todo el historial, sumados y
-    ordenados por monto -- para priorizar una sesion de categorizar."""
+    ordenados por monto -- para priorizar una sesion de categorizar.
+
+    Igual que en historial.py: los reportes guardados son una "foto" del
+    momento en que se generaron, asi que se vuelve a evaluar cada concepto
+    pendiente contra el mapeo de gastos ACTUAL antes de contarlo -- si ya
+    se categorizo (o se marco ignorar) despues de guardar ese reporte, no
+    debe seguir apareciendo como pendiente."""
+    mapeo = dinero.cargar_mapeo_gastos()
+
     acumulado: dict[str, dict] = {}
     for _fecha, _sucursal, reporte_json, _creado_en in _todos_los_reportes():
         r = json.loads(reporte_json)
         for g in r.get("gastos_sin_categorizar", []):
+            gasto = dinero.GastoDia(concepto=g["concepto"], monto=g["monto"])
+            match = dinero.emparejar_gastos([gasto], mapeo)
+            if not match.sin_categorizar:
+                continue  # ya se resolvio desde que se genero ese reporte
+
             concepto = g["concepto"]
             if concepto not in acumulado:
                 acumulado[concepto] = {"concepto": concepto, "monto_total": 0.0, "dias": 0}

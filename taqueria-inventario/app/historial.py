@@ -12,7 +12,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from . import db
+from . import db, reconciliacion
 
 DB_PATH = Path(__file__).parent / "historial.db"
 
@@ -152,10 +152,27 @@ def mermas_detalle(sucursal: str | None = None, desde: str | None = None, hasta:
 
 
 def pendientes_acumulados() -> list[dict]:
+    """Platillos sin identificar, juntando todos los reportes guardados.
+
+    Los reportes se guardan como una "foto" del momento en que se
+    generaron -- si despues alguien liga esa clave a una receta (o la
+    marca ignorar), esa foto vieja se queda con la clave en
+    platillos_no_identificados para siempre. Por eso aqui se vuelve a
+    evaluar cada clave pendiente contra las recetas y el mapeo manual
+    ACTUALES antes de contarla: si ya se resolvio, no debe seguir
+    apareciendo como pendiente."""
+    recetas = reconciliacion._cargar_recetas()
+    mapeo_manual = reconciliacion.cargar_mapeo_manual()
+
     acumulado: dict[str, dict] = {}
     for _fecha, _sucursal, reporte_json, _creado_en in _todos_los_reportes():
         r = json.loads(reporte_json)
         for p in r.get("platillos_no_identificados", []):
+            venta = reconciliacion.VentaPlatillo(clave=p["clave"], nombre=p["nombre"], cantidad=p["cantidad"])
+            match = reconciliacion.emparejar_ventas_con_recetas([venta], recetas, mapeo_manual)
+            if not match.ventas_sin_identificar:
+                continue  # ya se resolvio desde que se genero ese reporte
+
             clave = p["clave"]
             if clave not in acumulado:
                 acumulado[clave] = {"clave": clave, "nombre": p["nombre"], "cantidad_total": 0, "dias": 0}
