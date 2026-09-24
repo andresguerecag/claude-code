@@ -180,7 +180,8 @@
     "receta_por_unidad": {
       "carne": 0.12,
       "queso": 0.05,
-      "tortillas": 7.0
+      "tortillas": 7.0,
+      "refrescos": 1.0
     }
   },
   "ALPS": {
@@ -329,6 +330,15 @@
       "carne": 0.3,
       "queso": 0.05,
       "tortillas": 20.0
+    }
+  },
+  "REFCAMPGDE": {
+    "nombre": "COMPLETO GIGANTE (CAMPECHANA + REFRESCO)",
+    "receta_por_unidad": {
+      "carne": 0.06,
+      "pastor": 0.06,
+      "queso": 0.05,
+      "refrescos": 1.0
     }
   }
 }
