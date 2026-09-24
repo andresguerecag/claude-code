@@ -889,7 +889,24 @@ function filaReceta(r) {
     <td><input type="number" step="0.1" class="tortillas" value="${receta.tortillas ?? ''}" style="width:70px"></td>
     <td><input type="number" step="0.1" class="telera" value="${receta.telera ?? ''}" style="width:70px"></td>
     <td><input type="number" step="1" class="refrescos" value="${receta.refrescos ?? ''}" style="width:70px"></td>
-    <td><button class="guardar-receta btn-fantasma btn-chico">Guardar</button></td>`;
+    <td>
+      <button class="guardar-receta btn-fantasma btn-chico">Guardar</button>
+      ${r.clave ? '<button class="eliminar-receta btn-peligro btn-chico">Eliminar</button>' : ''}
+    </td>`;
+  if (r.clave) {
+    tr.querySelector('.eliminar-receta').addEventListener('click', async () => {
+      if (!confirm(`¿Borrar la receta "${r.clave}"? Si alguna venta de Wansoft todavía usa esta clave, va a aparecer como pendiente de identificar la próxima vez. No se puede deshacer.`)) return;
+      const boton = tr.querySelector('.eliminar-receta');
+      boton.disabled = true; boton.textContent = 'Borrando...';
+      try {
+        const resp = await fetch(`/api/recetas/${encodeURIComponent(r.clave)}`, { method: 'DELETE' });
+        if (!resp.ok) throw new Error();
+        tr.remove();
+      } catch {
+        boton.disabled = false; boton.textContent = 'Error, reintentar';
+      }
+    });
+  }
   tr.querySelector('.guardar-receta').addEventListener('click', async () => {
     const boton = tr.querySelector('.guardar-receta');
     const clave = tr.querySelector('.clave').value.trim();
