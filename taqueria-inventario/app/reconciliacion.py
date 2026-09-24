@@ -134,6 +134,35 @@ def guardar_mapeo_manual(clave_wansoft: str, clave_receta_o_ignorar: str) -> Non
         json.dump(mapeo, f, indent=2, ensure_ascii=False)
 
 
+def listar_mapeo_manual() -> list[dict]:
+    """Todos los mapeos manuales guardados (clave de Wansoft -> receta o
+    IGNORAR), para poder revisarlos y corregirlos desde el reporte -- por
+    ejemplo, si algo se marco como 'ignorar' por error y ahora si se quiere
+    contemplar en el calculo."""
+    mapeo = cargar_mapeo_manual()
+    return [{"clave": clave, "valor": valor} for clave, valor in sorted(mapeo.items())]
+
+
+def eliminar_mapeo_manual(clave_wansoft: str) -> None:
+    """Quita un mapeo guardado. La proxima vez que aparezca esa clave en un
+    reporte, vuelve a las reglas automaticas (o se pide de nuevo si no
+    logra emparejar sola)."""
+    clave_norm = _normalizar(clave_wansoft)
+
+    if db.usando_postgres():
+        db.inicializar_tablas()
+        con = db.conectar()
+        with con, con.cursor() as cur:
+            cur.execute("DELETE FROM mapeo_manual WHERE clave = %s", (clave_norm,))
+        con.close()
+        return
+
+    mapeo = cargar_mapeo_manual()
+    mapeo.pop(clave_norm, None)
+    with open(MAPEO_MANUAL_PATH, "w", encoding="utf-8") as f:
+        json.dump(mapeo, f, indent=2, ensure_ascii=False)
+
+
 INSUMOS_VALIDOS = ["carne", "pastor", "queso", "tortillas", "telera", "refrescos"]
 
 

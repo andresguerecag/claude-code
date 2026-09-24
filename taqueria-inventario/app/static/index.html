@@ -444,6 +444,7 @@
   <h1>Tabla de recetas</h1>
   <p class="subtitulo">Cuánto de cada insumo lleva cada platillo por unidad vendida. Corrige y da "Guardar" — se usa desde el próximo reporte. Deja vacío lo que no aplique.</p>
   <div id="pendientes-acumulados-box"></div>
+  <div id="mapeos-manuales-box"></div>
 
   <button id="agregar-receta" class="btn-fantasma btn-chico" style="margin: 6px 0 10px;">+ Agregar platillo nuevo</button>
   <table><thead><tr>
@@ -775,6 +776,82 @@ async function cargarRecetas() {
   tbody.innerHTML = '';
   for (const r of recetas) tbody.appendChild(filaReceta(r));
   await cargarPendientesAcumulados();
+  await cargarMapeosManuales();
+}
+
+async function cargarMapeosManuales() {
+  const box = document.getElementById('mapeos-manuales-box');
+  box.innerHTML = '<p class="subtitulo">Cargando mapeos manuales...</p>';
+  const mapeos = await (await fetch('/api/mapeo')).json();
+  if (!mapeos.length) {
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = `<h3>Mapeos manuales guardados (${mapeos.length})</h3>
+  <p class="subtitulo">Claves de Wansoft que se corrigieron a mano alguna vez, incluyendo las marcadas "Ignorar". Si algo ya no debe ignorarse, cámbialo aquí o elimínalo.</p>
+  <table><thead><tr><th>Clave (Wansoft)</th><th>¿A qué corresponde?</th><th></th><th></th></tr></thead>
+  <tbody id="tabla-mapeos"></tbody></table>`;
+  const tbody = document.getElementById('tabla-mapeos');
+  for (const m of mapeos) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${m.clave}</td>
+      <td class="celda-opcion"><select class="mapeo">${opcionesRecetas()}</select></td>
+      <td class="celda-accion"><button class="guardar-mapeo btn-fantasma btn-chico">Guardar</button></td>
+      <td><button class="eliminar-mapeo btn-fantasma btn-chico">Eliminar</button></td>`;
+    const select = tr.querySelector('select.mapeo');
+    if ([...select.options].some(o => o.value === m.valor)) select.value = m.valor;
+    activarFilaMapeoManual(tr, m);
+    tr.querySelector('.eliminar-mapeo').addEventListener('click', async () => {
+      if (!confirm(`¿Quitar el mapeo guardado de "${m.clave}"? La próxima vez se volverá a evaluar solo (o se pedirá de nuevo si no se puede identificar sin ayuda).`)) return;
+      const boton = tr.querySelector('.eliminar-mapeo');
+      boton.disabled = true; boton.textContent = 'Eliminando...';
+      try {
+        const resp = await fetch(`/api/mapeo/${encodeURIComponent(m.clave)}`, { method: 'DELETE' });
+        if (!resp.ok) throw new Error();
+        tr.remove();
+      } catch {
+        boton.disabled = false; boton.textContent = 'Error, reintentar';
+      }
+    });
+    tbody.appendChild(tr);
+  }
+}
+
+function activarFilaMapeoManual(tr, m) {
+  const select = tr.querySelector('select.mapeo');
+  tr.querySelector('.guardar-mapeo').addEventListener('click', () => guardarMapeo(m.clave, select, tr));
+  select.addEventListener('change', () => {
+    if (select.value !== '__NUEVA__') return;
+    mostrarFormularioNuevaOpcion(
+      tr,
+      `<input type="text" class="nueva-clave" value="${m.clave}" placeholder="Clave" style="width:70px">
+       <input type="text" class="nueva-nombre" value="" placeholder="Nombre" style="width:140px">`,
+      'Crear y guardar',
+      async (fila, boton) => {
+        const claveNueva = fila.querySelector('.nueva-clave').value.trim();
+        const nombreNueva = fila.querySelector('.nueva-nombre').value.trim();
+        if (!claveNueva) { alert('Falta la clave de la receta nueva.'); return; }
+        boton.disabled = true; boton.textContent = 'Creando...';
+        try {
+          const r1 = await fetch('/api/recetas', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clave: claveNueva, nombre: nombreNueva, receta_por_unidad: {} }),
+          });
+          if (!r1.ok) throw new Error();
+          const r2 = await fetch('/api/mapeo', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clave: m.clave, receta_o_ignorar: claveNueva }),
+          });
+          if (!r2.ok) throw new Error();
+          recetasDisponibles.push({ clave: claveNueva, nombre: nombreNueva });
+          fila.classList.add('fila-guardada');
+          boton.textContent = 'Creado y guardado ✓';
+        } catch {
+          boton.disabled = false; boton.textContent = 'Error, reintentar';
+        }
+      }
+    );
+  });
 }
 
 async function cargarPendientesAcumulados() {

@@ -313,5 +313,11 @@
       "queso": 0.05,
       "tortillas": 3.0
     }
+  },
+  "REF600": {
+    "nombre": "REFRESCO 600ML",
+    "receta_por_unidad": {
+      "refrescos": 1.0
+    }
   }
 }

@@ -258,6 +258,20 @@ async def guardar_mapeo(payload: dict = Body(...)):
     return {"ok": True}
 
 
+@app.get("/api/mapeo")
+async def listar_mapeo():
+    """Todos los mapeos manuales guardados, para poder revisarlos y
+    corregirlos (ej. algo marcado como 'ignorar' que ahora si se quiere
+    contemplar)."""
+    return reconciliacion.listar_mapeo_manual()
+
+
+@app.delete("/api/mapeo/{clave}")
+async def eliminar_mapeo(clave: str):
+    reconciliacion.eliminar_mapeo_manual(clave)
+    return {"ok": True}
+
+
 @app.get("/api/recetas")
 async def listar_recetas():
     return reconciliacion.listar_recetas()
