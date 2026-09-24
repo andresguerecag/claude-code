@@ -482,6 +482,13 @@ async def comparar_precio_compra(ingrediente: str, precio_total: float, cantidad
     return compras.comparar_precio(ingrediente, cantidad, unidad, precio_total)
 
 
+@app.get("/api/compras/sugerencias-proveedor")
+async def sugerencias_proveedor(proveedor: str):
+    """"Voy a comprar a X" -- que ingredientes ya se han comprado ahi antes
+    y si conviene aprovechar o mejor comprarlos en otro proveedor."""
+    return compras.sugerir_por_proveedor(proveedor)
+
+
 @app.get("/api/compras/asesor/disponible")
 async def asesor_disponible():
     return {"disponible": asesor_compras.disponible()}

@@ -327,6 +327,20 @@
     <div id="asesor-resultado"></div>
   </div>
 
+  <div class="seccion cmp">
+    <div class="seccion-titulo">🗺️ ¿Qué comprar en...?</div>
+    <p class="subtitulo">¿Vas a ir a comprar a algún proveedor? Escribe el nombre y te decimos qué ingredientes se han comprado ahí antes y si conviene aprovechar o mejor comprarlos en otro lado.</p>
+    <div class="subida" style="align-items: flex-end;">
+      <div style="flex: 1 1 200px;">
+        <label>Proveedor</label>
+        <input type="text" id="ruta-proveedor" list="lista-proveedores" placeholder="Ej. Sam's" style="width: 100%;">
+        <datalist id="lista-proveedores"></datalist>
+      </div>
+      <button id="consultar-ruta" class="btn-cmp">¿Qué comprar ahí?</button>
+    </div>
+    <div id="ruta-resultado"></div>
+  </div>
+
   <h3>Agregar compra</h3>
   <div class="subida" style="align-items: flex-end;">
     <div>
@@ -1119,6 +1133,13 @@ async function cargarVistaCompras() {
     document.getElementById('compra-fecha').value = new Date().toISOString().slice(0, 10);
   }
   await cargarTablaCompras();
+  await cargarListaProveedores();
+}
+
+async function cargarListaProveedores() {
+  const todas = await (await fetch('/api/compras')).json();
+  const proveedores = [...new Set(todas.map(c => c.proveedor).filter(Boolean))].sort();
+  document.getElementById('lista-proveedores').innerHTML = proveedores.map(p => `<option value="${p}">`).join('');
 }
 
 document.getElementById('agregar-compra').addEventListener('click', async () => {
@@ -1339,6 +1360,37 @@ document.getElementById('consultar-asesor').addEventListener('click', async () =
       boton.disabled = false;
     });
   }
+});
+
+document.getElementById('consultar-ruta').addEventListener('click', async () => {
+  const proveedor = document.getElementById('ruta-proveedor').value.trim();
+  const div = document.getElementById('ruta-resultado');
+  if (!proveedor) {
+    div.innerHTML = '<div class="advertencia">⚠️ Indica el proveedor.</div>';
+    return;
+  }
+  div.innerHTML = '<p class="subtitulo">Buscando...</p>';
+  const lista = await (await fetch('/api/compras/sugerencias-proveedor?' + new URLSearchParams({ proveedor }))).json();
+  if (!lista.length) {
+    div.innerHTML = `<div class="advertencia">⚠️ No hay compras registradas antes en un proveedor que coincida con "${proveedor}".</div>`;
+    return;
+  }
+  let html = `<h3>Ingredientes comprados antes en "${proveedor}" (${lista.length})</h3>
+  <table><thead><tr><th>Ingrediente</th><th>Última vez aquí</th><th>Precio aquí</th><th>Promedio general</th><th>Mínimo general</th><th></th></tr></thead><tbody>`;
+  for (const it of lista) {
+    let veredicto = '<span class="subtitulo">sin suficiente historial para comparar</span>';
+    if (it.buena_compra_aqui === true) veredicto = '<span style="color: var(--verde)">✓ Buen lugar para comprarlo</span>';
+    else if (it.buena_compra_aqui === false) veredicto = '<span style="color: var(--rojo)">⚠️ Más caro que el promedio</span>';
+    html += `<tr>
+      <td>${it.ingrediente}</td><td>${it.ultima_fecha_aqui}</td>
+      <td>${it.precio_normalizado_aqui !== null ? fmtMoneda(it.precio_normalizado_aqui) + (it.unidad_base ? ' / ' + it.unidad_base : '') : 'no disponible'}</td>
+      <td>${it.precio_promedio_general !== null ? fmtMoneda(it.precio_promedio_general) : 'no disponible'}</td>
+      <td>${it.precio_minimo_general !== null ? fmtMoneda(it.precio_minimo_general) : 'no disponible'}</td>
+      <td>${veredicto}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  div.innerHTML = html;
 });
 
 // ============================================================

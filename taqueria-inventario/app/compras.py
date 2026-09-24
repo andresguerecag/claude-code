@@ -246,6 +246,52 @@ def historial_ingrediente(ingrediente: str, limite: int = 20) -> list[dict]:
     return listar_compras(ingrediente=ingrediente)[:limite]
 
 
+def sugerir_por_proveedor(proveedor: str) -> list[dict]:
+    """"Voy a comprar a X" -- de todos los ingredientes que alguna vez se
+    han comprado en ese proveedor, dice cual es el ultimo precio visto ahi
+    y como se compara contra el promedio de ese mismo ingrediente en TODOS
+    los proveedores (en la misma unidad base), para saber cuales aprovechar
+    ahi y cuales conviene comprar en otro lado."""
+    todas = listar_compras()
+    obj = _normalizar(proveedor)
+    del_proveedor = [c for c in todas if obj in _normalizar(c["proveedor"])]
+    if not del_proveedor:
+        return []
+
+    ultimo_por_ingrediente: dict[str, dict] = {}
+    for c in del_proveedor:  # listar_compras ya viene mas reciente primero
+        clave = _normalizar(c["ingrediente"])
+        if clave not in ultimo_por_ingrediente:
+            ultimo_por_ingrediente[clave] = c
+
+    resultado = []
+    for clave, compra_aqui in ultimo_por_ingrediente.items():
+        comparables = [
+            c for c in todas
+            if _normalizar(c["ingrediente"]) == clave
+            and c["unidad_base"] is not None
+            and c["unidad_base"] == compra_aqui["unidad_base"]
+        ]
+        precios = [c["precio_normalizado"] for c in comparables]
+        promedio = round(sum(precios) / len(precios), 2) if precios else None
+        minimo = round(min(precios), 2) if precios else None
+        precio_aqui = compra_aqui["precio_normalizado"]
+        resultado.append({
+            "ingrediente": compra_aqui["ingrediente"],
+            "ultima_fecha_aqui": compra_aqui["fecha"],
+            "precio_normalizado_aqui": precio_aqui,
+            "unidad_base": compra_aqui["unidad_base"],
+            "precio_promedio_general": promedio,
+            "precio_minimo_general": minimo,
+            "num_comparables": len(precios),
+            "buena_compra_aqui": (
+                round(precio_aqui, 2) <= promedio if precio_aqui is not None and promedio is not None else None
+            ),
+        })
+    resultado.sort(key=lambda x: x["ingrediente"])
+    return resultado
+
+
 def comparar_precio(ingrediente: str, cantidad: float | None, unidad: str | None, precio_total: float) -> dict:
     """Compara un precio nuevo contra el historial de ese ingrediente.
 
