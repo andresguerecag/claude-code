@@ -319,5 +319,13 @@
     "receta_por_unidad": {
       "refrescos": 1.0
     }
+  },
+  "PIRCHB": {
+    "nombre": "MEDIANA BISTEC C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.3,
+      "queso": 0.05,
+      "tortillas": 20.0
+    }
   }
 }

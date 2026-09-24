@@ -252,7 +252,7 @@ class ItemInventario:
 
 @dataclass
 class MatchResultado:
-    ventas_identificadas: list = field(default_factory=list)   # (clave_original, clave_receta, cantidad_efectiva)
+    ventas_identificadas: list = field(default_factory=list)   # (clave_original, clave_receta, cantidad_efectiva, cantidad_vendida)
     ventas_sin_identificar: list = field(default_factory=list)  # VentaPlatillo
     ventas_ignoradas: list = field(default_factory=list)         # VentaPlatillo, marcadas IGNORAR a mano
 
@@ -291,7 +291,7 @@ def emparejar_ventas_con_recetas(ventas: list[VentaPlatillo], recetas: dict, map
                 resultado.ventas_ignoradas.append(venta)
                 continue
             if decision in recetas:
-                resultado.ventas_identificadas.append((venta.clave, decision, venta.cantidad))
+                resultado.ventas_identificadas.append((venta.clave, decision, venta.cantidad, venta.cantidad))
                 continue
             # si el mapeo guardado ya no es valido (receta renombrada), sigue
             # con las reglas automaticas en vez de fallar
@@ -325,7 +325,7 @@ def emparejar_ventas_con_recetas(ventas: list[VentaPlatillo], recetas: dict, map
 
         if objetivo is not None:
             resultado.ventas_identificadas.append(
-                (venta.clave, objetivo, venta.cantidad * multiplicador)
+                (venta.clave, objetivo, venta.cantidad * multiplicador, venta.cantidad)
             )
         else:
             resultado.ventas_sin_identificar.append(venta)
@@ -342,7 +342,7 @@ PIEZAS_TORTILLA_POR_KG = 45.0
 def calcular_consumo_teorico(match: MatchResultado, recetas: dict) -> dict:
     """Suma, por insumo, cuanto se debio haber consumido segun las recetas."""
     consumo = {}
-    for _clave_original, clave_receta, cantidad in match.ventas_identificadas:
+    for _clave_original, clave_receta, cantidad, _cantidad_vendida in match.ventas_identificadas:
         receta = recetas[clave_receta]["receta_por_unidad"]
         for insumo, cantidad_por_unidad in receta.items():
             consumo[insumo] = consumo.get(insumo, 0.0) + cantidad_por_unidad * cantidad
@@ -534,7 +534,12 @@ def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str,
     ]
 
     total_vendido = sum(v.cantidad for v in ventas)
-    total_identificado = sum(c for _, _, c in match.ventas_identificadas)
+    # OJO: para el % de confianza se usa la cantidad VENDIDA (cuarta posicion
+    # de la tupla), no la "cantidad_efectiva" ya multiplicada (ej. "2 ORDP" =
+    # 2 lineas x2 de multiplicador = 4 unidades de consumo) -- si aqui se
+    # sumara la efectiva, el % podria pasarse de 100% comparado contra
+    # total_vendido, que cuenta lineas tal como las reporta Wansoft.
+    total_identificado = sum(cant_vendida for _, _, _, cant_vendida in match.ventas_identificadas)
     total_ignorado = sum(v.cantidad for v in match.ventas_ignoradas)
     # Los "ignorados" (ej. refrescos, que se comparan distinto y nunca
     # necesitaron receta) NO cuentan como pendientes -- se excluyen del total
