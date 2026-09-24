@@ -298,6 +298,35 @@
   <h1>Base de datos de compras</h1>
   <p class="subtitulo">Registra cada compra de insumos (dónde, cuánto, a qué precio) para llevar el historial y poder preguntar si un precio conviene.</p>
 
+  <div class="seccion cmp">
+    <div class="seccion-titulo">🛒 Asesor de compras</div>
+    <p class="subtitulo">¿Viste un ingrediente en oferta? Escribe el ingrediente y el precio que viste, y lo comparamos contra lo que has pagado antes.</p>
+    <div class="subida" style="align-items: flex-end;">
+      <div style="flex: 1 1 150px;">
+        <label>Ingrediente</label>
+        <input type="text" id="asesor-ingrediente" placeholder="Ej. Aceite" style="width: 100%;">
+      </div>
+      <div>
+        <label>Proveedor (opcional)</label>
+        <input type="text" id="asesor-proveedor" placeholder="Ej. Sam's" style="width: 110px;">
+      </div>
+      <div>
+        <label>Cantidad</label>
+        <input type="number" step="0.01" id="asesor-cantidad" placeholder="Ej. 2" style="width: 80px;">
+      </div>
+      <div>
+        <label>Unidad</label>
+        <input type="text" id="asesor-unidad" placeholder="L, kg..." style="width: 80px;">
+      </div>
+      <div>
+        <label>Precio total que viste</label>
+        <input type="number" step="0.01" id="asesor-precio" placeholder="0.00" style="width: 100px;">
+      </div>
+      <button id="consultar-asesor" class="btn-cmp">Comparar</button>
+    </div>
+    <div id="asesor-resultado"></div>
+  </div>
+
   <h3>Agregar compra</h3>
   <div class="subida" style="align-items: flex-end;">
     <div>
@@ -357,35 +386,6 @@
   </div>
   <table><thead><tr><th>Fecha</th><th>Ingrediente</th><th>Proveedor</th><th>Sucursal</th><th>Cantidad</th><th>Unidad</th><th>Precio total</th><th>Precio unitario</th><th></th></tr></thead>
   <tbody id="tabla-compras"></tbody></table>
-
-  <div class="seccion cmp">
-    <div class="seccion-titulo">🛒 Asesor de compras</div>
-    <p class="subtitulo">¿Viste un ingrediente en oferta? Escribe el ingrediente y el precio que viste, y lo comparamos contra lo que has pagado antes.</p>
-    <div class="subida" style="align-items: flex-end;">
-      <div style="flex: 1 1 150px;">
-        <label>Ingrediente</label>
-        <input type="text" id="asesor-ingrediente" placeholder="Ej. Aceite" style="width: 100%;">
-      </div>
-      <div>
-        <label>Proveedor (opcional)</label>
-        <input type="text" id="asesor-proveedor" placeholder="Ej. Sam's" style="width: 110px;">
-      </div>
-      <div>
-        <label>Cantidad</label>
-        <input type="number" step="0.01" id="asesor-cantidad" placeholder="Ej. 2" style="width: 80px;">
-      </div>
-      <div>
-        <label>Unidad</label>
-        <input type="text" id="asesor-unidad" placeholder="L, kg..." style="width: 80px;">
-      </div>
-      <div>
-        <label>Precio total que viste</label>
-        <input type="number" step="0.01" id="asesor-precio" placeholder="0.00" style="width: 100px;">
-      </div>
-      <button id="consultar-asesor" class="btn-cmp">Comparar</button>
-    </div>
-    <div id="asesor-resultado"></div>
-  </div>
 </div>
 
 <!-- ============ HISTORIAL (unificado con pestañas) ============ -->
@@ -1223,6 +1223,12 @@ document.getElementById('consultar-asesor').addEventListener('click', async () =
     html += `<div class="alerta-caja">⚠️ Este precio está por arriba del promedio histórico (${fmtMoneda(cmp.precio_promedio)} por ${cmp.unidad_base}).</div>`;
   }
 
+  html += `<div style="display:flex; gap:8px; margin: 10px 0;">
+    <button id="asesor-agregar-compra" class="btn-cmp btn-chico">💾 Agregar como compra registrada</button>
+    <button id="asesor-borrar" class="btn-fantasma btn-chico">🗑 Borrar consulta</button>
+  </div>
+  <div id="asesor-guardado-estado"></div>`;
+
   if (cmp.historial.length) {
     let hayAtenuadas = false;
     html += `<h3>Compras anteriores de "${ingrediente}" (${cmp.num_compras})</h3>
@@ -1241,6 +1247,48 @@ document.getElementById('consultar-asesor').addEventListener('click', async () =
 
   html += `<div id="asesor-ia-box"></div>`;
   div.innerHTML = html;
+
+  document.getElementById('asesor-borrar').addEventListener('click', () => {
+    document.getElementById('asesor-ingrediente').value = '';
+    document.getElementById('asesor-proveedor').value = '';
+    document.getElementById('asesor-cantidad').value = '';
+    document.getElementById('asesor-unidad').value = '';
+    document.getElementById('asesor-precio').value = '';
+    div.innerHTML = '';
+  });
+
+  document.getElementById('asesor-agregar-compra').addEventListener('click', async () => {
+    const boton = document.getElementById('asesor-agregar-compra');
+    const estado = document.getElementById('asesor-guardado-estado');
+    if (!proveedor) {
+      estado.className = 'error';
+      estado.textContent = 'Indica el proveedor (arriba, en "Proveedor") para poder guardar esta compra.';
+      return;
+    }
+    boton.disabled = true;
+    boton.textContent = 'Guardando...';
+    try {
+      const resp = await fetch('/api/compras', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fecha: new Date().toISOString().slice(0, 10),
+          ingrediente, proveedor,
+          sucursal: null,
+          cantidad: cantidad === '' ? null : parseFloat(cantidad),
+          unidad: unidad || null,
+          precio_total: parseFloat(precioTotal),
+        }),
+      });
+      if (!resp.ok) throw new Error();
+      boton.textContent = 'Guardada ✓';
+      estado.className = '';
+      estado.textContent = 'Se agregó al historial de compras — ya cuenta como precio de referencia para la próxima comparación.';
+      await cargarTablaCompras();
+    } catch {
+      boton.disabled = false;
+      boton.textContent = 'Error, reintentar';
+    }
+  });
 
   if (asesorIaDisponible === null) {
     asesorIaDisponible = await (await fetch('/api/compras/asesor/disponible')).json().then(r => r.disponible);
