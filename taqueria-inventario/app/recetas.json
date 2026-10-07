@@ -340,5 +340,11 @@
       "queso": 0.05,
       "refrescos": 1.0
     }
+  },
+  "AGUACIEL": {
+    "nombre": "AGUA CIEL",
+    "receta_por_unidad": {
+      "refrescos": 1.0
+    }
   }
 }

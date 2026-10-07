@@ -206,8 +206,9 @@
   <div class="seccion inv">
     <div class="seccion-titulo">📦 Inventario</div>
     <div class="kpis" id="kpis-inventario"></div>
-    <h3>Consumo acumulado del período</h3>
-    <table><thead><tr><th>Insumo</th><th>Real</th><th>Teórico</th><th>Diferencia</th></tr></thead>
+    <h3>Consumo del período</h3>
+    <p class="subtitulo">Cada día se concilia por separado: un faltante de un día no se compensa con un sobrante de otro. Por eso se muestran los días fuera de tolerancia y el peor día, además del total.</p>
+    <table><thead><tr><th>Insumo</th><th>Días fuera de tolerancia</th><th>Peor día</th><th>Real (total)</th><th>Teórico (total)</th></tr></thead>
     <tbody id="dashboard-merma"></tbody></table>
     <div id="resumen-ia-box" hidden>
       <button id="generar-resumen-ia" class="btn-fantasma btn-chico">🧠 Generar resumen con IA</button>
@@ -1734,9 +1735,12 @@ async function cargarDashboard() {
     : '<tr><td colspan="7">Sin datos en este período.</td></tr>';
 
   document.getElementById('dashboard-merma').innerHTML = d.merma_por_insumo.map(f => `
-    <tr class="${f.diferencia !== 'no disponible' && Math.abs(f.diferencia) > 2 ? 'alerta' : ''}">
-      <td>${f.insumo}</td><td>${f.consumo_real}</td><td>${f.consumo_teorico}</td><td>${f.diferencia}</td>
-    </tr>`).join('') || '<tr><td colspan="4">Sin datos en este período.</td></tr>';
+    <tr class="${f.dias_con_alerta > 0 ? 'alerta' : ''}">
+      <td>${f.insumo}</td>
+      <td>${f.dias_con_dato ? (f.dias_con_alerta > 0 ? '⚠️ ' : '') + f.dias_con_alerta + ' de ' + f.dias_con_dato : 'no disponible'}</td>
+      <td>${f.peor_dia ? f.peor_dia.diferencia + ' (' + f.peor_dia.fecha + ', ' + f.peor_dia.sucursal + ')' : '-'}</td>
+      <td>${f.consumo_real}</td><td>${f.consumo_teorico}</td>
+    </tr>`).join('') || '<tr><td colspan="5">Sin datos en este período.</td></tr>';
 
   document.getElementById('dashboard-gastos-categoria').innerHTML = (dd.gastos_por_categoria || []).map(g => `
     <tr><td>${g.categoria}</td><td>${fmtMoneda(g.monto)}</td></tr>`).join('') || '<tr><td colspan="2">Sin datos en este período.</td></tr>';

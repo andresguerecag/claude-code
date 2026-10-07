@@ -222,24 +222,44 @@ def dashboard(sucursal: str | None = None, desde: str | None = None, hasta: str 
         for f in r.get("comparativo", []):
             insumo = f["insumo"]
             if insumo not in merma_acum:
-                merma_acum[insumo] = {"insumo": insumo, "consumo_real": 0.0, "consumo_teorico": 0.0, "con_dato": False}
+                merma_acum[insumo] = {
+                    "insumo": insumo, "consumo_real": 0.0, "consumo_teorico": 0.0, "con_dato": False,
+                    "dias_con_dato": 0, "dias_con_alerta": 0, "peor_dia": None,
+                }
+            acc = merma_acum[insumo]
             if isinstance(f.get("consumo_real"), (int, float)) and isinstance(f.get("consumo_teorico"), (int, float)):
-                merma_acum[insumo]["consumo_real"] += f["consumo_real"]
-                merma_acum[insumo]["consumo_teorico"] += f["consumo_teorico"]
-                merma_acum[insumo]["con_dato"] = True
+                acc["consumo_real"] += f["consumo_real"]
+                acc["consumo_teorico"] += f["consumo_teorico"]
+                acc["con_dato"] = True
+                # Cada dia es independiente (el inventario se cuenta de nuevo
+                # cada noche): un faltante de un dia NO se compensa con un
+                # sobrante de otro. Por eso, ademas del total del periodo,
+                # se cuentan los dias fuera de tolerancia y el peor dia.
+                acc["dias_con_dato"] += 1
+                if f.get("alerta") is True:
+                    acc["dias_con_alerta"] += 1
+                dif = f.get("diferencia")
+                if isinstance(dif, (int, float)) and (acc["peor_dia"] is None or abs(dif) > abs(acc["peor_dia"]["diferencia"])):
+                    acc["peor_dia"] = {"fecha": fecha, "sucursal": suc, "diferencia": dif}
 
     dias.sort(key=lambda d: (d["fecha"], d["sucursal"]))
 
     merma_lista = []
     for insumo, v in merma_acum.items():
         if not v["con_dato"]:
-            merma_lista.append({"insumo": insumo, "consumo_real": "no disponible", "consumo_teorico": "no disponible", "diferencia": "no disponible"})
+            merma_lista.append({
+                "insumo": insumo, "consumo_real": "no disponible", "consumo_teorico": "no disponible",
+                "diferencia": "no disponible", "dias_con_dato": 0, "dias_con_alerta": 0, "peor_dia": None,
+            })
         else:
             merma_lista.append({
                 "insumo": insumo,
                 "consumo_real": round(v["consumo_real"], 2),
                 "consumo_teorico": round(v["consumo_teorico"], 2),
                 "diferencia": round(v["consumo_teorico"] - v["consumo_real"], 2),
+                "dias_con_dato": v["dias_con_dato"],
+                "dias_con_alerta": v["dias_con_alerta"],
+                "peor_dia": v["peor_dia"],
             })
 
     return {

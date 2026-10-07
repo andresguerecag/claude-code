@@ -19,6 +19,13 @@ entender, en español sencillo y sin jerga técnica, los datos de conciliación 
 inventario de su negocio. Te doy un resumen en JSON de un periodo (ventas por día \
 y sucursal, alertas de merma, y consumo real vs. teórico por insumo).
 
+IMPORTANTE: cada día es independiente. El inventario físico se cuenta de nuevo \
+cada noche y cada día se concilia por separado, así que un faltante de un día NO \
+se compensa con un sobrante de otro día. No sumes ni promedies diferencias entre \
+días para concluir que "en total cuadra": juzga cada día por su cuenta (usa \
+"dias_con_alerta" y "peor_dia" de cada insumo, y las alertas de cada día). Los \
+totales del periodo son solo de referencia de volumen.
+
 Escribe un resumen corto (máximo 4-5 líneas), en tono directo y práctico, como si \
 le hablaras a la dueña del negocio. Destaca:
 - Lo más importante primero (una alerta grande pesa más que muchas normales).

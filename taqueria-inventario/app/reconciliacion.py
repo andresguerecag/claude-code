@@ -460,7 +460,9 @@ INSUMO_A_PRODUCTOS_INVENTARIO = {
     "queso": ["QUESO CHIHUAHUA"],
     "tortillas": ["TORTILLA"],
     "telera": ["TELERA"],
-    "refrescos": ["REFRESCO 600"],
+    # La familia cuenta el agua junto con los refrescos: en su Excel,
+    # DIF.COMPARATIVO "REFRESCO" = REFRESCO 600 + AGUA CIEL (P28=U20+U21).
+    "refrescos": ["REFRESCO 600", "AGUA CIEL"],
 }
 
 # Productos que se comparan 1:1 directo contra la cantidad vendida (sin
@@ -484,7 +486,12 @@ def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str,
     match = emparejar_ventas_con_recetas(ventas, recetas, mapeo_manual)
     consumo_teorico = calcular_consumo_teorico(match, recetas)
 
-    inventario_por_producto = {_normalizar(i.producto): i for i in inventario}
+    # Si un producto aparece dos veces (ej. la tabla DIF. COMPARATIVO que
+    # la familia pone debajo del inventario repite "TELERA"), manda la
+    # primera aparicion -- la del inventario, no la de la tabla de abajo.
+    inventario_por_producto = {}
+    for i in inventario:
+        inventario_por_producto.setdefault(_normalizar(i.producto), i)
 
     comparativo = []
     for insumo, productos in INSUMO_A_PRODUCTOS_INVENTARIO.items():
