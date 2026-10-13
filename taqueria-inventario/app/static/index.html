@@ -528,6 +528,13 @@
 // ============================================================
 // Navegación
 // ============================================================
+// Mismo orden que la tabla DIF. COMPARATIVO del Excel de la familia, para
+// poder revisar renglon por renglon lado a lado.
+const ORDEN_INSUMOS = ['carne', 'queso', 'pastor', 'refrescos', 'tortillas', 'telera'];
+const ordenarInsumos = filas => [...filas].sort((a, b) => {
+  const ia = ORDEN_INSUMOS.indexOf(a.insumo), ib = ORDEN_INSUMOS.indexOf(b.insumo);
+  return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+});
 const VISTAS = ['vista-dashboard', 'vista-inventario', 'vista-dinero', 'vista-compras', 'vista-historial', 'vista-recetas', 'vista-categorias', 'vista-colchon'];
 const NAV_POR_VISTA = { 'vista-dashboard': 'nav-dashboard', 'vista-inventario': 'nav-inventario', 'vista-dinero': 'nav-dinero', 'vista-compras': 'nav-compras', 'vista-historial': 'nav-historial' };
 
@@ -684,7 +691,7 @@ function renderReporte(r) {
 
   html += `<h3>Comparativo de consumo (teórico vs. real)</h3>
   <table><thead><tr><th>Insumo</th><th>Real</th><th>Teórico</th><th>Diferencia</th></tr></thead><tbody>`;
-  for (const fila of r.comparativo) {
+  for (const fila of ordenarInsumos(r.comparativo)) {
     const esAlerta = fila.alerta === true;
     html += `<tr class="${esAlerta ? 'alerta' : ''}">
       <td>${fila.insumo}${fila.nota ? ' <small>(' + fila.nota + ')</small>' : ''}</td>
@@ -1734,7 +1741,7 @@ async function cargarDashboard() {
       }).join('')
     : '<tr><td colspan="7">Sin datos en este período.</td></tr>';
 
-  document.getElementById('dashboard-merma').innerHTML = d.merma_por_insumo.map(f => `
+  document.getElementById('dashboard-merma').innerHTML = ordenarInsumos(d.merma_por_insumo).map(f => `
     <tr class="${f.dias_con_alerta > 0 ? 'alerta' : ''}">
       <td>${f.insumo}</td>
       <td>${f.dias_con_dato ? (f.dias_con_alerta > 0 ? '⚠️ ' : '') + f.dias_con_alerta + ' de ' + f.dias_con_dato : 'no disponible'}</td>

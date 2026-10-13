@@ -455,14 +455,17 @@ def leer_ventas_wansoft(path: str, hoja: str | None = None) -> list[VentaPlatill
 # (ej. "carne" cocinada sale de arrachera cocida + bistek cocido juntos,
 # igual que en la tabla DIF.COMPARATIVO del Excel de la familia)
 INSUMO_A_PRODUCTOS_INVENTARIO = {
+    # Mismo orden que la tabla DIF. COMPARATIVO del Excel de la familia
+    # (arrachera, queso, pastor, refresco, tortillas, telera), para que el
+    # reporte y el Excel descargado se revisen renglon por renglon.
     "carne": ["ARRACHERA COCIDA", "BISTEK COCIDO"],
-    "pastor": ["TROMPO COCIDO"],
     "queso": ["QUESO CHIHUAHUA"],
-    "tortillas": ["TORTILLA"],
-    "telera": ["TELERA"],
+    "pastor": ["TROMPO COCIDO"],
     # La familia cuenta el agua junto con los refrescos: en su Excel,
     # DIF.COMPARATIVO "REFRESCO" = REFRESCO 600 + AGUA CIEL (P28=U20+U21).
     "refrescos": ["REFRESCO 600", "AGUA CIEL"],
+    "tortillas": ["TORTILLA"],
+    "telera": ["TELERA"],
 }
 
 # Productos que se comparan 1:1 directo contra la cantidad vendida (sin
