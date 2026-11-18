@@ -36,6 +36,17 @@
   .logo .nombre { font-weight: 800; letter-spacing: .3px; font-size: 1.05rem; color: var(--texto); }
   .logo .etiqueta { font-size: .62rem; letter-spacing: 1.5px; color: var(--tenue); font-weight: 700; margin-left: 4px; }
 
+  /* Selector de version: la v1 (todo lo de hoy) se conserva intacta mientras
+     se construye la v2 en su propia pestana. */
+  .nav-version { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--borde); border-radius: 10px; }
+  .nav-version button {
+    font-family: inherit; background: transparent; color: var(--tenue); border: none;
+    padding: 6px 12px; border-radius: 7px; font-size: .8rem; font-weight: 700; cursor: pointer;
+  }
+  .nav-version button.activo { background: var(--naranja); color: #111; }
+  .nav-version small { font-weight: 600; opacity: .8; }
+  .header-derecha { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+
   nav.nav-principal { display: flex; gap: 4px; flex-wrap: wrap; }
   nav.nav-principal button {
     font-family: inherit; background: transparent; color: var(--tenue); border: 1px solid transparent;
@@ -160,14 +171,28 @@
     <img src="/static/logo.jpg" alt="" onerror="this.style.display='none'">
     <span class="nombre">T-GRILL</span><span class="etiqueta">TOOLKIT</span>
   </button>
-  <nav class="nav-principal">
+  <div class="header-derecha">
+  <nav class="nav-principal" id="nav-v1">
     <button id="nav-dashboard" class="activo">Dashboard</button>
     <button id="nav-inventario">Inventario</button>
     <button id="nav-dinero">Dinero</button>
     <button id="nav-compras">Compras</button>
     <button id="nav-historial">Historial</button>
   </nav>
+  <nav class="nav-version">
+    <button id="ver-v1" class="activo">Versión 1</button>
+    <button id="ver-v2">Versión 2 <small>· en construcción</small></button>
+  </nav>
+  </div>
 </header>
+
+<!-- ============ VERSION 2 (en construccion) ============ -->
+<div id="vista-v2" hidden>
+  <div class="kicker naranja">Nueva plataforma</div>
+  <h1>Versión 2 · en construcción</h1>
+  <p class="subtitulo">Aquí se va a ir armando la plataforma nueva: caja, inventario por sucursal, cuadre de BBVA, Mercado Pago y efectivo, y exportación a Quicken, todo en un solo lugar.</p>
+  <p class="subtitulo">Mientras tanto, todo lo de siempre sigue funcionando igual en <b>Versión 1</b>.</p>
+</div>
 
 <!-- ============ DASHBOARD (unificado) ============ -->
 <div id="vista-dashboard">
@@ -535,7 +560,7 @@ const ordenarInsumos = filas => [...filas].sort((a, b) => {
   const ia = ORDEN_INSUMOS.indexOf(a.insumo), ib = ORDEN_INSUMOS.indexOf(b.insumo);
   return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
 });
-const VISTAS = ['vista-dashboard', 'vista-inventario', 'vista-dinero', 'vista-compras', 'vista-historial', 'vista-recetas', 'vista-categorias', 'vista-colchon'];
+const VISTAS = ['vista-v2', 'vista-dashboard', 'vista-inventario', 'vista-dinero', 'vista-compras', 'vista-historial', 'vista-recetas', 'vista-categorias', 'vista-colchon'];
 const NAV_POR_VISTA = { 'vista-dashboard': 'nav-dashboard', 'vista-inventario': 'nav-inventario', 'vista-dinero': 'nav-dinero', 'vista-compras': 'nav-compras', 'vista-historial': 'nav-historial' };
 
 function mostrarVista(nombre) {
@@ -543,8 +568,15 @@ function mostrarVista(nombre) {
   document.querySelectorAll('nav.nav-principal button').forEach(b => b.classList.remove('activo'));
   const navId = NAV_POR_VISTA[nombre];
   if (navId) document.getElementById(navId).classList.add('activo');
+  const esV2 = nombre === 'vista-v2';
+  document.getElementById('nav-v1').hidden = esV2;
+  document.getElementById('ver-v1').classList.toggle('activo', !esV2);
+  document.getElementById('ver-v2').classList.toggle('activo', esV2);
   window.scrollTo(0, 0);
 }
+
+document.getElementById('ver-v1').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
+document.getElementById('ver-v2').addEventListener('click', () => mostrarVista('vista-v2'));
 
 document.getElementById('ir-inicio').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
 document.getElementById('nav-dashboard').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
