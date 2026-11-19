@@ -218,6 +218,29 @@
   #menu-tabla input[type=text], #menu-tabla input[type=number],
   #usuarios-tabla input[type=text], #usuarios-tabla select { width: 100%; padding: 6px 8px; min-height: 34px; }
 
+  /* ---- editor de menú ---- */
+  .barra-menu { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0; }
+  .barra-menu #menu-buscar { flex: 1 1 240px; }
+  .barra-menu #menu-guardar { margin-left: auto; }
+  .cat-menu h3 { display: flex; align-items: center; gap: 8px; margin-top: 28px; }
+  .cuenta-cat { font-size: .75rem; font-weight: 600; color: var(--tenue); background: #ECE8E1; border-radius: 999px; padding: 1px 8px; }
+  .tabla-menu { min-width: 940px; table-layout: fixed; }
+  .tabla-menu th:first-child { width: 30%; }
+  .tabla-menu th:nth-last-child(2) { width: 64px; text-align: center; }
+  .tabla-menu th:last-child { width: 64px; }
+  .tabla-menu td:nth-last-child(2) { text-align: center; }
+  .tabla-menu th, .tabla-menu td { padding: 8px 10px; }
+  .tabla-menu td { vertical-align: top; }
+  .tabla-menu input[type=number] { width: 100%; padding: 6px 8px; min-height: 34px; text-align: right; }
+  .celda-platillo input[type=text] { width: 100%; padding: 6px 8px; min-height: 34px; font-weight: 500; }
+  .platillo-meta { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .platillo-meta select { padding: 2px 6px; min-height: 26px; font-size: .78rem; color: var(--tenue); max-width: 220px; }
+  .clave-chip { font-size: .72rem; font-weight: 600; color: var(--tenue); background: var(--superficie-2); border: 1px solid var(--borde); border-radius: 5px; padding: 1px 6px; font-variant-numeric: tabular-nums; }
+  .tabla-menu tr.modificada td { background: var(--marca-suave); }
+  .tabla-menu tr.inactivo td { opacity: .55; }
+  .tabla-menu tr.recien td { background: var(--verde-suave); }
+  .btn-quitar { background: none; color: var(--tenue); font-size: .8rem; font-weight: 500; padding: 6px 4px; }
+  .btn-quitar:hover { color: var(--rojo); }
   .clase-abc { display: inline-block; min-width: 24px; text-align: center; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: .75rem; }
   .clase-abc.A { background: var(--marca); color: #fff; }
   .clase-abc.B { background: var(--ambar-suave); color: var(--ambar); }
@@ -368,17 +391,20 @@
 
   <!-- ---- Menu y precios ---- -->
   <div class="panel-v2" id="v2-menu" hidden>
-    <p class="subtitulo">Lo que aparece en la caja. Se sembró con los platillos de la tabla de recetas, <b>sin precio</b>: un platillo aparece en la caja hasta que tiene precio y está activo. "Receta" liga el platillo con su receta para descontar inventario.</p>
-    <p class="subtitulo" id="menu-resumen"></p>
-    <div class="tabla-scroll"><table><thead><tr><th>Clave</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Receta</th><th>Activo</th><th></th></tr></thead>
-    <tbody id="menu-tabla"></tbody></table></div>
+    <p class="subtitulo">Todo el menú en un solo lugar: nombre, precio y lo que lleva cada platillo. Carne, pastor y queso van en <b>gramos</b>; tortillas, teleras y refrescos en <b>piezas</b>. Deja vacío lo que el platillo no lleva. Cambia lo que necesites y presiona <b>Guardar cambios</b>.</p>
+    <div class="barra-menu">
+      <input type="text" id="menu-buscar" placeholder="Buscar platillo…" aria-label="Buscar platillo">
+      <label class="pos-check" style="margin:0"><input type="checkbox" id="menu-inactivos"> Mostrar los que no están en venta</label>
+      <span class="subtitulo" id="menu-resumen" style="margin:0"></span>
+      <button class="btn-naranja" id="menu-guardar" disabled>Guardar cambios</button>
+    </div>
+    <p class="subtitulo" id="menu-mensaje" style="margin:6px 0 0"></p>
+    <div id="menu-editor"></div>
     <h3>Agregar platillo</h3>
-    <div class="filtros" id="menu-nuevo">
-      <div><label>Clave</label><input type="text" id="nuevo-clave" placeholder="Ej. REF600NARANJA"></div>
-      <div><label>Nombre</label><input type="text" id="nuevo-nombre"></div>
-      <div><label>Categoría</label><input type="text" id="nuevo-categoria" placeholder="Ej. Bebidas"></div>
-      <div><label>Precio</label><input type="number" id="nuevo-precio" min="0" step="0.5"></div>
-      <div><label>Receta (opcional)</label><input type="text" id="nuevo-receta" placeholder="Ej. REF600"></div>
+    <div class="filtros">
+      <div style="flex:1 1 260px"><label for="nuevo-nombre">Nombre</label><input type="text" id="nuevo-nombre" placeholder="Ej. Agua de jamaica" style="width:100%"></div>
+      <div><label for="nuevo-categoria">Categoría</label><select id="nuevo-categoria"></select></div>
+      <div><label for="nuevo-precio">Precio</label><input type="number" id="nuevo-precio" min="0" step="0.5" style="width:120px"></div>
       <button class="btn-naranja" id="nuevo-guardar">Agregar</button>
     </div>
   </div>
@@ -848,6 +874,8 @@ function panelPermitido(id) {
 function panelActualV2() { const p = leerLocal('v2-panel'); return CARGAR_PANEL[p] && panelPermitido(p) ? p : 'v2-caja'; }
 function mostrarPanelV2(id) {
   if (!panelPermitido(id)) id = 'v2-caja';
+  const saliendoDelMenu = !document.getElementById('v2-menu').hidden && id !== 'v2-menu';
+  if (saliendoDelMenu && filasMenuModificadas().length && !confirm('Tienes cambios sin guardar en el menú. ¿Salir sin guardar?')) return;
   if (document.getElementById('vista-v2').hidden) mostrarVista('vista-v2');
   document.querySelectorAll('.lateral nav button').forEach(b => b.classList.remove('activo'));
   document.getElementById('v2-titulo').textContent = document.querySelector(`.sub-v2 button[data-panel="${id}"]`).textContent;
@@ -1223,39 +1251,134 @@ for (const id of ['cuentas-desde', 'cuentas-hasta', 'cuentas-sucursal']) documen
 
 // --- menú y precios ---
 async function cargarMenuAdmin() {
-  const tbody = document.getElementById('menu-tabla');
-  let menu;
-  try { menu = await pedirJSON('/api/v2/menu'); } catch (err) { tbody.innerHTML = `<tr><td colspan="7">${esc(err.message)}</td></tr>`; return; }
-  const conPrecio = menu.filter(m => m.precio != null && m.precio > 0 && m.activo).length;
-  document.getElementById('menu-resumen').innerHTML = `<b>${conPrecio} de ${menu.length}</b> platillos ya aparecen en la caja (activos y con precio).`;
-  tbody.innerHTML = menu.map(m => `<tr data-clave="${esc(m.clave)}">
-    <td>${esc(m.clave)}</td>
-    <td><input type="text" data-campo="nombre" value="${esc(m.nombre)}"></td>
-    <td><input type="text" data-campo="categoria" value="${esc(m.categoria)}" placeholder="Ej. Tacos"></td>
-    <td><input type="number" data-campo="precio" min="0" step="0.5" value="${m.precio ?? ''}" placeholder="sin precio"></td>
-    <td><input type="text" data-campo="receta" value="${esc(m.receta)}"></td>
-    <td><input type="checkbox" data-campo="activo" ${m.activo ? 'checked' : ''}></td>
-    <td><button class="btn-fantasma btn-chico">Guardar</button></td>
-  </tr>`).join('');
-  tbody.querySelectorAll('tr').forEach(tr => tr.querySelector('button').addEventListener('click', async () => {
-    const campo = n => tr.querySelector(`[data-campo="${n}"]`);
-    try {
-      await postJSON('/api/v2/menu', {
-        clave: tr.dataset.clave, nombre: campo('nombre').value, categoria: campo('categoria').value,
-        precio: campo('precio').value, receta: campo('receta').value, activo: campo('activo').checked,
-      });
-      tr.querySelector('button').textContent = '✓ Guardado';
-      setTimeout(cargarMenuAdmin, 600);
-    } catch (err) { alert(err.message); }
-  }));
-}
-document.getElementById('nuevo-guardar').addEventListener('click', async () => {
-  const v = id => document.getElementById(id).value;
+  // Todo el menú en un solo lugar: nombre, categoría, precio y lo que lleva
+  // cada platillo. Carne, pastor y queso se capturan en GRAMOS (más fácil que
+  // kilos con decimales) y se guardan en kg, que es como cuenta el inventario.
+  const box = document.getElementById('menu-editor');
+  let menu, categorias;
   try {
-    await postJSON('/api/v2/menu', { clave: v('nuevo-clave'), nombre: v('nuevo-nombre'), categoria: v('nuevo-categoria'), precio: v('nuevo-precio'), receta: v('nuevo-receta'), activo: true });
-    for (const id of ['nuevo-clave', 'nuevo-nombre', 'nuevo-categoria', 'nuevo-precio', 'nuevo-receta']) document.getElementById(id).value = '';
-    cargarMenuAdmin();
-  } catch (err) { alert(err.message); }
+    [menu, categorias] = await Promise.all([pedirJSON('/api/v2/menu?insumos=true'), pedirJSON('/api/v2/categorias-menu')]);
+  } catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  for (const m of menu) if (m.categoria && !categorias.includes(m.categoria)) categorias.splice(categorias.length - 1, 0, m.categoria);
+  menuCategorias = categorias;
+  document.getElementById('nuevo-categoria').innerHTML = categorias.map(c => `<option>${esc(c)}</option>`).join('');
+
+  const vendibles = menu.filter(m => m.activo && m.precio > 0).length;
+  document.getElementById('menu-resumen').innerHTML = `<b>${vendibles} de ${menu.length}</b> platillos aparecen en la caja (en venta y con precio).`;
+
+  const q = document.getElementById('menu-buscar').value.trim().toLowerCase();
+  const verInactivos = document.getElementById('menu-inactivos').checked;
+  const grupos = new Map();
+  for (const m of menu) {
+    if (!verInactivos && !m.activo) continue;
+    if (q && !m.nombre.toLowerCase().includes(q) && !m.clave.toLowerCase().includes(q)) continue;
+    const cat = m.categoria || 'Sin categoría';
+    if (!grupos.has(cat)) grupos.set(cat, []);
+    grupos.get(cat).push(m);
+  }
+  const opcionesCat = sel => [...categorias, ...(sel && !categorias.includes(sel) ? [sel] : [])]
+    .map(c => `<option ${c === sel ? 'selected' : ''}>${esc(c)}</option>`).join('') + (sel ? '' : '<option selected value="">Sin categoría</option>');
+  const celda = (m, insumo, factor) => {
+    const v = m.insumos[insumo];
+    const mostrado = v ? Math.round(v * factor * 1000) / 1000 : '';
+    return `<td><input type="number" min="0" step="any" class="num-insumo" data-insumo="${insumo}" data-factor="${factor}" value="${mostrado}" placeholder="—"></td>`;
+  };
+  box.innerHTML = [...grupos].map(([cat, items]) => `
+    <section class="cat-menu">
+      <h3>${esc(cat)} <span class="cuenta-cat">${items.length}</span></h3>
+      ${cat === 'Por revisar' ? '<p class="subtitulo">No está claro qué platillo es cada uno de estos (en el Excel de recetas dicen "Mediana", pero la clave parece de otro). Confirma el nombre, ajusta y cámbialos de categoría.</p>' : ''}
+      <div class="tabla-scroll"><table class="tabla-menu"><thead><tr>
+        <th>Platillo</th><th>Precio</th><th>Carne (g)</th><th>Pastor (g)</th><th>Queso (g)</th><th>Tortillas (pz)</th><th>Telera (pz)</th><th>Refresco (pz)</th><th>En venta</th><th></th>
+      </tr></thead><tbody>
+      ${items.map(m => `<tr data-clave="${esc(m.clave)}" class="${m.activo ? '' : 'inactivo'}">
+        <td class="celda-platillo">
+          <input type="text" data-campo="nombre" value="${esc(m.nombre)}">
+          <div class="platillo-meta"><span class="clave-chip" title="Clave (la misma de Wansoft)">${esc(m.clave)}</span>
+            <select data-campo="categoria" aria-label="Categoría">${opcionesCat(m.categoria)}</select></div>
+        </td>
+        <td><input type="number" min="0" step="0.5" data-campo="precio" value="${m.precio ?? ''}" placeholder="—"></td>
+        ${celda(m, 'carne', 1000)}${celda(m, 'pastor', 1000)}${celda(m, 'queso', 1000)}
+        ${celda(m, 'tortillas', 1)}${celda(m, 'telera', 1)}${celda(m, 'refrescos', 1)}
+        <td><input type="checkbox" data-campo="activo" ${m.activo ? 'checked' : ''} aria-label="En venta"></td>
+        <td><button class="btn-quitar" title="Quitar del menú" aria-label="Quitar ${esc(m.nombre)}">Quitar</button></td>
+      </tr>`).join('')}
+      </tbody></table></div>
+    </section>`).join('') || '<p class="subtitulo">No hay platillos que coincidan.</p>';
+
+  box.querySelectorAll('tr[data-clave]').forEach(tr => {
+    tr.querySelectorAll('input, select').forEach(el => el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', () => {
+      tr.classList.add('modificada');
+      actualizarBotonGuardarMenu();
+    }));
+    tr.querySelector('.btn-quitar').addEventListener('click', async () => {
+      const nombre = tr.querySelector('[data-campo="nombre"]').value;
+      if (!confirm(`¿Quitar "${nombre}" del menú? Si solo quieres que no aparezca en la caja por un tiempo, mejor desmarca "En venta".`)) return;
+      try { await pedirJSON(`/api/v2/menu/${encodeURIComponent(tr.dataset.clave)}`, { method: 'DELETE' }); cargarMenuAdmin(); }
+      catch (err) { alert(err.message); }
+    });
+  });
+  actualizarBotonGuardarMenu();
+}
+
+let menuCategorias = [];
+function filasMenuModificadas() { return [...document.querySelectorAll('#menu-editor tr.modificada')]; }
+function actualizarBotonGuardarMenu() {
+  const n = filasMenuModificadas().length;
+  const boton = document.getElementById('menu-guardar');
+  boton.disabled = n === 0;
+  boton.textContent = n ? `Guardar cambios (${n})` : 'Guardar cambios';
+}
+
+document.getElementById('menu-guardar').addEventListener('click', async () => {
+  const boton = document.getElementById('menu-guardar');
+  const mensaje = document.getElementById('menu-mensaje');
+  const filas = filasMenuModificadas();
+  boton.disabled = true; boton.textContent = 'Guardando…';
+  const errores = [];
+  for (const tr of filas) {
+    const campo = n => tr.querySelector(`[data-campo="${n}"]`);
+    const insumos = {};
+    tr.querySelectorAll('.num-insumo').forEach(inp => {
+      if (inp.value !== '' && Number(inp.value) > 0) insumos[inp.dataset.insumo] = Number(inp.value) / Number(inp.dataset.factor);
+    });
+    try {
+      await postJSON('/api/v2/menu/completo', {
+        clave: tr.dataset.clave, nombre: campo('nombre').value, categoria: campo('categoria').value,
+        precio: campo('precio').value, activo: campo('activo').checked, insumos,
+      });
+    } catch (err) { errores.push(`${campo('nombre').value}: ${err.message}`); }
+  }
+  mensaje.innerHTML = errores.length
+    ? `<span class="dif-mal">No se guardaron: ${esc(errores.join(' · '))}</span>`
+    : `<span class="dif-ok">✓ ${filas.length} platillo${filas.length === 1 ? '' : 's'} guardado${filas.length === 1 ? '' : 's'}</span>`;
+  cargarMenuAdmin();
+});
+
+document.getElementById('menu-buscar').addEventListener('input', () => {
+  if (filasMenuModificadas().length && !confirm('Tienes cambios sin guardar. ¿Descartarlos?')) return;
+  cargarMenuAdmin();
+});
+document.getElementById('menu-inactivos').addEventListener('change', () => {
+  if (filasMenuModificadas().length && !confirm('Tienes cambios sin guardar. ¿Descartarlos?')) return;
+  cargarMenuAdmin();
+});
+
+document.getElementById('nuevo-guardar').addEventListener('click', async () => {
+  const nombre = document.getElementById('nuevo-nombre').value.trim();
+  const mensaje = document.getElementById('menu-mensaje');
+  if (!nombre) { mensaje.innerHTML = '<span class="dif-mal">Escribe el nombre del platillo.</span>'; return; }
+  try {
+    const r = await postJSON('/api/v2/menu/completo', {
+      nombre, categoria: document.getElementById('nuevo-categoria').value,
+      precio: document.getElementById('nuevo-precio').value, activo: true, insumos: {},
+    });
+    document.getElementById('nuevo-nombre').value = '';
+    document.getElementById('nuevo-precio').value = '';
+    mensaje.innerHTML = `<span class="dif-ok">✓ "${esc(nombre)}" agregado (clave ${esc(r.clave)}). Ahora captura lo que lleva.</span>`;
+    await cargarMenuAdmin();
+    const tr = document.querySelector(`#menu-editor tr[data-clave="${CSS.escape(r.clave)}"]`);
+    if (tr) { tr.scrollIntoView({ block: 'center' }); tr.classList.add('recien'); }
+  } catch (err) { mensaje.innerHTML = `<span class="dif-mal">${esc(err.message)}</span>`; }
 });
 
 // --- V2: respaldo diario en la computadora ---

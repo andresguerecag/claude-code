@@ -40,6 +40,68 @@ FORMAS_PAGO_DEFAULT = [
     ("Rappi", "BBVA", 5),
 ]
 
+# Menu ordenado: categorias en el orden en que aparecen en la caja, y para
+# cada clave (la misma de Wansoft, para que sigan cuadrando los reportes
+# mientras dure el piloto) su categoria y un nombre claro. En las claves de
+# Wansoft la "B" final es bistec y la "A" arrachera (TORB/TORA, ORDB/ORDA...),
+# como confirman los mapeos de la familia (TORTARRACH -> TORA).
+CATEGORIAS = [
+    "Tacos", "Órdenes", "Parrilladas", "Alambres", "Piratas, gringas y campechanas",
+    "Huaraches", "Costras", "Fundidos", "Quesadillas", "Tortas", "Combos",
+    "Bebidas", "Extras", "Por revisar",
+]
+MENU_SUGERIDO = {
+    "TAB": ("Tacos", "Taco de bistec"),
+    "TAA": ("Tacos", "Taco de arrachera"),
+    "TAP": ("Tacos", "Taco de pastor"),
+    "ORDB": ("Órdenes", "Orden de bistec"),
+    "ORDA": ("Órdenes", "Orden de arrachera"),
+    "ORDP": ("Órdenes", "Orden de pastor"),
+    "PAPS": ("Parrilladas", "Parrillada personal"),
+    "PAPCQ": ("Parrilladas", "Parrillada personal con queso"),
+    "PAFS": ("Parrilladas", "Parrillada familiar"),
+    "PAFCQ": ("Parrilladas", "Parrillada familiar con queso"),
+    "PAMS": ("Parrilladas", "Parrillada mega"),
+    "PAMCQ": ("Parrilladas", "Parrillada mega con queso"),
+    "ALBS": ("Alambres", "Alambre de bistec"),
+    "ALBCQ": ("Alambres", "Alambre de bistec con queso"),
+    "ALPS": ("Alambres", "Alambre de pastor"),
+    "ALPCQ": ("Alambres", "Alambre de pastor con queso"),
+    "PIRCHA": ("Piratas, gringas y campechanas", "Pirata chica"),
+    "PIRGDEA": ("Piratas, gringas y campechanas", "Pirata grande"),
+    "GCH": ("Piratas, gringas y campechanas", "Gringa chica"),
+    "GGDE": ("Piratas, gringas y campechanas", "Gringa grande"),
+    "CAMPCH": ("Piratas, gringas y campechanas", "Campechana chica"),
+    "CAMPGDE": ("Piratas, gringas y campechanas", "Campechana grande"),
+    "HUAB": ("Huaraches", "Huarache de bistec"),
+    "HUAA": ("Huaraches", "Huarache de arrachera"),
+    "HUAP": ("Huaraches", "Huarache de pastor"),
+    "COSTB": ("Costras", "Costra de bistec"),
+    "COSTA": ("Costras", "Costra de arrachera"),
+    "COSTP": ("Costras", "Costra de pastor"),
+    "FUNN": ("Fundidos", "Fundido natural"),
+    "FUNB": ("Fundidos", "Fundido de bistec"),
+    "FUNP": ("Fundidos", "Fundido de pastor"),
+    "QUESA": ("Quesadillas", "Quesadilla"),
+    "QUESACAR": ("Quesadillas", "Quesadilla con carne"),
+    "DOM": ("Quesadillas", "Quesadilla con pastor"),
+    "TORB": ("Tortas", "Torta de bistec"),
+    "TORA": ("Tortas", "Torta de arrachera"),
+    "TORP": ("Tortas", "Torta de pastor"),
+    "REFALBS": ("Combos", "Completo alambre de bistec (con refresco)"),
+    "REFCAMPGDE": ("Combos", "Completo gigante (campechana con refresco)"),
+    "REF600": ("Bebidas", "Refresco 600 ml"),
+    "AGUACIEL": ("Bebidas", "Agua Ciel"),
+    "EXTRAT": ("Extras", "Extra de tortillas"),
+    "EXTRAQ": ("Extras", "Extra de queso"),
+    # En el Excel de recetas aparecen como "Mediana archera/mixta", pero la
+    # clave PIRCH parece de "pirata chica": hay que confirmar que son.
+    "PIRCH": ("Por revisar", "Mediana de arrachera"),
+    "PIRCHB": ("Por revisar", "Mediana de bistec con queso"),
+    "CCH": ("Por revisar", "Mediana mixta"),
+}
+_menu_ordenado = False
+
 _DDL = [
     """CREATE TABLE IF NOT EXISTS menu (
         clave TEXT PRIMARY KEY,
@@ -138,22 +200,82 @@ def _sembrar(con) -> None:
         with open(RECETAS_PATH, encoding="utf-8") as f:
             recetas = json.load(f)
         for clave, info in recetas.items():
-            cur.execute(_sql(con, "INSERT INTO menu (clave, nombre, precio, categoria, receta, activo) VALUES (?, ?, NULL, NULL, ?, 1)"),
-                        (clave, info["nombre"].strip().capitalize(), clave))
+            categoria, nombre = MENU_SUGERIDO.get(clave, (None, info["nombre"].strip().capitalize()))
+            cur.execute(_sql(con, "INSERT INTO menu (clave, nombre, precio, categoria, receta, activo) VALUES (?, ?, NULL, ?, ?, 1)"),
+                        (clave, nombre, categoria, clave))
     con.commit()
+    _ordenar_menu_existente(con)
+
+
+def _ordenar_menu_existente(con) -> None:
+    """Bases que ya se habian sembrado con los nombres crudos de la tabla de
+    recetas: se les pone el nombre claro y la categoria, SOLO a los platillos
+    que nadie ha tocado (sin categoria y con el nombre automatico). Lo que la
+    familia ya edito no se cambia. Corre una vez por arranque."""
+    global _menu_ordenado
+    if _menu_ordenado or not RECETAS_PATH.exists():
+        return
+    with open(RECETAS_PATH, encoding="utf-8") as f:
+        recetas = json.load(f)
+    cur = con.cursor()
+    for clave, (categoria, nombre) in MENU_SUGERIDO.items():
+        if clave not in recetas:
+            continue
+        crudo = recetas[clave]["nombre"].strip()
+        for automatico in {crudo.capitalize(), crudo.title()}:
+            cur.execute(_sql(con, "UPDATE menu SET nombre = ?, categoria = ? WHERE clave = ? AND categoria IS NULL AND nombre = ?"),
+                        (nombre, categoria, clave, automatico))
+    con.commit()
+    _menu_ordenado = True
 
 
 # --- menu -------------------------------------------------------------------
 
-def listar_menu(solo_vendibles: bool = False) -> list[dict]:
-    filas = _consultar("SELECT clave, nombre, precio, categoria, receta, activo FROM menu ORDER BY categoria, nombre")
+def _orden_categoria(categoria: str) -> tuple:
+    return (CATEGORIAS.index(categoria) if categoria in CATEGORIAS else len(CATEGORIAS) - 1.5, categoria)
+
+
+def listar_menu(solo_vendibles: bool = False, con_insumos: bool = False) -> list[dict]:
+    filas = _consultar("SELECT clave, nombre, precio, categoria, receta, activo FROM menu")
     menu = [
         {"clave": c, "nombre": n, "precio": p, "categoria": cat or "", "receta": r or "", "activo": bool(a)}
         for c, n, p, cat, r, a in filas
     ]
+    orden = {clave: i for i, clave in enumerate(MENU_SUGERIDO)}
+    menu.sort(key=lambda m: (_orden_categoria(m["categoria"]), orden.get(m["clave"], 999), m["nombre"]))
     if solo_vendibles:
         menu = [m for m in menu if m["activo"] and m["precio"] is not None and m["precio"] > 0]
+    if con_insumos:
+        from .reconciliacion import _cargar_recetas
+        recetas = _cargar_recetas()
+        for m in menu:
+            m["insumos"] = (recetas.get(m["receta"] or m["clave"]) or {}).get("receta_por_unidad", {})
     return menu
+
+
+def clave_desde_nombre(nombre: str) -> str:
+    """Clave automatica para un platillo nuevo: el nombre sin acentos ni
+    espacios, en mayusculas (ej. 'Agua de jamaica' -> 'AGUADEJAMAICA')."""
+    import unicodedata
+    base = unicodedata.normalize("NFKD", nombre).encode("ascii", "ignore").decode()
+    return "".join(ch for ch in base.upper() if ch.isalnum())[:20]
+
+
+def guardar_platillo_con_insumos(clave: str | None, nombre: str, categoria: str | None, precio: float | None,
+                                 activo: bool, insumos: dict) -> str:
+    """Guarda el platillo y, en el mismo paso, lo que lleva (su receta), para
+    que el menu y las recetas no se editen en dos lugares distintos.
+    `insumos`: {insumo: cantidad} en kg (carne/pastor/queso) o piezas; vacio
+    o 0 = no lleva ese insumo."""
+    from . import reconciliacion
+    clave = (clave or "").strip().upper() or clave_desde_nombre(nombre)
+    actual = next((m for m in listar_menu() if m["clave"] == clave), None)
+    receta = (actual or {}).get("receta") or clave
+    guardar_platillo(clave, nombre, precio, categoria, receta, activo)
+    limpios = {k: float(v) for k, v in (insumos or {}).items()
+               if k in reconciliacion.INSUMOS_VALIDOS and v not in (None, "") and float(v) > 0}
+    reconciliacion.guardar_receta(receta, nombre, limpios)
+    return clave
 
 
 def guardar_platillo(clave: str, nombre: str, precio: float | None, categoria: str | None,

@@ -469,8 +469,26 @@ def _valor_error(fn, *args, **kwargs):
 
 
 @app.get("/api/v2/menu")
-async def v2_menu(vendibles: bool = False):
-    return caja.listar_menu(solo_vendibles=vendibles)
+async def v2_menu(vendibles: bool = False, insumos: bool = False):
+    return caja.listar_menu(solo_vendibles=vendibles, con_insumos=insumos)
+
+
+@app.get("/api/v2/categorias-menu")
+async def v2_categorias_menu():
+    return caja.CATEGORIAS
+
+
+@app.post("/api/v2/menu/completo")
+async def v2_guardar_platillo_completo(payload: dict = Body(...)):
+    """Nombre, categoria, precio y lo que lleva el platillo, en un solo paso."""
+    precio = payload.get("precio")
+    clave = _valor_error(
+        caja.guardar_platillo_con_insumos,
+        payload.get("clave"), str(payload.get("nombre", "")).strip(), payload.get("categoria"),
+        float(precio) if precio not in (None, "") else None,
+        bool(payload.get("activo", True)), payload.get("insumos") or {},
+    )
+    return {"ok": True, "clave": clave}
 
 
 @app.post("/api/v2/menu")
