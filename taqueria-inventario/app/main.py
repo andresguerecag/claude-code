@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 _logger = logging.getLogger("uvicorn.error")
 
-from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia
+from . import asesor_compras, caja, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -444,6 +444,129 @@ async def eliminar_salida_efectivo(id_salida: int):
 async def ver_pareto(desde: str | None = None, hasta: str | None = None, sucursal: str | None = None):
     """80/20 de insumos por costo y por cantidad, sobre las compras reales."""
     return pareto.analisis(desde=desde, hasta=hasta, sucursal=sucursal)
+
+
+# --- Versión 2: caja, corte del día, cuentas y Quicken -------------------------
+
+def _valor_error(fn, *args, **kwargs):
+    try:
+        return fn(*args, **kwargs)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/v2/menu")
+async def v2_menu(vendibles: bool = False):
+    return caja.listar_menu(solo_vendibles=vendibles)
+
+
+@app.post("/api/v2/menu")
+async def v2_guardar_platillo(payload: dict = Body(...)):
+    precio = payload.get("precio")
+    _valor_error(
+        caja.guardar_platillo,
+        str(payload.get("clave", "")), str(payload.get("nombre", "")),
+        float(precio) if precio not in (None, "") else None,
+        payload.get("categoria"), payload.get("receta"), bool(payload.get("activo", True)),
+    )
+    return {"ok": True}
+
+
+@app.delete("/api/v2/menu/{clave}")
+async def v2_eliminar_platillo(clave: str):
+    caja.eliminar_platillo(clave)
+    return {"ok": True}
+
+
+@app.get("/api/v2/formas-pago")
+async def v2_formas_pago():
+    return caja.listar_formas_pago()
+
+
+@app.post("/api/v2/formas-pago")
+async def v2_guardar_comision(payload: dict = Body(...)):
+    pct = payload.get("comision_pct")
+    _valor_error(caja.guardar_comision, str(payload.get("forma_pago", "")), float(pct) if pct not in (None, "") else None)
+    return {"ok": True}
+
+
+@app.post("/api/v2/ventas")
+async def v2_registrar_venta(payload: dict = Body(...)):
+    recibido = payload.get("recibido")
+    return _valor_error(
+        caja.registrar_venta,
+        str(payload.get("fecha", "")), str(payload.get("hora", "")), str(payload.get("sucursal", "")),
+        str(payload.get("forma_pago", "")), payload.get("items") or [],
+        float(recibido) if recibido not in (None, "") else None,
+    )
+
+
+@app.get("/api/v2/ventas")
+async def v2_listar_ventas(fecha: str, sucursal: str | None = None):
+    return caja.listar_ventas(fecha, sucursal or None)
+
+
+@app.post("/api/v2/ventas/{venta_id}/cancelar")
+async def v2_cancelar_venta(venta_id: int):
+    caja.cancelar_venta(venta_id)
+    return {"ok": True}
+
+
+@app.get("/api/v2/sucursales")
+async def v2_sucursales():
+    return caja.sucursales()
+
+
+@app.get("/api/v2/corte")
+async def v2_corte(fecha: str, sucursal: str):
+    return caja.corte_del_dia(fecha, sucursal)
+
+
+@app.post("/api/v2/corte")
+async def v2_guardar_conteo(payload: dict = Body(...)):
+    contado = payload.get("efectivo_contado")
+    if not payload.get("fecha") or not payload.get("sucursal") or contado in (None, ""):
+        raise HTTPException(status_code=400, detail="Falta fecha, sucursal o efectivo contado.")
+    caja.guardar_conteo_efectivo(payload["fecha"], payload["sucursal"], float(contado), str(payload.get("notas") or ""))
+    return caja.corte_del_dia(payload["fecha"], payload["sucursal"])
+
+
+@app.post("/api/v2/inventario")
+async def v2_inventario(formato_corte: UploadFile = File(...), fecha: str = Form(...), sucursal: str = Form(...)):
+    """Consumo teorico con las ventas de la caja propia vs. inventario fisico
+    del formato de corte. No se guarda en el historial: durante el piloto el
+    reporte oficial sigue siendo el de Wansoft (Versión 1)."""
+    ventas = caja.ventas_para_inventario(fecha, sucursal)
+    if not ventas:
+        raise HTTPException(status_code=400, detail="No hay ventas de la caja ese día en esa sucursal.")
+    with tempfile.TemporaryDirectory() as tmp:
+        path_corte = Path(tmp) / "formato_corte.xlsx"
+        path_corte.write_bytes(await formato_corte.read())
+        hoja = _elegir_hoja(str(path_corte), fecha.split("-")[-1], origen_fecha="La fecha del corte")
+        try:
+            reporte = reconciliacion.generar_reporte(path_formato_corte=str(path_corte), hoja_corte=hoja, ventas=ventas)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    reporte["fecha"] = fecha
+    reporte["sucursal"] = sucursal
+    return reporte
+
+
+@app.get("/api/v2/saldos")
+async def v2_saldos(desde: str, hasta: str, sucursal: str | None = None):
+    return caja.saldos_estimados(desde, hasta, sucursal or None)
+
+
+@app.get("/api/v2/quicken.csv")
+async def v2_quicken_csv(cuenta: str, desde: str, hasta: str, sucursal: str | None = None):
+    import io
+    contenido = caja.csv_quicken(cuenta, desde, hasta, sucursal or None)
+    nombre = f"quicken_{cuenta.replace(' ', '-')}_{desde}_a_{hasta}.csv"
+    return StreamingResponse(
+        io.BytesIO(contenido.encode("utf-8-sig")),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
+    )
 
 
 @app.get("/api/v2/respaldo.xlsx")

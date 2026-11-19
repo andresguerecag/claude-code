@@ -131,6 +131,47 @@
   }
   .filtros .atajos { display: flex; gap: 6px; }
   .filtros .atajos button { background: #111; color: var(--tenue); padding: 7px 11px; font-size: .8rem; font-weight: 600; border: 1px solid var(--borde); }
+  /* ---- Versión 2 ---- */
+  .sub-v2 { display: flex; gap: 6px; flex-wrap: wrap; margin: 18px 0 12px; }
+  .sub-v2 button { background: var(--bg-card); color: var(--tenue); border: 1px solid var(--borde); padding: 9px 14px; font-size: .88rem; }
+  .sub-v2 button.activo { background: var(--naranja-oscuro); color: #fff; border-color: var(--naranja-oscuro); }
+  .v2-sucursal { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .v2-sucursal label { margin: 0; }
+  .tabla-scroll { overflow-x: auto; }
+  .tabla-scroll table { min-width: 640px; }
+  .pos { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+  .pos-menu input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+  .pos-categoria { font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--tenue); font-weight: 800; margin: 12px 0 6px; }
+  .pos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .pos-btn { background: var(--bg-card); color: var(--texto); border: 1px solid var(--borde); padding: 14px 10px; text-align: left; min-height: 74px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+  .pos-btn:hover { border-color: var(--naranja); }
+  .pos-btn span { font-weight: 600; font-size: .88rem; line-height: 1.2; }
+  .pos-btn b { color: var(--naranja); font-size: .95rem; }
+  .pos-orden { background: var(--bg-card); border: 1px solid var(--borde); border-radius: 12px; padding: 16px; position: sticky; top: 84px; }
+  .pos-linea { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--borde); font-size: .88rem; }
+  .pos-cant { display: flex; align-items: center; gap: 6px; }
+  .pos-cant button { background: #111; color: var(--texto); border: 1px solid var(--borde); width: 30px; height: 30px; padding: 0; font-size: 1rem; }
+  .pos-total { display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0; font-size: 1.05rem; }
+  .pos-total b { font-size: 1.6rem; color: var(--naranja); }
+  .pos-formas { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .pos-formas button { background: #111; color: var(--texto); border: 1px solid var(--borde); padding: 12px 8px; }
+  .pos-formas button.activo { background: var(--naranja); color: #111; border-color: var(--naranja); }
+  #pos-efectivo input { width: 100%; box-sizing: border-box; font-size: 1.1rem; }
+  .pos-cambio { font-size: 1rem; font-weight: 700; margin: 8px 0; }
+  .pos-cobrar { width: 100%; padding: 16px; font-size: 1.05rem; margin-top: 4px; }
+  .pos-check { display: flex; gap: 8px; align-items: center; margin-top: 10px; cursor: pointer; }
+  .cuentas-v2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 6px 0 18px; }
+  .cuenta-v2 { background: var(--bg-card); border: 1px solid var(--borde); border-top: 3px solid var(--naranja); border-radius: 10px; padding: 14px; }
+  .cuenta-v2 h3 { margin: 0 0 8px; color: var(--texto); }
+  .cuenta-v2 .neto { font-size: 1.5rem; font-weight: 800; }
+  .cuenta-v2 p { margin: 4px 0; font-size: .85rem; color: var(--tenue); }
+  .dif-ok { color: var(--verde); font-weight: 700; }
+  .dif-mal { color: var(--rojo); font-weight: 700; }
+  #menu-tabla input[type=text], #menu-tabla input[type=number] { width: 100%; box-sizing: border-box; padding: 6px 8px; }
+  @media (max-width: 760px) {
+    .pos { grid-template-columns: 1fr; }
+    .pos-orden { position: static; }
+  }
   .clase-abc { display: inline-block; min-width: 22px; text-align: center; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: .75rem; }
   .clase-abc.A { background: var(--naranja); color: #111; }
   .clase-abc.B { background: #3a3a3a; color: var(--texto); }
@@ -195,9 +236,102 @@
 <div id="vista-v2" hidden>
   <div class="kicker naranja">Nueva plataforma</div>
   <h1>Versión 2 · en construcción</h1>
-  <p class="subtitulo">Aquí se va a ir armando la plataforma nueva: caja con tickets, inventario por sucursal, cuadre de BBVA, Mercado Pago y efectivo, y exportación a Quicken, todo en un solo lugar. Mientras tanto, todo lo de siempre sigue funcionando igual en <b>Versión 1</b>.</p>
+  <p class="subtitulo">Aquí se va armando la plataforma nueva. Mientras tanto, todo lo de siempre sigue funcionando igual en <b>Versión 1</b>.</p>
 
-  <div class="kicker naranja">Ya disponible</div>
+  <nav class="sub-v2">
+    <button data-panel="v2-caja" class="activo">Caja</button>
+    <button data-panel="v2-corte">Corte del día</button>
+    <button data-panel="v2-cuentas">Cuentas y Quicken</button>
+    <button data-panel="v2-menu">Menú y precios</button>
+    <button data-panel="v2-pareto">80/20 de insumos</button>
+    <button data-panel="v2-respaldo">Respaldo</button>
+  </nav>
+  <div class="v2-sucursal">
+    <label for="v2-sucursal">Sucursal de esta computadora</label>
+    <input type="text" id="v2-sucursal" list="v2-sucursales" placeholder="Ej. Santa">
+    <datalist id="v2-sucursales"></datalist>
+  </div>
+
+  <!-- ---- Caja ---- -->
+  <div class="panel-v2" id="v2-caja">
+    <div class="pos">
+      <div class="pos-menu">
+        <input type="text" id="pos-buscar" placeholder="Buscar platillo…">
+        <div id="pos-platillos"></div>
+      </div>
+      <div class="pos-orden">
+        <h3 style="margin-top:0">Orden</h3>
+        <div id="pos-lineas"><p class="subtitulo">Toca un platillo para agregarlo.</p></div>
+        <div class="pos-total"><span>Total</span><b id="pos-total">$0.00</b></div>
+        <div class="pos-formas" id="pos-formas"></div>
+        <div id="pos-efectivo" hidden>
+          <label for="pos-recibido">Recibido</label>
+          <input type="number" id="pos-recibido" min="0" step="1" inputmode="decimal">
+          <p class="pos-cambio" id="pos-cambio"></p>
+        </div>
+        <button class="btn-naranja pos-cobrar" id="pos-cobrar" disabled>Cobrar</button>
+        <label class="pos-check"><input type="checkbox" id="pos-imprimir"> Imprimir ticket y comanda al cobrar</label>
+        <p class="subtitulo" id="pos-mensaje"></p>
+      </div>
+    </div>
+    <h3>Ventas de hoy</h3>
+    <div class="tabla-scroll"><table><thead><tr><th>Folio</th><th>Hora</th><th>Platillos</th><th>Forma de pago</th><th>Total</th><th></th></tr></thead>
+    <tbody id="pos-ventas"></tbody></table></div>
+  </div>
+
+  <!-- ---- Corte del dia ---- -->
+  <div class="panel-v2" id="v2-corte" hidden>
+    <p class="subtitulo">Lo que se cobró en la caja, por forma de pago, y el cuadre del efectivo. Las salidas de efectivo se toman de las registradas ese día en Versión 1 → Dinero → Colchón.</p>
+    <div class="filtros">
+      <div><label>Fecha</label><input type="date" id="corte-fecha"></div>
+    </div>
+    <div id="corte-resultado"></div>
+    <h3>Inventario: lo cobrado en la caja contra lo que se gastó</h3>
+    <p class="subtitulo">Sube el formato de corte del día (el mismo Excel de siempre) y se compara contra lo que se vendió en esta caja, con las mismas recetas. Mientras dure el piloto no se guarda en el historial: el reporte oficial sigue siendo el de Versión 1 con Wansoft.</p>
+    <div class="filtros">
+      <label class="btn-fantasma btn-chico" style="display:inline-block; border-radius:8px; cursor:pointer; margin:0">
+        <input type="file" id="v2-corte-archivo" accept=".xlsx,.xlsm"> Elegir formato de corte
+      </label>
+      <span id="v2-corte-nombre" class="subtitulo"></span>
+      <button class="btn-naranja" id="v2-inventario-btn">Comparar</button>
+    </div>
+    <div id="v2-inventario-resultado"></div>
+  </div>
+
+  <!-- ---- Cuentas y Quicken ---- -->
+  <div class="panel-v2" id="v2-cuentas" hidden>
+    <p class="subtitulo">Cuánto debería haber llegado a cada cuenta según lo cobrado: Uber, DiDi y Rappi depositan a BBVA cada semana ya sin comisión, la terminal a Mercado Pago, y el efectivo se queda en caja. Compara estos montos contra Quicken.</p>
+    <div class="filtros">
+      <div><label>Desde</label><input type="date" id="cuentas-desde"></div>
+      <div><label>Hasta</label><input type="date" id="cuentas-hasta"></div>
+      <div><label>Sucursal</label><input type="text" id="cuentas-sucursal" list="v2-sucursales" placeholder="Todas"></div>
+    </div>
+    <div id="cuentas-resultado"></div>
+    <h3>Comisión de cada forma de pago</h3>
+    <p class="subtitulo">Captura el % que cobra cada plataforma o la terminal. Mientras no esté capturada, el saldo se muestra en bruto.</p>
+    <table><thead><tr><th>Forma de pago</th><th>Llega a</th><th>Comisión %</th><th></th></tr></thead>
+    <tbody id="cuentas-comisiones"></tbody></table>
+  </div>
+
+  <!-- ---- Menu y precios ---- -->
+  <div class="panel-v2" id="v2-menu" hidden>
+    <p class="subtitulo">Lo que aparece en la caja. Se sembró con los platillos de la tabla de recetas, <b>sin precio</b>: un platillo aparece en la caja hasta que tiene precio y está activo. "Receta" liga el platillo con su receta para descontar inventario.</p>
+    <p class="subtitulo" id="menu-resumen"></p>
+    <div class="tabla-scroll"><table><thead><tr><th>Clave</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Receta</th><th>Activo</th><th></th></tr></thead>
+    <tbody id="menu-tabla"></tbody></table></div>
+    <h3>Agregar platillo</h3>
+    <div class="filtros" id="menu-nuevo">
+      <div><label>Clave</label><input type="text" id="nuevo-clave" placeholder="Ej. REF600NARANJA"></div>
+      <div><label>Nombre</label><input type="text" id="nuevo-nombre"></div>
+      <div><label>Categoría</label><input type="text" id="nuevo-categoria" placeholder="Ej. Bebidas"></div>
+      <div><label>Precio</label><input type="number" id="nuevo-precio" min="0" step="0.5"></div>
+      <div><label>Receta (opcional)</label><input type="text" id="nuevo-receta" placeholder="Ej. REF600"></div>
+      <button class="btn-naranja" id="nuevo-guardar">Agregar</button>
+    </div>
+  </div>
+
+  <!-- ---- 80/20 ---- -->
+  <div class="panel-v2" id="v2-pareto" hidden>
   <h2>80/20 de insumos</h2>
   <p class="subtitulo">Los pocos insumos que se llevan la mayor parte del gasto (clase A) son los que hay que contar a diario y vigilar su merma. Los de clase C (cebolla, limón…) no vale la pena rastrearlos a detalle. Se calcula con las compras registradas en Compras; los precios de referencia del catálogo no cuentan porque no son compras.</p>
   <div class="filtros" id="pareto-filtros">
@@ -220,8 +354,10 @@
     </div>
   </div>
   <div id="pareto-resultado"><p class="subtitulo">Cargando…</p></div>
+  </div>
 
-  <div class="kicker naranja">Ya disponible</div>
+  <!-- ---- Respaldo ---- -->
+  <div class="panel-v2" id="v2-respaldo" hidden>
   <h2>Respaldo de la base de datos</h2>
   <p class="subtitulo">Todo lo que guarda la plataforma en un Excel (una hoja por tabla), para tenerlo respaldado en la computadora por si el servidor falla.</p>
   <label style="display:flex; gap:8px; align-items:center; margin: 8px 0 12px; font-size:.9rem; cursor:pointer">
@@ -230,6 +366,7 @@
   </label>
   <p class="subtitulo" id="respaldo-ultimo"></p>
   <a class="btn-fantasma btn-chico" style="display:inline-block; text-decoration:none; border-radius:8px" href="/api/v2/respaldo.xlsx" download>⬇ Descargar respaldo ahora</a>
+  </div>
 </div>
 
 <!-- ============ DASHBOARD (unificado) ============ -->
@@ -614,7 +751,423 @@ function mostrarVista(nombre) {
 }
 
 document.getElementById('ver-v1').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
-document.getElementById('ver-v2').addEventListener('click', () => { mostrarVista('vista-v2'); cargarPareto(); });
+document.getElementById('ver-v2').addEventListener('click', () => { mostrarVista('vista-v2'); mostrarPanelV2(panelActualV2()); });
+
+// ======================= VERSIÓN 2 =======================
+function esc(t) {
+  return String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+async function pedirJSON(url, opciones) {
+  const resp = await fetch(url, opciones);
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.detail || `Error ${resp.status}`);
+  return data;
+}
+const postJSON = (url, cuerpo) => pedirJSON(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+
+// --- navegación interna de la V2 ---
+const CARGAR_PANEL = {
+  'v2-caja': cargarCaja, 'v2-corte': cargarCorte, 'v2-cuentas': cargarCuentas,
+  'v2-menu': cargarMenuAdmin, 'v2-pareto': cargarPareto, 'v2-respaldo': pintarRespaldo,
+};
+function panelActualV2() { const p = leerLocal('v2-panel'); return CARGAR_PANEL[p] ? p : 'v2-caja'; }
+function mostrarPanelV2(id) {
+  document.querySelectorAll('.panel-v2').forEach(p => { p.hidden = p.id !== id; });
+  document.querySelectorAll('.sub-v2 button').forEach(b => b.classList.toggle('activo', b.dataset.panel === id));
+  guardarLocal('v2-panel', id);
+  CARGAR_PANEL[id]();
+}
+document.querySelectorAll('.sub-v2 button').forEach(b => b.addEventListener('click', () => mostrarPanelV2(b.dataset.panel)));
+
+// --- sucursal de esta computadora ---
+const inputSucursalV2 = document.getElementById('v2-sucursal');
+inputSucursalV2.value = leerLocal('v2-sucursal') || '';
+inputSucursalV2.addEventListener('change', () => {
+  guardarLocal('v2-sucursal', inputSucursalV2.value.trim());
+  CARGAR_PANEL[panelActualV2()]();
+});
+function sucursalV2() { return inputSucursalV2.value.trim(); }
+async function cargarSucursalesV2() {
+  try {
+    const lista = await pedirJSON('/api/v2/sucursales');
+    document.getElementById('v2-sucursales').innerHTML = lista.map(s => `<option value="${esc(s)}">`).join('');
+  } catch {}
+}
+
+// --- caja ---
+let posMenu = [], posFormas = [], posForma = null;
+const posOrden = new Map();
+
+async function cargarCaja() {
+  cargarSucursalesV2();
+  try {
+    [posMenu, posFormas] = await Promise.all([pedirJSON('/api/v2/menu?vendibles=true'), pedirJSON('/api/v2/formas-pago')]);
+  } catch (err) {
+    document.getElementById('pos-platillos').innerHTML = `<div class="advertencia">No se pudo cargar el menú: ${esc(err.message)}</div>`;
+    return;
+  }
+  document.getElementById('pos-imprimir').checked = leerLocal('pos-imprimir') === '1';
+  pintarPlatillos(); pintarFormas(); pintarOrden(); cargarVentasHoy();
+}
+
+function pintarPlatillos() {
+  const box = document.getElementById('pos-platillos');
+  if (!posMenu.length) {
+    box.innerHTML = '<div class="advertencia">Todavía no hay platillos con precio. Captúralos en <b>Menú y precios</b> y aparecerán aquí.</div>';
+    return;
+  }
+  const q = document.getElementById('pos-buscar').value.trim().toLowerCase();
+  const grupos = {};
+  for (const m of posMenu) {
+    if (q && !m.nombre.toLowerCase().includes(q) && !m.clave.toLowerCase().includes(q)) continue;
+    (grupos[m.categoria || 'Otros'] ||= []).push(m);
+  }
+  box.innerHTML = Object.entries(grupos).map(([cat, ms]) => `
+    <div class="pos-categoria">${esc(cat)}</div>
+    <div class="pos-grid">${ms.map(m => `<button class="pos-btn" data-clave="${esc(m.clave)}"><span>${esc(m.nombre)}</span><b>${fmtMoneda(m.precio)}</b></button>`).join('')}</div>`).join('')
+    || '<p class="subtitulo">Sin resultados.</p>';
+  box.querySelectorAll('.pos-btn').forEach(b => b.addEventListener('click', () => {
+    posOrden.set(b.dataset.clave, (posOrden.get(b.dataset.clave) || 0) + 1);
+    pintarOrden();
+  }));
+}
+document.getElementById('pos-buscar').addEventListener('input', pintarPlatillos);
+
+function pintarFormas() {
+  const box = document.getElementById('pos-formas');
+  box.innerHTML = posFormas.map(f => `<button data-forma="${esc(f.forma_pago)}" class="${f.forma_pago === posForma ? 'activo' : ''}">${esc(f.forma_pago)}</button>`).join('');
+  box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    posForma = b.dataset.forma;
+    pintarFormas(); pintarOrden();
+  }));
+  document.getElementById('pos-efectivo').hidden = posForma !== 'Efectivo';
+}
+
+function totalOrden() {
+  let total = 0;
+  for (const [clave, cant] of posOrden) {
+    const m = posMenu.find(x => x.clave === clave);
+    if (m) total += m.precio * cant;
+  }
+  return Math.round(total * 100) / 100;
+}
+
+function pintarOrden() {
+  const box = document.getElementById('pos-lineas');
+  for (const clave of [...posOrden.keys()]) if (!posMenu.some(m => m.clave === clave)) posOrden.delete(clave);
+  if (!posOrden.size) {
+    box.innerHTML = '<p class="subtitulo">Toca un platillo para agregarlo.</p>';
+  } else {
+    box.innerHTML = [...posOrden].map(([clave, cant]) => {
+      const m = posMenu.find(x => x.clave === clave);
+      return `<div class="pos-linea">
+        <span>${esc(m.nombre)}</span>
+        <span class="pos-cant"><button data-accion="menos" data-clave="${esc(clave)}" aria-label="Quitar uno">−</button><b>${cant}</b><button data-accion="mas" data-clave="${esc(clave)}" aria-label="Agregar uno">+</button></span>
+        <span>${fmtMoneda(m.precio * cant)}</span>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const actual = posOrden.get(b.dataset.clave) || 0;
+      const nuevo = b.dataset.accion === 'mas' ? actual + 1 : actual - 1;
+      if (nuevo <= 0) posOrden.delete(b.dataset.clave); else posOrden.set(b.dataset.clave, nuevo);
+      pintarOrden();
+    }));
+  }
+  const total = totalOrden();
+  document.getElementById('pos-total').textContent = fmtMoneda(total);
+  const recibido = parseFloat(document.getElementById('pos-recibido').value);
+  const cambio = document.getElementById('pos-cambio');
+  if (posForma === 'Efectivo' && !isNaN(recibido)) {
+    cambio.textContent = recibido >= total ? `Cambio: ${fmtMoneda(recibido - total)}` : `Faltan ${fmtMoneda(total - recibido)}`;
+    cambio.className = 'pos-cambio ' + (recibido >= total ? 'dif-ok' : 'dif-mal');
+  } else {
+    cambio.textContent = '';
+  }
+  const efectivoCorto = posForma === 'Efectivo' && !isNaN(recibido) && recibido < total;
+  const boton = document.getElementById('pos-cobrar');
+  boton.disabled = !posOrden.size || !posForma || !sucursalV2() || efectivoCorto;
+  boton.textContent = !sucursalV2() ? 'Escribe la sucursal arriba' : !posForma && posOrden.size ? 'Elige la forma de pago' : `Cobrar ${posOrden.size ? fmtMoneda(total) : ''}`;
+}
+document.getElementById('pos-recibido').addEventListener('input', pintarOrden);
+document.getElementById('pos-imprimir').addEventListener('change', e => guardarLocal('pos-imprimir', e.target.checked ? '1' : '0'));
+
+document.getElementById('pos-cobrar').addEventListener('click', async () => {
+  const boton = document.getElementById('pos-cobrar');
+  const mensaje = document.getElementById('pos-mensaje');
+  const ahora = new Date();
+  const recibido = document.getElementById('pos-recibido').value;
+  boton.disabled = true;
+  try {
+    const venta = await postJSON('/api/v2/ventas', {
+      fecha: hoyLocal(), hora: ahora.toTimeString().slice(0, 5), sucursal: sucursalV2(), forma_pago: posForma,
+      items: [...posOrden].map(([clave, cantidad]) => ({ clave, cantidad })),
+      recibido: posForma === 'Efectivo' && recibido !== '' ? recibido : null,
+    });
+    mensaje.innerHTML = `<span class="dif-ok">Folio ${venta.folio} cobrado: ${fmtMoneda(venta.total)}</span>` + (venta.cambio != null ? ` · Cambio: <b>${fmtMoneda(venta.cambio)}</b>` : '');
+    if (document.getElementById('pos-imprimir').checked) imprimirVenta(venta, true, true);
+    posOrden.clear(); posForma = null;
+    document.getElementById('pos-recibido').value = '';
+    pintarFormas(); pintarOrden(); cargarVentasHoy();
+  } catch (err) {
+    mensaje.innerHTML = `<span class="dif-mal">No se cobró: ${esc(err.message)}</span>`;
+    pintarOrden();
+  }
+});
+
+let ventasHoy = [];
+async function cargarVentasHoy() {
+  const tbody = document.getElementById('pos-ventas');
+  if (!sucursalV2()) { tbody.innerHTML = '<tr><td colspan="6">Escribe la sucursal arriba para ver sus ventas.</td></tr>'; return; }
+  try {
+    ventasHoy = await pedirJSON(`/api/v2/ventas?fecha=${hoyLocal()}&sucursal=${encodeURIComponent(sucursalV2())}`);
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6">No se pudieron cargar: ${esc(err.message)}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = ventasHoy.map(v => `
+    <tr class="${v.estado === 'cancelada' ? 'fila-guardada' : ''}">
+      <td>${v.folio}</td><td>${esc(v.hora)}</td>
+      <td>${v.items.map(i => `${i.cantidad}× ${esc(i.nombre)}`).join(', ')}</td>
+      <td>${esc(v.forma_pago)}${v.estado === 'cancelada' ? ' (cancelada)' : ''}</td>
+      <td>${fmtMoneda(v.total)}</td>
+      <td>${v.estado === 'pagada' ? `<button class="btn-fantasma btn-chico" data-id="${v.id}" data-accion="ticket">Ticket</button>
+        <button class="btn-fantasma btn-chico" data-id="${v.id}" data-accion="comanda">Comanda</button>
+        <button class="btn-peligro" data-id="${v.id}" data-accion="cancelar">Cancelar</button>` : ''}</td>
+    </tr>`).join('') || '<tr><td colspan="6">Todavía no hay ventas hoy.</td></tr>';
+  tbody.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+    const v = ventasHoy.find(x => x.id === Number(b.dataset.id));
+    if (b.dataset.accion === 'ticket') imprimirVenta(v, true, false);
+    else if (b.dataset.accion === 'comanda') imprimirVenta(v, false, true);
+    else if (confirm(`¿Cancelar el folio ${v.folio} por ${fmtMoneda(v.total)}?`)) {
+      await postJSON(`/api/v2/ventas/${v.id}/cancelar`, {});
+      cargarVentasHoy();
+    }
+  }));
+}
+
+// --- tickets: se imprimen con el navegador en formato de 80 mm ---
+// Funciona con cualquier impresora instalada en la computadora. Para que
+// salgan sin el cuadro de diálogo de impresión, Chrome se abre con
+// --kiosk-printing (se afina cuando sepamos el modelo de la impresora).
+function htmlTicket(v) {
+  return `<div class="hoja">
+    <h1>T-GRILL</h1>
+    <p class="c">${esc(v.sucursal)}</p>
+    <p class="c">Folio ${v.folio} · ${esc(v.fecha)} ${esc(v.hora)}</p>
+    <table>${v.items.map(i => `<tr><td>${i.cantidad} x ${esc(i.nombre)}</td><td class="r">${fmtMoneda(i.importe)}</td></tr>`).join('')}</table>
+    <div class="tot"><span>TOTAL</span><span>${fmtMoneda(v.total)}</span></div>
+    <p>Pago: ${esc(v.forma_pago)}</p>
+    ${v.recibido != null ? `<p>Recibido: ${fmtMoneda(v.recibido)}<br>Cambio: ${fmtMoneda(v.cambio)}</p>` : ''}
+    <p class="c">¡Gracias por su visita!</p>
+  </div>`;
+}
+function htmlComanda(v) {
+  const llevar = ['Uber', 'DiDi', 'Rappi'].includes(v.forma_pago);
+  return `<div class="hoja comanda">
+    <p class="grande">COMANDA · FOLIO ${v.folio}</p>
+    <p class="c">${esc(v.hora)} · ${esc(v.sucursal)}</p>
+    ${llevar ? `<p class="grande">PARA LLEVAR · ${esc(v.forma_pago)}</p>` : ''}
+    <table>${v.items.map(i => `<tr><td>${i.cantidad} x</td><td>${esc(i.nombre)}</td></tr>`).join('')}</table>
+  </div>`;
+}
+function imprimirVenta(v, ticket, comanda) {
+  const partes = [];
+  if (ticket) partes.push(htmlTicket(v));
+  if (comanda) partes.push(htmlComanda(v));
+  const doc = `<!doctype html><html><head><meta charset="utf-8"><title>Folio ${v.folio}</title><style>
+    @page { size: 80mm auto; margin: 0; }
+    body { width: 72mm; margin: 0 auto; font-family: 'Courier New', monospace; font-size: 12px; color: #000; }
+    .hoja { padding: 4mm 0; page-break-after: always; }
+    .hoja:last-child { page-break-after: auto; }
+    h1 { font-size: 20px; text-align: center; margin: 0 0 4px; }
+    p { margin: 3px 0; }
+    .c { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+    td { padding: 2px 0; vertical-align: top; }
+    td.r { text-align: right; white-space: nowrap; padding-left: 6px; }
+    .tot { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; border-top: 1px dashed #000; padding-top: 4px; }
+    .comanda td { font-size: 18px; font-weight: bold; }
+    .grande { font-size: 18px; font-weight: bold; text-align: center; }
+  </style></head><body>${partes.join('')}</body></html>`;
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open(); iframe.contentDocument.write(doc); iframe.contentDocument.close();
+  setTimeout(() => {
+    iframe.contentWindow.focus(); iframe.contentWindow.print();
+    setTimeout(() => iframe.remove(), 2000);
+  }, 150);
+}
+
+// --- corte del día ---
+async function cargarCorte() {
+  const inputFecha = document.getElementById('corte-fecha');
+  if (!inputFecha.value) inputFecha.value = hoyLocal();
+  const box = document.getElementById('corte-resultado');
+  if (!sucursalV2()) { box.innerHTML = '<div class="advertencia">Escribe la sucursal arriba.</div>'; return; }
+  let c;
+  try {
+    c = await pedirJSON(`/api/v2/corte?fecha=${inputFecha.value}&sucursal=${encodeURIComponent(sucursalV2())}`);
+  } catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  const e = c.efectivo;
+  let dif = '<span class="subtitulo">Captura el efectivo contado para ver si cuadra.</span>';
+  if (e.diferencia != null) {
+    dif = Math.abs(e.diferencia) < 0.01 ? '<span class="dif-ok">✓ Cuadra exacto</span>'
+      : e.diferencia > 0 ? `<span class="dif-mal">Sobran ${fmtMoneda(e.diferencia)}</span>`
+      : `<span class="dif-mal">Faltan ${fmtMoneda(-e.diferencia)}</span>`;
+  }
+  box.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><b>${fmtMoneda(c.total_vendido)}</b><span>vendido</span></div>
+      <div class="kpi"><b>${c.num_ventas}</b><span>ventas</span></div>
+      <div class="kpi"><b>${c.num_canceladas}</b><span>canceladas</span></div>
+    </div>
+    <h3>Por forma de pago</h3>
+    <table><thead><tr><th>Forma de pago</th><th>Llega a</th><th>Ventas</th><th>Total</th></tr></thead><tbody>
+      ${c.por_forma_pago.map(f => `<tr><td>${esc(f.forma_pago)}</td><td>${esc(f.cuenta)}</td><td>${f.num_ventas}</td><td>${fmtMoneda(f.total)}</td></tr>`).join('')}
+    </tbody></table>
+    <h3>Efectivo</h3>
+    <table><tbody>
+      <tr><td>Ventas en efectivo</td><td>${fmtMoneda(e.ventas_en_efectivo)}</td></tr>
+      <tr><td>Menos salidas registradas ese día</td><td>${fmtMoneda(-e.salidas_registradas)}</td></tr>
+      <tr><td><b>Debe haber en caja</b></td><td><b>${fmtMoneda(e.esperado)}</b></td></tr>
+      <tr><td>Contado</td><td>${e.contado != null ? fmtMoneda(e.contado) : '—'}</td></tr>
+      <tr><td>Resultado</td><td>${dif}</td></tr>
+    </tbody></table>
+    <div class="filtros">
+      <div><label for="corte-contado">Efectivo contado en caja</label><input type="number" id="corte-contado" min="0" step="0.5" value="${e.contado ?? ''}"></div>
+      <div style="flex:1"><label for="corte-notas">Notas</label><input type="text" id="corte-notas" style="width:100%; box-sizing:border-box" value="${esc(e.notas || '')}"></div>
+      <button class="btn-naranja" id="corte-guardar">Guardar conteo</button>
+    </div>
+    <h3>Platillos vendidos</h3>
+    <table><thead><tr><th>Platillo</th><th>Cantidad</th><th>Importe</th></tr></thead><tbody>
+      ${c.platillos.map(p => `<tr><td>${esc(p.nombre)}</td><td>${p.cantidad}</td><td>${fmtMoneda(p.importe)}</td></tr>`).join('') || '<tr><td colspan="3">Sin ventas este día.</td></tr>'}
+    </tbody></table>`;
+  document.getElementById('corte-guardar').addEventListener('click', async () => {
+    const contado = document.getElementById('corte-contado').value;
+    if (contado === '') { alert('Captura el efectivo contado.'); return; }
+    try {
+      await postJSON('/api/v2/corte', { fecha: inputFecha.value, sucursal: sucursalV2(), efectivo_contado: contado, notas: document.getElementById('corte-notas').value });
+      cargarCorte();
+    } catch (err) { alert(err.message); }
+  });
+}
+document.getElementById('corte-fecha').addEventListener('change', cargarCorte);
+
+document.getElementById('v2-corte-archivo').addEventListener('change', e => {
+  document.getElementById('v2-corte-nombre').textContent = e.target.files[0] ? e.target.files[0].name : '';
+});
+document.getElementById('v2-inventario-btn').addEventListener('click', async () => {
+  const box = document.getElementById('v2-inventario-resultado');
+  const archivo = document.getElementById('v2-corte-archivo').files[0];
+  if (!archivo) { box.innerHTML = '<div class="advertencia">Elige primero el formato de corte.</div>'; return; }
+  if (!sucursalV2()) { box.innerHTML = '<div class="advertencia">Escribe la sucursal arriba.</div>'; return; }
+  const datos = new FormData();
+  datos.append('formato_corte', archivo);
+  datos.append('fecha', document.getElementById('corte-fecha').value || hoyLocal());
+  datos.append('sucursal', sucursalV2());
+  box.innerHTML = '<p class="subtitulo">Comparando…</p>';
+  let r;
+  try { r = await pedirJSON('/api/v2/inventario', { method: 'POST', body: datos }); }
+  catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  let html = `<table><thead><tr><th>Insumo</th><th>Real</th><th>Teórico</th><th>Diferencia</th></tr></thead><tbody>`;
+  for (const f of ordenarInsumos(r.comparativo)) {
+    html += `<tr class="${f.alerta ? 'alerta' : ''}"><td>${esc(f.insumo)}</td><td>${num(f.consumo_real)}</td><td>${num(f.consumo_teorico)}</td>
+      <td>${typeof f.diferencia === 'number' ? num(f.diferencia) : esc(f.diferencia)}${f.alerta ? ' ⚠️ fuera de tolerancia' : ''}</td></tr>`;
+  }
+  html += '</tbody></table>';
+  if (r.platillos_no_identificados.length) {
+    html += `<div class="advertencia">Platillos sin receta ligada (no cuentan en el teórico): ${r.platillos_no_identificados.map(p => `${esc(p.nombre)} (${p.cantidad})`).join(', ')}. Lígalos en <b>Menú y precios</b>, columna Receta.</div>`;
+  }
+  box.innerHTML = html;
+});
+
+// --- cuentas y Quicken ---
+function lunesDeEstaSemana() {
+  const d = new Date(); const dia = (d.getDay() + 6) % 7; d.setDate(d.getDate() - dia);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+async function cargarCuentas() {
+  cargarSucursalesV2();
+  const desde = document.getElementById('cuentas-desde'), hasta = document.getElementById('cuentas-hasta');
+  if (!desde.value) desde.value = lunesDeEstaSemana();
+  if (!hasta.value) hasta.value = hoyLocal();
+  const suc = document.getElementById('cuentas-sucursal').value.trim();
+  const box = document.getElementById('cuentas-resultado');
+  let r, formas;
+  try {
+    [r, formas] = await Promise.all([
+      pedirJSON(`/api/v2/saldos?desde=${desde.value}&hasta=${hasta.value}&sucursal=${encodeURIComponent(suc)}`),
+      pedirJSON('/api/v2/formas-pago'),
+    ]);
+  } catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  const qs = `desde=${desde.value}&hasta=${hasta.value}&sucursal=${encodeURIComponent(suc)}`;
+  const cuentasUnicas = [...new Set(formas.map(f => f.cuenta))];
+  box.innerHTML = (r.cuentas.length ? `<div class="cuentas-v2">${r.cuentas.map(c => `
+    <div class="cuenta-v2">
+      <h3>${esc(c.cuenta)}</h3>
+      <div class="neto">${fmtMoneda(c.neto_estimado)}</div>
+      <p>Debería llegar (estimado)</p>
+      <p>Vendido: ${fmtMoneda(c.bruto)} · Comisión: ${fmtMoneda(c.comision)}</p>
+      <p>${c.formas.map(f => `${esc(f.forma_pago)}: ${fmtMoneda(f.bruto)}`).join(' · ')}</p>
+      ${c.falta_comision.length ? `<p class="dif-mal">Falta capturar la comisión de ${c.falta_comision.map(esc).join(', ')}: el monto está en bruto.</p>` : ''}
+    </div>`).join('')}</div>` : '<div class="advertencia">No hay ventas de la caja en este periodo.</div>') + `
+    <h3>Exportar a Quicken Simplifi</h3>
+    <p class="subtitulo">Un archivo por cuenta, para importarlo en esa cuenta de Simplifi: una línea por día y forma de pago con la venta, y otra con la comisión si está capturada.</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">${cuentasUnicas.map(c => `<a class="btn-fantasma btn-chico" style="display:inline-block; text-decoration:none; border-radius:8px" href="/api/v2/quicken.csv?cuenta=${encodeURIComponent(c)}&${qs}" download>⬇ CSV ${esc(c)}</a>`).join('')}</div>`;
+
+  const tbody = document.getElementById('cuentas-comisiones');
+  tbody.innerHTML = formas.map(f => `<tr>
+    <td>${esc(f.forma_pago)}</td><td>${esc(f.cuenta)}</td>
+    <td><input type="number" min="0" max="99" step="0.1" data-forma="${esc(f.forma_pago)}" value="${f.comision_pct ?? ''}" placeholder="${f.forma_pago === 'Efectivo' ? '0' : 'sin capturar'}" style="width:120px"></td>
+    <td><button class="btn-fantasma btn-chico" data-forma="${esc(f.forma_pago)}">Guardar</button></td>
+  </tr>`).join('');
+  tbody.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+    const input = tbody.querySelector(`input[data-forma="${CSS.escape(b.dataset.forma)}"]`);
+    try {
+      await postJSON('/api/v2/formas-pago', { forma_pago: b.dataset.forma, comision_pct: input.value });
+      cargarCuentas();
+    } catch (err) { alert(err.message); }
+  }));
+}
+for (const id of ['cuentas-desde', 'cuentas-hasta', 'cuentas-sucursal']) document.getElementById(id).addEventListener('change', cargarCuentas);
+
+// --- menú y precios ---
+async function cargarMenuAdmin() {
+  const tbody = document.getElementById('menu-tabla');
+  let menu;
+  try { menu = await pedirJSON('/api/v2/menu'); } catch (err) { tbody.innerHTML = `<tr><td colspan="7">${esc(err.message)}</td></tr>`; return; }
+  const conPrecio = menu.filter(m => m.precio != null && m.precio > 0 && m.activo).length;
+  document.getElementById('menu-resumen').innerHTML = `<b>${conPrecio} de ${menu.length}</b> platillos ya aparecen en la caja (activos y con precio).`;
+  tbody.innerHTML = menu.map(m => `<tr data-clave="${esc(m.clave)}">
+    <td>${esc(m.clave)}</td>
+    <td><input type="text" data-campo="nombre" value="${esc(m.nombre)}"></td>
+    <td><input type="text" data-campo="categoria" value="${esc(m.categoria)}" placeholder="Ej. Tacos"></td>
+    <td><input type="number" data-campo="precio" min="0" step="0.5" value="${m.precio ?? ''}" placeholder="sin precio"></td>
+    <td><input type="text" data-campo="receta" value="${esc(m.receta)}"></td>
+    <td><input type="checkbox" data-campo="activo" ${m.activo ? 'checked' : ''}></td>
+    <td><button class="btn-fantasma btn-chico">Guardar</button></td>
+  </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.querySelector('button').addEventListener('click', async () => {
+    const campo = n => tr.querySelector(`[data-campo="${n}"]`);
+    try {
+      await postJSON('/api/v2/menu', {
+        clave: tr.dataset.clave, nombre: campo('nombre').value, categoria: campo('categoria').value,
+        precio: campo('precio').value, receta: campo('receta').value, activo: campo('activo').checked,
+      });
+      tr.querySelector('button').textContent = '✓ Guardado';
+      setTimeout(cargarMenuAdmin, 600);
+    } catch (err) { alert(err.message); }
+  }));
+}
+document.getElementById('nuevo-guardar').addEventListener('click', async () => {
+  const v = id => document.getElementById(id).value;
+  try {
+    await postJSON('/api/v2/menu', { clave: v('nuevo-clave'), nombre: v('nuevo-nombre'), categoria: v('nuevo-categoria'), precio: v('nuevo-precio'), receta: v('nuevo-receta'), activo: true });
+    for (const id of ['nuevo-clave', 'nuevo-nombre', 'nuevo-categoria', 'nuevo-precio', 'nuevo-receta']) document.getElementById(id).value = '';
+    cargarMenuAdmin();
+  } catch (err) { alert(err.message); }
+});
 
 // --- V2: respaldo diario en la computadora ---
 // El navegador solo puede descargar mientras la plataforma esta abierta, asi
