@@ -223,8 +223,13 @@
 
   <div class="kicker naranja">Ya disponible</div>
   <h2>Respaldo de la base de datos</h2>
-  <p class="subtitulo">Descarga en un Excel todo lo que guarda la plataforma (una hoja por tabla), para tenerlo respaldado fuera del servidor. Por ahora es con este botón; cuando se decida dónde guardarlo (por ejemplo Google Drive), se hará solo cada noche.</p>
-  <a class="btn-fantasma btn-chico" style="display:inline-block; text-decoration:none; border-radius:8px" href="/api/v2/respaldo.xlsx" download>⬇ Descargar respaldo completo</a>
+  <p class="subtitulo">Todo lo que guarda la plataforma en un Excel (una hoja por tabla), para tenerlo respaldado en la computadora por si el servidor falla.</p>
+  <label style="display:flex; gap:8px; align-items:center; margin: 8px 0 12px; font-size:.9rem; cursor:pointer">
+    <input type="checkbox" id="respaldo-auto">
+    Descargar el respaldo solo en esta computadora, una vez al día al abrir la plataforma
+  </label>
+  <p class="subtitulo" id="respaldo-ultimo"></p>
+  <a class="btn-fantasma btn-chico" style="display:inline-block; text-decoration:none; border-radius:8px" href="/api/v2/respaldo.xlsx" download>⬇ Descargar respaldo ahora</a>
 </div>
 
 <!-- ============ DASHBOARD (unificado) ============ -->
@@ -610,6 +615,38 @@ function mostrarVista(nombre) {
 
 document.getElementById('ver-v1').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
 document.getElementById('ver-v2').addEventListener('click', () => { mostrarVista('vista-v2'); cargarPareto(); });
+
+// --- V2: respaldo diario en la computadora ---
+// El navegador solo puede descargar mientras la plataforma esta abierta, asi
+// que el respaldo "diario" se baja la primera vez que se abre cada dia. Se
+// activa por computadora (ej. la de la administracion), para no llenar de
+// archivos las computadoras de caja.
+function leerLocal(clave) { try { return localStorage.getItem(clave); } catch { return null; } }
+function guardarLocal(clave, valor) { try { localStorage.setItem(clave, valor); } catch {} }
+function hoyLocal() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+
+function pintarRespaldo() {
+  const ultimo = leerLocal('respaldo-ultimo-dia');
+  document.getElementById('respaldo-auto').checked = leerLocal('respaldo-auto') === '1';
+  document.getElementById('respaldo-ultimo').textContent = ultimo
+    ? `Último respaldo automático en esta computadora: ${ultimo}. Se guarda en la carpeta de Descargas.`
+    : 'Se guarda en la carpeta de Descargas de la computadora.';
+}
+function respaldoAutomatico() {
+  if (leerLocal('respaldo-auto') !== '1' || leerLocal('respaldo-ultimo-dia') === hoyLocal()) return;
+  const a = document.createElement('a');
+  a.href = '/api/v2/respaldo.xlsx'; a.download = '';
+  document.body.appendChild(a); a.click(); a.remove();
+  guardarLocal('respaldo-ultimo-dia', hoyLocal());
+  pintarRespaldo();
+}
+document.getElementById('respaldo-auto').addEventListener('change', e => {
+  guardarLocal('respaldo-auto', e.target.checked ? '1' : '0');
+  respaldoAutomatico();
+  pintarRespaldo();
+});
+pintarRespaldo();
+respaldoAutomatico();
 
 // --- V2: 80/20 de insumos ---
 function rangoDias(dias) {
