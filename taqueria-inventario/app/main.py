@@ -17,26 +17,39 @@ from fastapi.staticfiles import StaticFiles
 
 _logger = logging.getLogger("uvicorn.error")
 
-from . import asesor_compras, caja, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia
+from . import asesor_compras, caja, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia, usuarios
 
 STATIC_DIR = Path(__file__).parent / "static"
 
-# Contraseña compartida para proteger la app cuando esté en internet. Se lee
-# de variables de entorno (nunca escrita en el código) -- si no se configura
-# ninguna, la app queda SIN contraseña (útil para correrla local en tu compu
-# sin que te pida usuario/clave cada vez).
+# Acceso maestro: usuario/contraseña de variables de entorno (nunca escritos
+# en el código). Siempre funciona, con perfil de dueño, aunque se borren o
+# desactiven todos los usuarios del panel -- así nadie se queda fuera.
+# Además, cada persona puede tener su propio usuario con su perfil
+# (ver usuarios.py). Sin acceso maestro configurado y sin usuarios creados,
+# la app queda abierta (útil para correrla local en tu compu).
 _APP_USUARIO = os.environ.get("APP_USUARIO")
 _APP_PASSWORD = os.environ.get("APP_PASSWORD")
 _seguridad = HTTPBasic(auto_error=False)
 
 
-def requiere_acceso(credenciales: HTTPBasicCredentials | None = Depends(_seguridad)):
-    if not _APP_USUARIO or not _APP_PASSWORD:
-        return  # sin variables de entorno configuradas -> app abierta (uso local)
-    ok_usuario = credenciales is not None and secrets.compare_digest(credenciales.username, _APP_USUARIO)
-    ok_clave = credenciales is not None and secrets.compare_digest(credenciales.password, _APP_PASSWORD)
-    if not (ok_usuario and ok_clave):
-        raise HTTPException(status_code=401, detail="Acceso no autorizado", headers={"WWW-Authenticate": "Basic"})
+def requiere_acceso(request: Request, credenciales: HTTPBasicCredentials | None = Depends(_seguridad)):
+    maestro_configurado = bool(_APP_USUARIO and _APP_PASSWORD)
+    usuario = None
+    if credenciales is not None:
+        if (maestro_configurado
+                and secrets.compare_digest(credenciales.username, _APP_USUARIO)
+                and secrets.compare_digest(credenciales.password, _APP_PASSWORD)):
+            usuario = {"usuario": _APP_USUARIO, "nombre": "Acceso maestro", "rol": "dueno", "sucursal": "", "maestro": True}
+        else:
+            usuario = usuarios.verificar(credenciales.username, credenciales.password)
+    if usuario is None:
+        if not maestro_configurado and not usuarios.hay_usuarios():
+            usuario = {"usuario": "local", "nombre": "Uso local", "rol": "dueno", "sucursal": "", "maestro": True}
+        else:
+            raise HTTPException(status_code=401, detail="Acceso no autorizado", headers={"WWW-Authenticate": "Basic"})
+    if not usuarios.permitido(usuario["rol"], request.method, request.url.path):
+        raise HTTPException(status_code=403, detail="Tu perfil no tiene acceso a esta sección.")
+    request.state.usuario = usuario
 
 
 app = FastAPI(title="Conciliacion de inventario - Taqueria", dependencies=[Depends(requiere_acceso)])
@@ -491,11 +504,13 @@ async def v2_guardar_comision(payload: dict = Body(...)):
 
 
 @app.post("/api/v2/ventas")
-async def v2_registrar_venta(payload: dict = Body(...)):
+async def v2_registrar_venta(request: Request, payload: dict = Body(...)):
     recibido = payload.get("recibido")
+    # Un usuario ligado a una sucursal siempre cobra en la suya.
+    sucursal = request.state.usuario.get("sucursal") or str(payload.get("sucursal", ""))
     return _valor_error(
         caja.registrar_venta,
-        str(payload.get("fecha", "")), str(payload.get("hora", "")), str(payload.get("sucursal", "")),
+        str(payload.get("fecha", "")), str(payload.get("hora", "")), sucursal,
         str(payload.get("forma_pago", "")), payload.get("items") or [],
         float(recibido) if recibido not in (None, "") else None,
     )
@@ -567,6 +582,53 @@ async def v2_quicken_csv(cuenta: str, desde: str, hasta: str, sucursal: str | No
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
     )
+
+
+# --- usuarios y permisos -------------------------------------------------------
+
+@app.get("/api/yo")
+async def quien_soy(request: Request):
+    return {**request.state.usuario, "roles": usuarios.ROLES}
+
+
+@app.get("/api/usuarios")
+async def listar_usuarios():
+    return usuarios.listar()
+
+
+@app.post("/api/usuarios")
+async def crear_usuario(payload: dict = Body(...)):
+    _valor_error(usuarios.crear, str(payload.get("usuario", "")), str(payload.get("nombre", "")),
+                 str(payload.get("rol", "")), payload.get("sucursal"), str(payload.get("password", "")))
+    return {"ok": True}
+
+
+def _no_a_ti_mismo(request: Request, usuario: str, accion: str):
+    if request.state.usuario.get("usuario") == usuario and not request.state.usuario.get("maestro"):
+        raise HTTPException(status_code=400, detail=f"No puedes {accion} tu propio usuario.")
+
+
+@app.post("/api/usuarios/{usuario}")
+async def actualizar_usuario(request: Request, usuario: str, payload: dict = Body(...)):
+    rol = str(payload.get("rol", ""))
+    activo = bool(payload.get("activo", True))
+    if not activo or rol not in ("dueno", "administracion"):
+        _no_a_ti_mismo(request, usuario, "desactivar o quitarle permisos a")
+    _valor_error(usuarios.actualizar, usuario, str(payload.get("nombre", "")), rol, payload.get("sucursal"), activo)
+    return {"ok": True}
+
+
+@app.post("/api/usuarios/{usuario}/password")
+async def cambiar_password_usuario(usuario: str, payload: dict = Body(...)):
+    _valor_error(usuarios.cambiar_password, usuario, str(payload.get("password", "")))
+    return {"ok": True}
+
+
+@app.delete("/api/usuarios/{usuario}")
+async def eliminar_usuario(request: Request, usuario: str):
+    _no_a_ti_mismo(request, usuario, "borrar")
+    usuarios.eliminar(usuario)
+    return {"ok": True}
 
 
 @app.get("/api/v2/respaldo.xlsx")

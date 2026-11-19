@@ -38,6 +38,8 @@
 
   /* Selector de version: la v1 (todo lo de hoy) se conserva intacta mientras
      se construye la v2 en su propia pestana. */
+  .nav-version[hidden] { display: none; }
+  .yo { font-size: .78rem; color: var(--tenue); }
   .nav-version { display: flex; gap: 4px; padding: 3px; border: 1px solid var(--borde); border-radius: 10px; }
   .nav-version button {
     font-family: inherit; background: transparent; color: var(--tenue); border: none;
@@ -168,6 +170,7 @@
   .dif-ok { color: var(--verde); font-weight: 700; }
   .dif-mal { color: var(--rojo); font-weight: 700; }
   #menu-tabla input[type=text], #menu-tabla input[type=number] { width: 100%; box-sizing: border-box; padding: 6px 8px; }
+  #usuarios-tabla input[type=text], #usuarios-tabla select { width: 100%; box-sizing: border-box; padding: 6px 8px; }
   @media (max-width: 760px) {
     .pos { grid-template-columns: 1fr; }
     .pos-orden { position: static; }
@@ -218,6 +221,7 @@
     <span class="nombre">T-GRILL</span><span class="etiqueta">TOOLKIT</span>
   </button>
   <div class="header-derecha">
+  <span class="yo" id="yo-nombre"></span>
   <nav class="nav-principal" id="nav-v1">
     <button id="nav-dashboard" class="activo">Dashboard</button>
     <button id="nav-inventario">Inventario</button>
@@ -240,11 +244,12 @@
 
   <nav class="sub-v2">
     <button data-panel="v2-caja" class="activo">Caja</button>
-    <button data-panel="v2-corte">Corte del día</button>
-    <button data-panel="v2-cuentas">Cuentas y Quicken</button>
-    <button data-panel="v2-menu">Menú y precios</button>
-    <button data-panel="v2-pareto">80/20 de insumos</button>
-    <button data-panel="v2-respaldo">Respaldo</button>
+    <button data-panel="v2-corte" data-roles="dueno,administracion,encargada">Corte del día</button>
+    <button data-panel="v2-cuentas" data-roles="dueno,administracion">Cuentas y Quicken</button>
+    <button data-panel="v2-menu" data-roles="dueno,administracion">Menú y precios</button>
+    <button data-panel="v2-pareto" data-roles="dueno,administracion,encargada">80/20 de insumos</button>
+    <button data-panel="v2-respaldo" data-roles="dueno,administracion">Respaldo</button>
+    <button data-panel="v2-usuarios" data-roles="dueno,administracion">Usuarios</button>
   </nav>
   <div class="v2-sucursal">
     <label for="v2-sucursal">Sucursal de esta computadora</label>
@@ -271,6 +276,15 @@
         </div>
         <button class="btn-naranja pos-cobrar" id="pos-cobrar" disabled>Cobrar</button>
         <label class="pos-check"><input type="checkbox" id="pos-imprimir"> Imprimir ticket y comanda al cobrar</label>
+        <details class="subtitulo" style="margin-top:10px">
+          <summary style="cursor:pointer">Cómo dejar lista la impresora (una sola vez)</summary>
+          <ol style="padding-left:18px; margin:8px 0 0">
+            <li>Instalar el driver de la Kinwodon (viene en su CD/USB o en la página del fabricante; suele aparecer como "POS-80") y ponerla como <b>impresora predeterminada</b>.</li>
+            <li>En las preferencias de la impresora: papel de 80 mm (ancho imprimible 72 mm) y corte automático al final de cada documento.</li>
+            <li>Hacer un acceso directo a Chrome con <code>--kiosk-printing</code> al final del destino, y abrir la plataforma desde ese acceso: así el ticket y la comanda salen sin el cuadro de "Imprimir".</li>
+            <li>Si la caja de dinero está conectada a la impresora, activar en el driver "abrir cajón" al imprimir.</li>
+          </ol>
+        </details>
         <p class="subtitulo" id="pos-mensaje"></p>
       </div>
     </div>
@@ -366,6 +380,29 @@
   </label>
   <p class="subtitulo" id="respaldo-ultimo"></p>
   <a class="btn-fantasma btn-chico" style="display:inline-block; text-decoration:none; border-radius:8px" href="/api/v2/respaldo.xlsx" download>⬇ Descargar respaldo ahora</a>
+  </div>
+
+  <!-- ---- Usuarios ---- -->
+  <div class="panel-v2" id="v2-usuarios" hidden>
+    <p class="subtitulo">Cada persona entra con su propio usuario y ve solo lo que le toca:</p>
+    <ul class="subtitulo" style="margin-top:0">
+      <li><b>Dueño</b> y <b>Administración</b>: todo, incluido este panel.</li>
+      <li><b>Encargada de sucursal</b>: caja, corte del día, inventario, 80/20 y la Versión 1. No ve cuentas, Quicken, respaldo, ni cambia precios, comisiones o usuarios.</li>
+      <li><b>Cajero</b>: solo la caja (cobrar y ver las ventas del día).</li>
+    </ul>
+    <p class="subtitulo">Si a alguien se le pone sucursal, siempre cobra en esa sucursal. El acceso maestro (el usuario y contraseña configurados en el servidor) siempre funciona, aunque se borren todos los usuarios. Para cambiar de usuario en una computadora hay que cerrar el navegador por completo.</p>
+    <div class="tabla-scroll"><table><thead><tr><th>Usuario</th><th>Nombre</th><th>Perfil</th><th>Sucursal</th><th>Activo</th><th></th></tr></thead>
+    <tbody id="usuarios-tabla"></tbody></table></div>
+    <h3>Nuevo usuario</h3>
+    <div class="filtros">
+      <div><label for="nu-usuario">Usuario</label><input type="text" id="nu-usuario" placeholder="Ej. lupita" autocomplete="off"></div>
+      <div><label for="nu-nombre">Nombre</label><input type="text" id="nu-nombre" placeholder="Ej. Lupita Pérez"></div>
+      <div><label for="nu-rol">Perfil</label><select id="nu-rol"></select></div>
+      <div><label for="nu-sucursal">Sucursal (opcional)</label><input type="text" id="nu-sucursal" list="v2-sucursales" placeholder="Todas"></div>
+      <div><label for="nu-password">Contraseña</label><input type="text" id="nu-password" placeholder="mínimo 6 caracteres" autocomplete="off"></div>
+      <button class="btn-naranja" id="nu-crear">Crear usuario</button>
+    </div>
+    <p class="subtitulo" id="usuarios-mensaje"></p>
   </div>
 </div>
 
@@ -769,9 +806,15 @@ const postJSON = (url, cuerpo) => pedirJSON(url, { method: 'POST', headers: { 'C
 const CARGAR_PANEL = {
   'v2-caja': cargarCaja, 'v2-corte': cargarCorte, 'v2-cuentas': cargarCuentas,
   'v2-menu': cargarMenuAdmin, 'v2-pareto': cargarPareto, 'v2-respaldo': pintarRespaldo,
+  'v2-usuarios': cargarUsuarios,
 };
-function panelActualV2() { const p = leerLocal('v2-panel'); return CARGAR_PANEL[p] ? p : 'v2-caja'; }
+function panelPermitido(id) {
+  const b = document.querySelector(`.sub-v2 button[data-panel="${id}"]`);
+  return !!b && !b.hidden;
+}
+function panelActualV2() { const p = leerLocal('v2-panel'); return CARGAR_PANEL[p] && panelPermitido(p) ? p : 'v2-caja'; }
 function mostrarPanelV2(id) {
+  if (!panelPermitido(id)) id = 'v2-caja';
   document.querySelectorAll('.panel-v2').forEach(p => { p.hidden = p.id !== id; });
   document.querySelectorAll('.sub-v2 button').forEach(b => b.classList.toggle('activo', b.dataset.panel === id));
   guardarLocal('v2-panel', id);
@@ -946,9 +989,12 @@ async function cargarVentasHoy() {
 }
 
 // --- tickets: se imprimen con el navegador en formato de 80 mm ---
-// Funciona con cualquier impresora instalada en la computadora. Para que
-// salgan sin el cuadro de diálogo de impresión, Chrome se abre con
-// --kiosk-printing (se afina cuando sepamos el modelo de la impresora).
+// Impresora de las sucursales: Kinwodon térmica de 80 mm (genérica ESC/POS,
+// con cortador), conectada por USB a la computadora de caja. El ticket del
+// cliente y la comanda se mandan como DOS impresiones separadas para que el
+// cortador corte entre una y otra. Para que salgan sin el cuadro de diálogo
+// de impresión, Chrome se abre con --kiosk-printing y la Kinwodon como
+// impresora predeterminada (ver la guía en la sección Caja).
 function htmlTicket(v) {
   return `<div class="hoja">
     <h1>T-GRILL</h1>
@@ -970,15 +1016,10 @@ function htmlComanda(v) {
     <table>${v.items.map(i => `<tr><td>${i.cantidad} x</td><td>${esc(i.nombre)}</td></tr>`).join('')}</table>
   </div>`;
 }
-function imprimirVenta(v, ticket, comanda) {
-  const partes = [];
-  if (ticket) partes.push(htmlTicket(v));
-  if (comanda) partes.push(htmlComanda(v));
-  const doc = `<!doctype html><html><head><meta charset="utf-8"><title>Folio ${v.folio}</title><style>
+const ESTILO_TICKET = `
     @page { size: 80mm auto; margin: 0; }
     body { width: 72mm; margin: 0 auto; font-family: 'Courier New', monospace; font-size: 12px; color: #000; }
-    .hoja { padding: 4mm 0; page-break-after: always; }
-    .hoja:last-child { page-break-after: auto; }
+    .hoja { padding: 2mm 0 6mm; }
     h1 { font-size: 20px; text-align: center; margin: 0 0 4px; }
     p { margin: 3px 0; }
     .c { text-align: center; }
@@ -987,16 +1028,28 @@ function imprimirVenta(v, ticket, comanda) {
     td.r { text-align: right; white-space: nowrap; padding-left: 6px; }
     .tot { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; border-top: 1px dashed #000; padding-top: 4px; }
     .comanda td { font-size: 18px; font-weight: bold; }
-    .grande { font-size: 18px; font-weight: bold; text-align: center; }
-  </style></head><body>${partes.join('')}</body></html>`;
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0;';
-  document.body.appendChild(iframe);
-  iframe.contentDocument.open(); iframe.contentDocument.write(doc); iframe.contentDocument.close();
-  setTimeout(() => {
-    iframe.contentWindow.focus(); iframe.contentWindow.print();
-    setTimeout(() => iframe.remove(), 2000);
-  }, 150);
+    .grande { font-size: 18px; font-weight: bold; text-align: center; }`;
+
+function imprimirHtml(cuerpo, titulo) {
+  return new Promise(resolve => {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed; right:0; bottom:0; width:0; height:0; border:0;';
+    document.body.appendChild(iframe);
+    const d = iframe.contentDocument;
+    d.open();
+    d.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(titulo)}</title><style>${ESTILO_TICKET}</style></head><body>${cuerpo}</body></html>`);
+    d.close();
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => { iframe.remove(); resolve(); }, 1200);
+    }, 150);
+  });
+}
+
+async function imprimirVenta(v, ticket, comanda) {
+  if (ticket) await imprimirHtml(htmlTicket(v), `Ticket folio ${v.folio}`);
+  if (comanda) await imprimirHtml(htmlComanda(v), `Comanda folio ${v.folio}`);
 }
 
 // --- corte del día ---
@@ -1199,7 +1252,6 @@ document.getElementById('respaldo-auto').addEventListener('change', e => {
   pintarRespaldo();
 });
 pintarRespaldo();
-respaldoAutomatico();
 
 // --- V2: 80/20 de insumos ---
 function rangoDias(dias) {
@@ -1273,7 +1325,10 @@ document.querySelectorAll('#pareto-filtros .atajos button').forEach(btn => {
   });
 });
 
-document.getElementById('ir-inicio').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
+document.getElementById('ir-inicio').addEventListener('click', () => {
+  if (yo.rol === 'cajero') return;
+  mostrarVista('vista-dashboard'); cargarDashboard();
+});
 document.getElementById('nav-dashboard').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
 document.getElementById('nav-inventario').addEventListener('click', () => mostrarVista('vista-inventario'));
 document.getElementById('nav-dinero').addEventListener('click', () => mostrarVista('vista-dinero'));
@@ -2529,8 +2584,79 @@ document.querySelectorAll('#vista-dashboard .filtros .atajos button').forEach(bt
   });
 });
 
-// Al cargar la página, el dashboard es la pantalla de inicio.
-cargarDashboard();
+// --- usuarios y permisos ---
+let yo = { rol: 'dueno', sucursal: '', maestro: true, roles: {} };
+const ROLES_ADMIN = ['dueno', 'administracion'];
+
+async function cargarUsuarios() {
+  const tbody = document.getElementById('usuarios-tabla');
+  const opcionesRol = sel => Object.entries(yo.roles || {}).map(([k, v]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  document.getElementById('nu-rol').innerHTML = opcionesRol('cajero');
+  cargarSucursalesV2();
+  let lista;
+  try { lista = await pedirJSON('/api/usuarios'); } catch (err) { tbody.innerHTML = `<tr><td colspan="6">${esc(err.message)}</td></tr>`; return; }
+  tbody.innerHTML = lista.map(u => `<tr data-usuario="${esc(u.usuario)}">
+    <td>${esc(u.usuario)}</td>
+    <td><input type="text" data-campo="nombre" value="${esc(u.nombre)}"></td>
+    <td><select data-campo="rol">${opcionesRol(u.rol)}</select></td>
+    <td><input type="text" data-campo="sucursal" list="v2-sucursales" value="${esc(u.sucursal)}" placeholder="Todas"></td>
+    <td><input type="checkbox" data-campo="activo" ${u.activo ? 'checked' : ''}></td>
+    <td style="white-space:nowrap">
+      <button class="btn-fantasma btn-chico" data-accion="guardar">Guardar</button>
+      <button class="btn-fantasma btn-chico" data-accion="password">Clave</button>
+      <button class="btn-peligro" data-accion="borrar">Borrar</button>
+    </td></tr>`).join('') || '<tr><td colspan="6">Todavía no hay usuarios. Crea el primero abajo.</td></tr>';
+  const mensaje = document.getElementById('usuarios-mensaje');
+  tbody.querySelectorAll('tr[data-usuario]').forEach(tr => tr.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+    const usuario = tr.dataset.usuario;
+    const campo = n => tr.querySelector(`[data-campo="${n}"]`);
+    try {
+      if (b.dataset.accion === 'guardar') {
+        await postJSON(`/api/usuarios/${encodeURIComponent(usuario)}`, {
+          nombre: campo('nombre').value, rol: campo('rol').value, sucursal: campo('sucursal').value, activo: campo('activo').checked,
+        });
+        mensaje.innerHTML = `<span class="dif-ok">✓ ${esc(usuario)} guardado</span>`;
+      } else if (b.dataset.accion === 'password') {
+        const nueva = prompt(`Nueva contraseña para ${usuario} (mínimo 6 caracteres):`);
+        if (!nueva) return;
+        await postJSON(`/api/usuarios/${encodeURIComponent(usuario)}/password`, { password: nueva });
+        mensaje.innerHTML = `<span class="dif-ok">✓ Contraseña de ${esc(usuario)} cambiada</span>`;
+      } else if (confirm(`¿Borrar al usuario ${usuario}?`)) {
+        await pedirJSON(`/api/usuarios/${encodeURIComponent(usuario)}`, { method: 'DELETE' });
+        mensaje.textContent = '';
+      } else return;
+      cargarUsuarios();
+    } catch (err) { mensaje.innerHTML = `<span class="dif-mal">${esc(err.message)}</span>`; }
+  })));
+}
+document.getElementById('nu-crear').addEventListener('click', async () => {
+  const v = id => document.getElementById(id).value;
+  const mensaje = document.getElementById('usuarios-mensaje');
+  try {
+    await postJSON('/api/usuarios', { usuario: v('nu-usuario'), nombre: v('nu-nombre'), rol: v('nu-rol'), sucursal: v('nu-sucursal'), password: v('nu-password') });
+    mensaje.innerHTML = `<span class="dif-ok">✓ Usuario ${esc(v('nu-usuario'))} creado</span>`;
+    for (const id of ['nu-usuario', 'nu-nombre', 'nu-sucursal', 'nu-password']) document.getElementById(id).value = '';
+    cargarUsuarios();
+  } catch (err) { mensaje.innerHTML = `<span class="dif-mal">${esc(err.message)}</span>`; }
+});
+
+async function iniciar() {
+  try { yo = await pedirJSON('/api/yo'); } catch {}
+  document.getElementById('yo-nombre').textContent = yo.maestro ? '' : `${yo.nombre} · ${(yo.roles || {})[yo.rol] || yo.rol}`;
+  document.querySelectorAll('.sub-v2 button[data-roles]').forEach(b => { b.hidden = !b.dataset.roles.split(',').includes(yo.rol); });
+  if (yo.sucursal) { inputSucursalV2.value = yo.sucursal; inputSucursalV2.readOnly = true; }
+  if (yo.rol === 'cajero') {
+    // El cajero solo usa la caja: sin Versión 1 ni selector de versión.
+    document.querySelector('.nav-version').hidden = true;
+    mostrarVista('vista-v2');
+    mostrarPanelV2('v2-caja');
+    return;
+  }
+  if (ROLES_ADMIN.includes(yo.rol)) respaldoAutomatico();
+  // Al cargar la página, el dashboard es la pantalla de inicio.
+  cargarDashboard();
+}
+iniciar();
 </script>
 
 </body>
