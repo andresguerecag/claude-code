@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 _logger = logging.getLogger("uvicorn.error")
 
-from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, resumen_ia
+from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -444,6 +444,20 @@ async def eliminar_salida_efectivo(id_salida: int):
 async def ver_pareto(desde: str | None = None, hasta: str | None = None, sucursal: str | None = None):
     """80/20 de insumos por costo y por cantidad, sobre las compras reales."""
     return pareto.analisis(desde=desde, hasta=hasta, sucursal=sucursal)
+
+
+@app.get("/api/v2/respaldo.xlsx")
+async def descargar_respaldo():
+    """Toda la base de datos en un Excel (una hoja por tabla), para tenerla
+    respaldada fuera del servidor."""
+    import io
+    from datetime import date
+    contenido, _resumen = respaldo.generar_excel()
+    return StreamingResponse(
+        io.BytesIO(contenido),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="respaldo_tgrill_{date.today().isoformat()}.xlsx"'},
+    )
 
 
 @app.get("/api/compras")
