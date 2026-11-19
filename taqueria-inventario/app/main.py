@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 _logger = logging.getLogger("uvicorn.error")
 
-from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, reconciliacion, resumen_ia
+from . import asesor_compras, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, resumen_ia
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -438,6 +438,12 @@ async def agregar_salida_efectivo(payload: dict = Body(...)):
 async def eliminar_salida_efectivo(id_salida: int):
     colchon.eliminar_salida_efectivo(id_salida)
     return {"ok": True}
+
+
+@app.get("/api/v2/pareto")
+async def ver_pareto(desde: str | None = None, hasta: str | None = None, sucursal: str | None = None):
+    """80/20 de insumos por costo y por cantidad, sobre las compras reales."""
+    return pareto.analisis(desde=desde, hasta=hasta, sucursal=sucursal)
 
 
 @app.get("/api/compras")

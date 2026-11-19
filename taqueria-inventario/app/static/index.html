@@ -131,6 +131,10 @@
   }
   .filtros .atajos { display: flex; gap: 6px; }
   .filtros .atajos button { background: #111; color: var(--tenue); padding: 7px 11px; font-size: .8rem; font-weight: 600; border: 1px solid var(--borde); }
+  .clase-abc { display: inline-block; min-width: 22px; text-align: center; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: .75rem; }
+  .clase-abc.A { background: var(--naranja); color: #111; }
+  .clase-abc.B { background: #3a3a3a; color: var(--texto); }
+  .clase-abc.C { background: transparent; color: var(--tenue); border: 1px solid var(--borde); }
   .filtros .atajos button.activo { background: var(--naranja-oscuro); color: #fff; border-color: var(--naranja-oscuro); }
 
   .tabs { display: flex; gap: 6px; margin: 4px 0 18px; }
@@ -191,8 +195,31 @@
 <div id="vista-v2" hidden>
   <div class="kicker naranja">Nueva plataforma</div>
   <h1>Versión 2 · en construcción</h1>
-  <p class="subtitulo">Aquí se va a ir armando la plataforma nueva: caja, inventario por sucursal, cuadre de BBVA, Mercado Pago y efectivo, y exportación a Quicken, todo en un solo lugar.</p>
-  <p class="subtitulo">Mientras tanto, todo lo de siempre sigue funcionando igual en <b>Versión 1</b>.</p>
+  <p class="subtitulo">Aquí se va a ir armando la plataforma nueva: caja con tickets, inventario por sucursal, cuadre de BBVA, Mercado Pago y efectivo, y exportación a Quicken, todo en un solo lugar. Mientras tanto, todo lo de siempre sigue funcionando igual en <b>Versión 1</b>.</p>
+
+  <div class="kicker naranja">Ya disponible</div>
+  <h2>80/20 de insumos</h2>
+  <p class="subtitulo">Los pocos insumos que se llevan la mayor parte del gasto (clase A) son los que hay que contar a diario y vigilar su merma. Los de clase C (cebolla, limón…) no vale la pena rastrearlos a detalle. Se calcula con las compras registradas en Compras; los precios de referencia del catálogo no cuentan porque no son compras.</p>
+  <div class="filtros" id="pareto-filtros">
+    <div>
+      <label>Sucursal</label>
+      <input type="text" id="pareto-sucursal" placeholder="Todas">
+    </div>
+    <div>
+      <label>Desde</label>
+      <input type="date" id="pareto-desde">
+    </div>
+    <div>
+      <label>Hasta</label>
+      <input type="date" id="pareto-hasta">
+    </div>
+    <div class="atajos">
+      <button data-dias="30" class="activo">30 días</button>
+      <button data-dias="90">90 días</button>
+      <button data-dias="0">Todo</button>
+    </div>
+  </div>
+  <div id="pareto-resultado"><p class="subtitulo">Cargando…</p></div>
 </div>
 
 <!-- ============ DASHBOARD (unificado) ============ -->
@@ -577,7 +604,79 @@ function mostrarVista(nombre) {
 }
 
 document.getElementById('ver-v1').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
-document.getElementById('ver-v2').addEventListener('click', () => mostrarVista('vista-v2'));
+document.getElementById('ver-v2').addEventListener('click', () => { mostrarVista('vista-v2'); cargarPareto(); });
+
+// --- V2: 80/20 de insumos ---
+function rangoDias(dias) {
+  if (!dias) return ['', ''];
+  const hoy = new Date();
+  const desde = new Date(hoy); desde.setDate(desde.getDate() - dias);
+  return [desde.toISOString().slice(0, 10), hoy.toISOString().slice(0, 10)];
+}
+[document.getElementById('pareto-desde').value, document.getElementById('pareto-hasta').value] = rangoDias(30);
+
+async function cargarPareto() {
+  const box = document.getElementById('pareto-resultado');
+  const params = new URLSearchParams();
+  for (const [campo, id] of [['desde', 'pareto-desde'], ['hasta', 'pareto-hasta'], ['sucursal', 'pareto-sucursal']]) {
+    const v = document.getElementById(id).value.trim();
+    if (v) params.set(campo, v);
+  }
+  box.innerHTML = '<p class="subtitulo">Cargando…</p>';
+  let r;
+  try {
+    r = await (await fetch('/api/v2/pareto?' + params.toString())).json();
+  } catch (err) {
+    box.innerHTML = `<p class="subtitulo">No se pudo cargar: ${err.message}</p>`;
+    return;
+  }
+  if (!r.num_compras_reales) {
+    box.innerHTML = `<div class="advertencia">Todavía no hay compras registradas en este periodo. El 80/20 se arma con lo que de verdad se compra: registra las compras en <b>Versión 1 → Compras</b> (con cantidad, unidad y precio total) y aquí aparecerá solo.</div>`;
+    return;
+  }
+  const rc = r.resumen_clases;
+  const pct = c => r.gasto_total ? (100 * rc[c].gasto / r.gasto_total).toFixed(0) + '%' : '-';
+  let html = `<div class="kpis">
+    <div class="kpi inv"><b>${rc.A.num_insumos} de ${r.num_insumos}</b><span>insumos son clase A</span></div>
+    <div class="kpi inv"><b>${pct('A')}</b><span>del gasto está en la clase A</span></div>
+    <div class="kpi inv"><b>${fmtMoneda(r.gasto_total)}</b><span>gasto en ${r.num_compras_reales} compras</span></div>
+  </div>
+  <h3>Por costo</h3>
+  <p class="subtitulo"><span class="clase-abc A">A</span> contar a diario · <span class="clase-abc B">B</span> contar cada semana · <span class="clase-abc C">C</span> contar cada mes o solo vigilar el gasto</p>
+  <table><thead><tr><th>Insumo</th><th>Clase</th><th>Gasto</th><th>% del gasto</th><th>% acumulado</th><th>Compras</th></tr></thead><tbody>`;
+  for (const f of r.por_costo) {
+    html += `<tr><td>${f.insumo}</td><td><span class="clase-abc ${f.clase}">${f.clase}</span></td><td>${fmtMoneda(f.gasto)}</td><td>${f.pct}%</td><td>${f.pct_acumulado}%</td><td>${f.compras}</td></tr>`;
+  }
+  html += `</tbody></table>`;
+
+  html += `<h3>Por cantidad</h3><p class="subtitulo">Solo se comparan insumos que se compran en la misma unidad (kilos con kilos, piezas con piezas).</p>`;
+  for (const g of r.por_cantidad) {
+    html += `<table><thead><tr><th>Insumo (${g.unidad})</th><th>Clase</th><th>Cantidad</th><th>% acumulado</th></tr></thead><tbody>`;
+    for (const f of g.insumos) {
+      html += `<tr><td>${f.insumo}</td><td><span class="clase-abc ${f.clase}">${f.clase}</span></td><td>${num(f.cantidad, 2)} ${g.unidad}</td><td>${f.pct_acumulado}%</td></tr>`;
+    }
+    html += `</tbody></table>`;
+  }
+  if (r.sin_unidad_reconocible.length) {
+    html += `<p class="subtitulo">Sin unidad reconocible (cuentan en el costo, pero no en cantidad): ${r.sin_unidad_reconocible.map(x => x.insumo).join(', ')}.</p>`;
+  }
+  box.innerHTML = html;
+}
+
+for (const id of ['pareto-desde', 'pareto-hasta', 'pareto-sucursal']) {
+  document.getElementById(id).addEventListener('change', () => {
+    document.querySelectorAll('#pareto-filtros .atajos button').forEach(b => b.classList.remove('activo'));
+    cargarPareto();
+  });
+}
+document.querySelectorAll('#pareto-filtros .atajos button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#pareto-filtros .atajos button').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    [document.getElementById('pareto-desde').value, document.getElementById('pareto-hasta').value] = rangoDias(parseInt(btn.dataset.dias, 10));
+    cargarPareto();
+  });
+});
 
 document.getElementById('ir-inicio').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
 document.getElementById('nav-dashboard').addEventListener('click', () => { mostrarVista('vista-dashboard'); cargarDashboard(); });
@@ -1817,9 +1916,9 @@ document.getElementById('generar-resumen-ia').addEventListener('click', async ()
 document.getElementById('filtro-sucursal').addEventListener('change', cargarDashboard);
 document.getElementById('filtro-desde').addEventListener('change', cargarDashboard);
 document.getElementById('filtro-hasta').addEventListener('change', cargarDashboard);
-document.querySelectorAll('.filtros .atajos button').forEach(btn => {
+document.querySelectorAll('#vista-dashboard .filtros .atajos button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.filtros .atajos button').forEach(b => b.classList.remove('activo'));
+    document.querySelectorAll('#vista-dashboard .filtros .atajos button').forEach(b => b.classList.remove('activo'));
     btn.classList.add('activo');
     const dias = parseInt(btn.dataset.dias, 10);
     if (dias === 0) {
