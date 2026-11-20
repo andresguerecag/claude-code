@@ -346,5 +346,61 @@
     "receta_por_unidad": {
       "refrescos": 1.0
     }
+  },
+  "ALAS": {
+    "nombre": "ALAMBRE DE ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "tortillas": 7.0
+    }
+  },
+  "ALACQ": {
+    "nombre": "ALAMBRE DE ARRACHERA C/QUESO",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.05,
+      "tortillas": 7.0
+    }
+  },
+  "FUNA": {
+    "nombre": "FUNDIDO ARRACHERA",
+    "receta_por_unidad": {
+      "carne": 0.12,
+      "queso": 0.15,
+      "tortillas": 7.0
+    }
+  },
+  "POZ500": {
+    "nombre": "POZOLE GRANDE 500 G",
+    "receta_por_unidad": {}
+  },
+  "POZLITRO": {
+    "nombre": "POZOLE LITRO",
+    "receta_por_unidad": {}
+  },
+  "FRIJOLES": {
+    "nombre": "FRIJOLES CHARROS",
+    "receta_por_unidad": {}
+  },
+  "PROMO2ORDP": {
+    "nombre": "PROMO 2 ORDENES DE PASTOR Y 2 AGUAS",
+    "receta_por_unidad": {
+      "pastor": 0.3,
+      "tortillas": 10.0
+    }
+  },
+  "FUZETEA": {
+    "nombre": "FUZE TEA 600ML",
+    "receta_por_unidad": {
+      "refrescos": 1.0
+    }
+  },
+  "AGUACATE": {
+    "nombre": "AGUACATE",
+    "receta_por_unidad": {}
+  },
+  "GUACAMOLE": {
+    "nombre": "GUACAMOLE",
+    "receta_por_unidad": {}
   }
 }

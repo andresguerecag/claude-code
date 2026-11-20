@@ -487,6 +487,7 @@ async def v2_guardar_platillo_completo(payload: dict = Body(...)):
         payload.get("clave"), str(payload.get("nombre", "")).strip(), payload.get("categoria"),
         float(precio) if precio not in (None, "") else None,
         bool(payload.get("activo", True)), payload.get("insumos") or {},
+        float(payload["precio_plataforma"]) if payload.get("precio_plataforma") not in (None, "") else None,
     )
     return {"ok": True, "clave": clave}
 

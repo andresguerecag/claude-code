@@ -65,60 +65,143 @@ FORMAS_PAGO_DEFAULT = [
 # mientras dure el piloto) su categoria y un nombre claro. En las claves de
 # Wansoft la "B" final es bistec y la "A" arrachera (TORB/TORA, ORDB/ORDA...),
 # como confirman los mapeos de la familia (TORTARRACH -> TORA).
+# Menu tal como esta impreso en las cartas del local (precios incluidos), y
+# el precio en las apps de delivery segun el "Costeo Plataformas" de la
+# familia (el mismo para Uber, DiDi y Rappi).
+# Claves = las de Wansoft cuando existen, para que los reportes sigan
+# cuadrando durante el piloto; los platillos que Wansoft no tenia por
+# separado llevan clave nueva. En las claves de Wansoft la "B" final es
+# bistec y la "A" arrachera (TORB/TORA, ORDB/ORDA...).
 CATEGORIAS = [
-    "Tacos", "Órdenes", "Parrilladas", "Alambres", "Piratas, gringas y campechanas",
-    "Huaraches", "Costras", "Fundidos", "Quesadillas", "Tortas", "Combos",
-    "Bebidas", "Extras", "Por revisar",
+    "Tacos", "Órdenes", "Piratas, campechanas y gringas", "Huaraches", "Alambres",
+    "Queso fundido", "Parrilladas", "Costras", "Tortas", "Quesadillas",
+    "Pozole y frijoles", "Promos", "Bebidas", "Extras", "Fuera del menú",
 ]
+# clave: (categoria, nombre, precio de la carta)
 MENU_SUGERIDO = {
-    "TAB": ("Tacos", "Taco de bistec"),
-    "TAA": ("Tacos", "Taco de arrachera"),
-    "TAP": ("Tacos", "Taco de pastor"),
-    "ORDB": ("Órdenes", "Orden de bistec"),
-    "ORDA": ("Órdenes", "Orden de arrachera"),
-    "ORDP": ("Órdenes", "Orden de pastor"),
-    "PAPS": ("Parrilladas", "Parrillada personal"),
-    "PAPCQ": ("Parrilladas", "Parrillada personal con queso"),
-    "PAFS": ("Parrilladas", "Parrillada familiar"),
-    "PAFCQ": ("Parrilladas", "Parrillada familiar con queso"),
-    "PAMS": ("Parrilladas", "Parrillada mega"),
-    "PAMCQ": ("Parrilladas", "Parrillada mega con queso"),
-    "ALBS": ("Alambres", "Alambre de bistec"),
-    "ALBCQ": ("Alambres", "Alambre de bistec con queso"),
-    "ALPS": ("Alambres", "Alambre de pastor"),
-    "ALPCQ": ("Alambres", "Alambre de pastor con queso"),
-    "PIRCHA": ("Piratas, gringas y campechanas", "Pirata chica"),
-    "PIRGDEA": ("Piratas, gringas y campechanas", "Pirata grande"),
-    "GCH": ("Piratas, gringas y campechanas", "Gringa chica"),
-    "GGDE": ("Piratas, gringas y campechanas", "Gringa grande"),
-    "CAMPCH": ("Piratas, gringas y campechanas", "Campechana chica"),
-    "CAMPGDE": ("Piratas, gringas y campechanas", "Campechana grande"),
-    "HUAB": ("Huaraches", "Huarache de bistec"),
-    "HUAA": ("Huaraches", "Huarache de arrachera"),
-    "HUAP": ("Huaraches", "Huarache de pastor"),
-    "COSTB": ("Costras", "Costra de bistec"),
-    "COSTA": ("Costras", "Costra de arrachera"),
-    "COSTP": ("Costras", "Costra de pastor"),
-    "FUNN": ("Fundidos", "Fundido natural"),
-    "FUNB": ("Fundidos", "Fundido de bistec"),
-    "FUNP": ("Fundidos", "Fundido de pastor"),
-    "QUESA": ("Quesadillas", "Quesadilla"),
-    "QUESACAR": ("Quesadillas", "Quesadilla con carne"),
-    "DOM": ("Quesadillas", "Quesadilla con pastor"),
-    "TORB": ("Tortas", "Torta de bistec"),
-    "TORA": ("Tortas", "Torta de arrachera"),
-    "TORP": ("Tortas", "Torta de pastor"),
-    "REFALBS": ("Combos", "Completo alambre de bistec (con refresco)"),
-    "REFCAMPGDE": ("Combos", "Completo gigante (campechana con refresco)"),
-    "REF600": ("Bebidas", "Refresco 600 ml"),
-    "AGUACIEL": ("Bebidas", "Agua Ciel"),
-    "EXTRAT": ("Extras", "Extra de tortillas"),
-    "EXTRAQ": ("Extras", "Extra de queso"),
-    # En el Excel de recetas aparecen como "Mediana archera/mixta", pero la
-    # clave PIRCH parece de "pirata chica": hay que confirmar que son.
-    "PIRCH": ("Por revisar", "Mediana de arrachera"),
-    "PIRCHB": ("Por revisar", "Mediana de bistec con queso"),
-    "CCH": ("Por revisar", "Mediana mixta"),
+    "TAP": ("Tacos", "Taco de pastor", 18, 23),
+    "TAB": ("Tacos", "Taco de bistec", 21, 27),
+    "TAA": ("Tacos", "Taco de arrachera", 25, 33),
+    "ORDP": ("Órdenes", "Orden de 5 tacos de pastor", 85, 110),
+    "ORDB": ("Órdenes", "Orden de 5 tacos de bistec", 98, 130),
+    "ORDA": ("Órdenes", "Orden de 5 tacos de arrachera", 105, 150),
+    "PIRCHA": ("Piratas, campechanas y gringas", "Pirata mediana", 70, 78),
+    "PIRGDEA": ("Piratas, campechanas y gringas", "Pirata gigante", 120, 145),
+    "CAMPCH": ("Piratas, campechanas y gringas", "Campechana mediana", 70, 65),
+    "CAMPGDE": ("Piratas, campechanas y gringas", "Campechana gigante", 115, 145),
+    "GCH": ("Piratas, campechanas y gringas", "Gringa mediana", 65, 78),
+    "GGDE": ("Piratas, campechanas y gringas", "Gringa gigante", 95, 145),
+    "HUAP": ("Huaraches", "Huarache de pastor", 80, 89),
+    "HUAB": ("Huaraches", "Huarache de bistec", 95, 103),
+    "HUAA": ("Huaraches", "Huarache de arrachera", 98, 118),
+    "ALPS": ("Alambres", "Alambre de pastor", 95, 115),
+    "ALPCQ": ("Alambres", "Alambre de pastor con queso", 105, 130),
+    "ALBS": ("Alambres", "Alambre de bistec", 110, 130),
+    "ALBCQ": ("Alambres", "Alambre de bistec con queso", 120, 145),
+    "ALAS": ("Alambres", "Alambre de arrachera", 120, 130),
+    "ALACQ": ("Alambres", "Alambre de arrachera con queso", 125, 145),
+    "FUNN": ("Queso fundido", "Queso fundido natural", 80, 90),
+    "FUNP": ("Queso fundido", "Queso fundido con pastor", 95, 110),
+    "FUNB": ("Queso fundido", "Queso fundido con bistec", 95, 110),
+    "FUNA": ("Queso fundido", "Queso fundido con arrachera", 95, 110),
+    "PAPS": ("Parrilladas", "Parrillada personal", 120, 159),
+    "PAPCQ": ("Parrilladas", "Parrillada personal con queso", 130, 174),
+    "PAFS": ("Parrilladas", "Parrillada grande", 240, 320),
+    "PAFCQ": ("Parrilladas", "Parrillada grande con queso", 270, 361),
+    "PAMS": ("Parrilladas", "Parrillada mega", 390, 420),
+    "PAMCQ": ("Parrilladas", "Parrillada mega con queso", 425, 461),
+    "COSTP": ("Costras", "Costra de queso con pastor", 85, 90),
+    "COSTB": ("Costras", "Costra de queso con bistec", 85, 90),
+    "COSTA": ("Costras", "Costra de queso con arrachera", 85, 90),
+    "TORP": ("Tortas", "Torta de pastor", 100, 135),
+    "TORB": ("Tortas", "Torta de bistec", 110, 145),
+    "TORA": ("Tortas", "Torta de arrachera", 115, 145),
+    "QUESA": ("Quesadillas", "Quesadilla natural", 60, 49),
+    "QUESACAR": ("Quesadillas", "Quesadilla con bistec o arrachera", 85, 75),
+    "DOM": ("Quesadillas", "Quesadilla con pastor", 85, 75),
+    "POZ500": ("Pozole y frijoles", "Pozole grande (500 g)", 100, None),
+    "POZLITRO": ("Pozole y frijoles", "Pozole litro para llevar", 185, None),
+    "FRIJOLES": ("Pozole y frijoles", "Frijoles charros (tazón)", 25, None),
+    "PROMO2ORDP": ("Promos", "2 órdenes de pastor y 2 aguas", 150, None),
+    "REFCAMPGDE": ("Promos", "Campechana, charros y refresco", 160, None),
+    "REFALBS": ("Promos", "Alambre, charros y refresco", 160, None),
+    "REF600": ("Bebidas", "Refresco 600 ml", 35, 40),
+    "AGUACIEL": ("Bebidas", "Agua Ciel", 35, None),
+    "FUZETEA": ("Bebidas", "Fuze tea 600 ml", 35, None),
+    "AGUACATE": ("Extras", "Aguacate", 15, None),
+    "GUACAMOLE": ("Extras", "Guacamole", 25, 25),
+    "EXTRAQ": ("Extras", "Queso extra", None, None),
+    "EXTRAT": ("Extras", "Tortillas extra", None, None),
+    # En la tabla de recetas pero no en la carta impresa: quedan fuera de venta.
+    "PIRCH": ("Fuera del menú", "Mediana de arrachera", None, None),
+    "PIRCHB": ("Fuera del menú", "Mediana de bistec con queso", None, None),
+    "CCH": ("Fuera del menú", "Mediana mixta", None, None),
+}
+FUERA_DEL_MENU = {"PIRCH", "PIRCHB", "CCH"}
+# Formas de pago de las apps: ahi se cobra el "precio en apps" del platillo.
+PLATAFORMAS = {"Uber", "DiDi", "Rappi"}
+# Platillos que la tabla de recetas no tenia: se crean con lo que llevan
+# (mismos gramos que su equivalente de bistec; el pozole, los frijoles y el
+# aguacate no usan insumos que se cuenten en el inventario).
+RECETAS_NUEVAS = {
+    "ALAS": {"carne": 0.12, "tortillas": 7.0},
+    "ALACQ": {"carne": 0.12, "queso": 0.05, "tortillas": 7.0},
+    "FUNA": {"carne": 0.12, "queso": 0.15, "tortillas": 7.0},
+    "POZ500": {}, "POZLITRO": {}, "FRIJOLES": {},
+    "PROMO2ORDP": {"pastor": 0.30, "tortillas": 10.0},
+    "FUZETEA": {"refrescos": 1.0},
+    "AGUACATE": {},
+    "GUACAMOLE": {},
+}
+# Nombres que se pusieron en el deploy anterior (DP #3): si un platillo
+# todavia tiene ese nombre, nadie lo ha cambiado y se puede actualizar.
+_NOMBRES_ANTERIORES = {
+    "TAB": "Taco de bistec",
+    "TAA": "Taco de arrachera",
+    "TAP": "Taco de pastor",
+    "ORDB": "Orden de bistec",
+    "ORDA": "Orden de arrachera",
+    "ORDP": "Orden de pastor",
+    "PAPS": "Parrillada personal",
+    "PAPCQ": "Parrillada personal con queso",
+    "PAFS": "Parrillada familiar",
+    "PAFCQ": "Parrillada familiar con queso",
+    "PAMS": "Parrillada mega",
+    "PAMCQ": "Parrillada mega con queso",
+    "ALBS": "Alambre de bistec",
+    "ALBCQ": "Alambre de bistec con queso",
+    "ALPS": "Alambre de pastor",
+    "ALPCQ": "Alambre de pastor con queso",
+    "PIRCHA": "Pirata chica",
+    "PIRGDEA": "Pirata grande",
+    "GCH": "Gringa chica",
+    "GGDE": "Gringa grande",
+    "CAMPCH": "Campechana chica",
+    "CAMPGDE": "Campechana grande",
+    "HUAB": "Huarache de bistec",
+    "HUAA": "Huarache de arrachera",
+    "HUAP": "Huarache de pastor",
+    "COSTB": "Costra de bistec",
+    "COSTA": "Costra de arrachera",
+    "COSTP": "Costra de pastor",
+    "FUNN": "Fundido natural",
+    "FUNB": "Fundido de bistec",
+    "FUNP": "Fundido de pastor",
+    "QUESA": "Quesadilla",
+    "QUESACAR": "Quesadilla con carne",
+    "DOM": "Quesadilla con pastor",
+    "TORB": "Torta de bistec",
+    "TORA": "Torta de arrachera",
+    "TORP": "Torta de pastor",
+    "REFALBS": "Completo alambre de bistec (con refresco)",
+    "REFCAMPGDE": "Completo gigante (campechana con refresco)",
+    "REF600": "Refresco 600 ml",
+    "AGUACIEL": "Agua Ciel",
+    "EXTRAT": "Extra de tortillas",
+    "EXTRAQ": "Extra de queso",
+    "PIRCH": "Mediana de arrachera",
+    "PIRCHB": "Mediana de bistec con queso",
+    "CCH": "Mediana mixta",
 }
 _menu_ordenado = False
 
@@ -196,6 +279,12 @@ def _conectar():
             cur.execute("ALTER TABLE ventas ADD COLUMN id_local TEXT")
     else:
         cur.execute("ALTER TABLE ventas ADD COLUMN IF NOT EXISTS id_local TEXT")
+    # Precio del platillo en las apps de delivery.
+    if isinstance(con, sqlite3.Connection):
+        if "precio_plataforma" not in {fila[1] for fila in cur.execute("PRAGMA table_info(menu)")}:
+            cur.execute(f"ALTER TABLE menu ADD COLUMN precio_plataforma {tipos['real']}")
+    else:
+        cur.execute(f"ALTER TABLE menu ADD COLUMN IF NOT EXISTS precio_plataforma {tipos['real']}")
     # Datos de liquidacion de cada forma de pago (ver PLATAFORMAS_DEFAULT).
     nuevas = {"iva_comision": "INTEGER", "ret_isr_pct": tipos["real"], "ret_iva_pct": tipos["real"], "dia_deposito": "INTEGER"}
     if isinstance(con, sqlite3.Connection):
@@ -251,33 +340,63 @@ def _sembrar(con) -> None:
         with open(RECETAS_PATH, encoding="utf-8") as f:
             recetas = json.load(f)
         for clave, info in recetas.items():
-            categoria, nombre = MENU_SUGERIDO.get(clave, (None, info["nombre"].strip().capitalize()))
-            cur.execute(_sql(con, "INSERT INTO menu (clave, nombre, precio, categoria, receta, activo) VALUES (?, ?, NULL, ?, ?, 1)"),
-                        (clave, nombre, categoria, clave))
+            categoria, nombre, precio, precio_apps = MENU_SUGERIDO.get(clave, (None, info["nombre"].strip().capitalize(), None, None))
+            cur.execute(_sql(con, "INSERT INTO menu (clave, nombre, precio, categoria, receta, activo, precio_plataforma) VALUES (?, ?, ?, ?, ?, ?, ?)"),
+                        (clave, nombre, precio, categoria, clave, 0 if clave in FUERA_DEL_MENU else 1, precio_apps))
     con.commit()
     _ordenar_menu_existente(con)
 
 
 def _ordenar_menu_existente(con) -> None:
-    """Bases que ya se habian sembrado con los nombres crudos de la tabla de
-    recetas: se les pone el nombre claro y la categoria, SOLO a los platillos
-    que nadie ha tocado (sin categoria y con el nombre automatico). Lo que la
-    familia ya edito no se cambia. Corre una vez por arranque."""
+    """Pone el menu de la carta en bases ya sembradas, sin pisar lo que la
+    familia ya capturo:
+      - agrega los platillos de la carta que falten (con su receta);
+      - pone nombre y categoria de la carta solo a los platillos que siguen
+        con el nombre automatico (el crudo de la tabla de recetas o el del
+        deploy anterior);
+      - pone el precio de la carta solo donde todavia no hay precio;
+      - saca de venta los que no estan en la carta, si nadie les puso precio.
+    Corre una vez por arranque y se puede repetir sin problema."""
     global _menu_ordenado
-    if _menu_ordenado or not RECETAS_PATH.exists():
+    if _menu_ordenado:
         return
-    with open(RECETAS_PATH, encoding="utf-8") as f:
-        recetas = json.load(f)
+    recetas_json = {}
+    if RECETAS_PATH.exists():
+        with open(RECETAS_PATH, encoding="utf-8") as f:
+            recetas_json = json.load(f)
     cur = con.cursor()
-    for clave, (categoria, nombre) in MENU_SUGERIDO.items():
-        if clave not in recetas:
+    cur.execute("SELECT clave, nombre FROM menu")
+    existentes = dict(cur.fetchall())
+    nuevas_recetas = []
+    for clave, (categoria, nombre, precio, precio_apps) in MENU_SUGERIDO.items():
+        if clave not in existentes:
+            if clave not in recetas_json and clave not in RECETAS_NUEVAS:
+                continue
+            cur.execute(_sql(con, "INSERT INTO menu (clave, nombre, precio, categoria, receta, activo, precio_plataforma) VALUES (?, ?, ?, ?, ?, ?, ?)"),
+                        (clave, nombre, precio, categoria, clave, 0 if clave in FUERA_DEL_MENU else 1, precio_apps))
+            if clave in RECETAS_NUEVAS:
+                nuevas_recetas.append((clave, nombre))
             continue
-        crudo = recetas[clave]["nombre"].strip()
-        for automatico in {crudo.capitalize(), crudo.title()}:
-            cur.execute(_sql(con, "UPDATE menu SET nombre = ?, categoria = ? WHERE clave = ? AND categoria IS NULL AND nombre = ?"),
-                        (nombre, categoria, clave, automatico))
+        automaticos = {_NOMBRES_ANTERIORES.get(clave)}
+        if clave in recetas_json:
+            crudo = recetas_json[clave]["nombre"].strip()
+            automaticos |= {crudo.capitalize(), crudo.title()}
+        if existentes[clave] in automaticos:
+            cur.execute(_sql(con, "UPDATE menu SET nombre = ?, categoria = ? WHERE clave = ?"), (nombre, categoria, clave))
+        if precio is not None:
+            cur.execute(_sql(con, "UPDATE menu SET precio = ? WHERE clave = ? AND precio IS NULL"), (precio, clave))
+        if precio_apps is not None:
+            cur.execute(_sql(con, "UPDATE menu SET precio_plataforma = ? WHERE clave = ? AND precio_plataforma IS NULL"), (precio_apps, clave))
+        if clave in FUERA_DEL_MENU:
+            cur.execute(_sql(con, "UPDATE menu SET activo = 0, categoria = ? WHERE clave = ? AND precio IS NULL"), (categoria, clave))
     con.commit()
     _menu_ordenado = True
+    if nuevas_recetas:
+        from . import reconciliacion
+        actuales = reconciliacion._cargar_recetas()
+        for clave, nombre in nuevas_recetas:
+            if clave not in actuales:
+                reconciliacion.guardar_receta(clave, nombre, RECETAS_NUEVAS[clave])
 
 
 # --- menu -------------------------------------------------------------------
@@ -287,10 +406,11 @@ def _orden_categoria(categoria: str) -> tuple:
 
 
 def listar_menu(solo_vendibles: bool = False, con_insumos: bool = False) -> list[dict]:
-    filas = _consultar("SELECT clave, nombre, precio, categoria, receta, activo FROM menu")
+    filas = _consultar("SELECT clave, nombre, precio, categoria, receta, activo, precio_plataforma FROM menu")
     menu = [
-        {"clave": c, "nombre": n, "precio": p, "categoria": cat or "", "receta": r or "", "activo": bool(a)}
-        for c, n, p, cat, r, a in filas
+        {"clave": c, "nombre": n, "precio": p, "categoria": cat or "", "receta": r or "", "activo": bool(a),
+         "precio_plataforma": pp}
+        for c, n, p, cat, r, a, pp in filas
     ]
     orden = {clave: i for i, clave in enumerate(MENU_SUGERIDO)}
     menu.sort(key=lambda m: (_orden_categoria(m["categoria"]), orden.get(m["clave"], 999), m["nombre"]))
@@ -313,7 +433,7 @@ def clave_desde_nombre(nombre: str) -> str:
 
 
 def guardar_platillo_con_insumos(clave: str | None, nombre: str, categoria: str | None, precio: float | None,
-                                 activo: bool, insumos: dict) -> str:
+                                 activo: bool, insumos: dict, precio_plataforma: float | None = None) -> str:
     """Guarda el platillo y, en el mismo paso, lo que lleva (su receta), para
     que el menu y las recetas no se editen en dos lugares distintos.
     `insumos`: {insumo: cantidad} en kg (carne/pastor/queso) o piezas; vacio
@@ -322,24 +442,35 @@ def guardar_platillo_con_insumos(clave: str | None, nombre: str, categoria: str 
     clave = (clave or "").strip().upper() or clave_desde_nombre(nombre)
     actual = next((m for m in listar_menu() if m["clave"] == clave), None)
     receta = (actual or {}).get("receta") or clave
-    guardar_platillo(clave, nombre, precio, categoria, receta, activo)
+    guardar_platillo(clave, nombre, precio, categoria, receta, activo, precio_plataforma)
     limpios = {k: float(v) for k, v in (insumos or {}).items()
                if k in reconciliacion.INSUMOS_VALIDOS and v not in (None, "") and float(v) > 0}
     reconciliacion.guardar_receta(receta, nombre, limpios)
     return clave
 
 
+_SIN_CAMBIO = object()
+
+
 def guardar_platillo(clave: str, nombre: str, precio: float | None, categoria: str | None,
-                     receta: str | None, activo: bool) -> None:
+                     receta: str | None, activo: bool, precio_plataforma=_SIN_CAMBIO) -> None:
+    """`precio_plataforma`: precio en Uber/DiDi/Rappi (None = el mismo que en
+    el local). Si no se manda, se conserva el que ya tenía."""
     clave = clave.strip().upper()
     if not clave or not nombre.strip():
         raise ValueError("Falta clave o nombre.")
     if precio is not None and precio < 0:
         raise ValueError("El precio no puede ser negativo.")
+    if precio_plataforma is _SIN_CAMBIO:
+        actual = _consultar("SELECT precio_plataforma FROM menu WHERE clave = ?", (clave,))
+        precio_plataforma = actual[0][0] if actual else None
+    if precio_plataforma is not None and precio_plataforma < 0:
+        raise ValueError("El precio en apps no puede ser negativo.")
     _ejecutar([
         ("DELETE FROM menu WHERE clave = ?", (clave,)),
-        ("INSERT INTO menu (clave, nombre, precio, categoria, receta, activo) VALUES (?, ?, ?, ?, ?, ?)",
-         (clave, nombre.strip(), precio, (categoria or "").strip() or None, (receta or "").strip().upper() or None, 1 if activo else 0)),
+        ("INSERT INTO menu (clave, nombre, precio, categoria, receta, activo, precio_plataforma) VALUES (?, ?, ?, ?, ?, ?, ?)",
+         (clave, nombre.strip(), precio, (categoria or "").strip() or None, (receta or "").strip().upper() or None,
+          1 if activo else 0, precio_plataforma)),
     ])
 
 
@@ -433,7 +564,8 @@ def registrar_venta(fecha: str, hora: str, sucursal: str, forma_pago: str,
         if clave not in menu:
             raise ValueError(f"El platillo {clave} no está en el menú o no tiene precio.")
         p = menu[clave]
-        lineas.append((clave, p["nombre"], cantidad, p["precio"], round(cantidad * p["precio"], 2)))
+        precio = p["precio_plataforma"] if forma_pago in PLATAFORMAS and p["precio_plataforma"] else p["precio"]
+        lineas.append((clave, p["nombre"], cantidad, precio, round(cantidad * precio, 2)))
     if not lineas:
         raise ValueError("La orden está vacía.")
     total = round(sum(l[4] for l in lineas), 2)

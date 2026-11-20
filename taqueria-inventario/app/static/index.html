@@ -264,8 +264,8 @@
   .barra-menu #menu-guardar { margin-left: auto; }
   .cat-menu h3 { display: flex; align-items: center; gap: 8px; margin-top: 28px; }
   .cuenta-cat { font-size: .75rem; font-weight: 600; color: var(--tenue); background: #ECE8E1; border-radius: 999px; padding: 1px 8px; }
-  .tabla-menu { min-width: 940px; table-layout: fixed; }
-  .tabla-menu th:first-child { width: 30%; }
+  .tabla-menu { min-width: 1020px; table-layout: fixed; }
+  .tabla-menu th:first-child { width: 27%; }
   .tabla-menu th:nth-last-child(2) { width: 64px; text-align: center; }
   .tabla-menu th:last-child { width: 64px; }
   .tabla-menu td:nth-last-child(2) { text-align: center; }
@@ -453,12 +453,12 @@
     <p class="subtitulo">Uber, DiDi y Rappi pagan cada semana (de lunes a domingo) a BBVA, ya sin su comisión y sin las retenciones de impuestos. Aquí está cuánto debe llegar de cada una y qué día. Cuando llegue el depósito, captura el monto que viste en BBVA y se marca si llegó completo.</p>
     <div id="liq-resumen"></div>
     <div id="liq-resultado"></div>
-    <p class="subtitulo" style="margin-top:12px">La comisión, las retenciones y el día de depósito se ajustan en <b>Cuentas y Quicken</b>. Ojo: el cálculo usa los precios cobrados en la caja; si en las apps el menú tiene precios distintos, el monto esperado no va a coincidir.</p>
+    <p class="subtitulo" style="margin-top:12px">La comisión, las retenciones y el día de depósito se ajustan en <b>Cuentas y Quicken</b>. El cálculo usa lo que se cobró en la caja, que en pedidos de apps ya es el "precio apps" de cada platillo.</p>
   </div>
 
   <!-- ---- Menu y precios ---- -->
   <div class="panel-v2" id="v2-menu" hidden>
-    <p class="subtitulo">Todo el menú en un solo lugar: nombre, precio y lo que lleva cada platillo. Carne, pastor y queso van en <b>gramos</b>; tortillas, teleras y refrescos en <b>piezas</b>. Deja vacío lo que el platillo no lleva. Cambia lo que necesites y presiona <b>Guardar cambios</b>.</p>
+    <p class="subtitulo">Todo el menú en un solo lugar: nombre, precio y lo que lleva cada platillo. "Precio apps" es lo que se cobra en Uber, DiDi y Rappi (vacío = el mismo del local). Carne, pastor y queso van en <b>gramos</b>; tortillas, teleras y refrescos en <b>piezas</b>. Deja vacío lo que el platillo no lleva. Cambia lo que necesites y presiona <b>Guardar cambios</b>.</p>
     <div class="barra-menu">
       <input type="text" id="menu-buscar" placeholder="Buscar platillo…" aria-label="Buscar platillo">
       <label class="pos-check" style="margin:0"><input type="checkbox" id="menu-inactivos"> Mostrar los que no están en venta</label>
@@ -992,6 +992,13 @@ async function cargarCaja() {
   pintarPlatillos(); pintarFormas(); pintarOrden(); cargarVentasHoy();
 }
 
+// En pedidos de Uber, DiDi o Rappi se cobra el precio de las apps (si el
+// platillo lo tiene capturado); en el local, el precio de la carta.
+const PLATAFORMAS_APPS = ['Uber', 'DiDi', 'Rappi'];
+function precioDe(m, forma = posForma) {
+  return PLATAFORMAS_APPS.includes(forma) && m.precio_plataforma ? m.precio_plataforma : m.precio;
+}
+
 function pintarPlatillos() {
   const box = document.getElementById('pos-platillos');
   if (!posMenu.length) {
@@ -1006,7 +1013,7 @@ function pintarPlatillos() {
   }
   box.innerHTML = Object.entries(grupos).map(([cat, ms]) => `
     <div class="pos-categoria">${esc(cat)}</div>
-    <div class="pos-grid">${ms.map(m => `<button class="pos-btn" data-clave="${esc(m.clave)}"><span>${esc(m.nombre)}</span><b>${fmtMoneda(m.precio)}</b></button>`).join('')}</div>`).join('')
+    <div class="pos-grid">${ms.map(m => `<button class="pos-btn" data-clave="${esc(m.clave)}"><span>${esc(m.nombre)}</span><b>${fmtMoneda(precioDe(m))}</b></button>`).join('')}</div>`).join('')
     || '<p class="subtitulo">Sin resultados.</p>';
   box.querySelectorAll('.pos-btn').forEach(b => b.addEventListener('click', () => {
     posOrden.set(b.dataset.clave, (posOrden.get(b.dataset.clave) || 0) + 1);
@@ -1020,7 +1027,7 @@ function pintarFormas() {
   box.innerHTML = posFormas.map(f => `<button data-forma="${esc(f.forma_pago)}" class="${f.forma_pago === posForma ? 'activo' : ''}">${esc(f.forma_pago)}</button>`).join('');
   box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     posForma = b.dataset.forma;
-    pintarFormas(); pintarOrden();
+    pintarFormas(); pintarOrden(); pintarPlatillos();
   }));
   document.getElementById('pos-efectivo').hidden = posForma !== 'Efectivo';
 }
@@ -1029,7 +1036,7 @@ function totalOrden() {
   let total = 0;
   for (const [clave, cant] of posOrden) {
     const m = posMenu.find(x => x.clave === clave);
-    if (m) total += m.precio * cant;
+    if (m) total += precioDe(m) * cant;
   }
   return Math.round(total * 100) / 100;
 }
@@ -1045,7 +1052,7 @@ function pintarOrden() {
       return `<div class="pos-linea">
         <span>${esc(m.nombre)}</span>
         <span class="pos-cant"><button data-accion="menos" data-clave="${esc(clave)}" aria-label="Quitar uno">−</button><b>${cant}</b><button data-accion="mas" data-clave="${esc(clave)}" aria-label="Agregar uno">+</button></span>
-        <span>${fmtMoneda(m.precio * cant)}</span>
+        <span>${fmtMoneda(precioDe(m) * cant)}</span>
       </div>`;
     }).join('');
     box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
@@ -1121,7 +1128,8 @@ function ventaLocal(payload) {
   try { menuGuardado = JSON.parse(leerLocal('caja-menu') || '[]'); } catch {}
   const items = payload.items.map(i => {
     const m = posMenu.find(x => x.clave === i.clave) || menuGuardado.find(x => x.clave === i.clave) || { nombre: i.clave, precio: 0 };
-    return { clave: i.clave, nombre: m.nombre, cantidad: i.cantidad, precio_unitario: m.precio, importe: m.precio * i.cantidad };
+    const precio = precioDe(m, payload.forma_pago);
+    return { clave: i.clave, nombre: m.nombre, cantidad: i.cantidad, precio_unitario: precio, importe: precio * i.cantidad };
   });
   const total = Math.round(items.reduce((a, i) => a + i.importe, 0) * 100) / 100;
   const recibido = payload.recibido != null ? Number(payload.recibido) : null;
@@ -1143,7 +1151,7 @@ document.getElementById('pos-cobrar').addEventListener('click', async () => {
   const limpiarOrden = () => {
     posOrden.clear(); posForma = null;
     document.getElementById('pos-recibido').value = '';
-    pintarFormas(); pintarOrden();
+    pintarFormas(); pintarOrden(); pintarPlatillos();
   };
   boton.disabled = true;
   try {
@@ -1597,9 +1605,9 @@ async function cargarMenuAdmin() {
   box.innerHTML = [...grupos].map(([cat, items]) => `
     <section class="cat-menu">
       <h3>${esc(cat)} <span class="cuenta-cat">${items.length}</span></h3>
-      ${cat === 'Por revisar' ? '<p class="subtitulo">No está claro qué platillo es cada uno de estos (en el Excel de recetas dicen "Mediana", pero la clave parece de otro). Confirma el nombre, ajusta y cámbialos de categoría.</p>' : ''}
+      ${cat === 'Fuera del menú' ? '<p class="subtitulo">Están en la tabla de recetas pero no en la carta impresa, así que quedaron fuera de venta. Si alguno sí se vende, ponle precio, márcalo "En venta" y cámbialo de categoría.</p>' : ''}
       <div class="tabla-scroll"><table class="tabla-menu"><thead><tr>
-        <th>Platillo</th><th>Precio</th><th>Carne (g)</th><th>Pastor (g)</th><th>Queso (g)</th><th>Tortillas (pz)</th><th>Telera (pz)</th><th>Refresco (pz)</th><th>En venta</th><th></th>
+        <th>Platillo</th><th>Precio</th><th title="Precio en Uber, DiDi y Rappi">Precio apps</th><th>Carne (g)</th><th>Pastor (g)</th><th>Queso (g)</th><th>Tortillas (pz)</th><th>Telera (pz)</th><th>Refresco (pz)</th><th>En venta</th><th></th>
       </tr></thead><tbody>
       ${items.map(m => `<tr data-clave="${esc(m.clave)}" class="${m.activo ? '' : 'inactivo'}">
         <td class="celda-platillo">
@@ -1608,6 +1616,7 @@ async function cargarMenuAdmin() {
             <select data-campo="categoria" aria-label="Categoría">${opcionesCat(m.categoria)}</select></div>
         </td>
         <td><input type="number" min="0" step="0.5" data-campo="precio" value="${m.precio ?? ''}" placeholder="—"></td>
+        <td><input type="number" min="0" step="0.5" data-campo="precio_plataforma" value="${m.precio_plataforma ?? ''}" placeholder="igual" title="Precio en Uber, DiDi y Rappi. Vacío = el mismo del local."></td>
         ${celda(m, 'carne', 1000)}${celda(m, 'pastor', 1000)}${celda(m, 'queso', 1000)}
         ${celda(m, 'tortillas', 1)}${celda(m, 'telera', 1)}${celda(m, 'refrescos', 1)}
         <td><input type="checkbox" data-campo="activo" ${m.activo ? 'checked' : ''} aria-label="En venta"></td>
@@ -1655,7 +1664,7 @@ document.getElementById('menu-guardar').addEventListener('click', async () => {
     try {
       await postJSON('/api/v2/menu/completo', {
         clave: tr.dataset.clave, nombre: campo('nombre').value, categoria: campo('categoria').value,
-        precio: campo('precio').value, activo: campo('activo').checked, insumos,
+        precio: campo('precio').value, precio_plataforma: campo('precio_plataforma').value, activo: campo('activo').checked, insumos,
       });
     } catch (err) { errores.push(`${campo('nombre').value}: ${err.message}`); }
   }
