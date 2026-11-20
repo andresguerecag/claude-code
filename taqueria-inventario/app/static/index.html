@@ -97,7 +97,7 @@
   .seccion { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px 22px 22px; margin: 18px 0; box-shadow: var(--sombra); }
   .seccion-titulo { font-size: 1rem; font-weight: 650; margin: 0 0 14px; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 8px 0 20px; }
-  .kpi { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 14px 16px; box-shadow: var(--sombra); display: flex; flex-direction: column-reverse; }
+  .kpi { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 14px 16px; box-shadow: var(--sombra); display: flex; flex-direction: column-reverse; justify-content: flex-end; }
   .kpi b { display: block; font-size: 1.45rem; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .kpi span { color: var(--tenue); font-size: .8rem; margin-bottom: 2px; }
 
@@ -251,6 +251,13 @@
   .tabla-conteo .consumo { font-weight: 600; padding-top: 16px; }
   .nota-celda { font-size: .72rem; color: var(--tenue); margin-top: 3px; }
 
+  /* ---- comisiones y liquidaciones ---- */
+  .tabla-comisiones input[type=number] { width: 90px; text-align: right; padding: 6px 8px; min-height: 34px; }
+  .tabla-comisiones select { padding: 6px 8px; min-height: 34px; }
+  .tabla-liq input[type=number] { width: 130px; text-align: right; padding: 6px 8px; min-height: 34px; }
+  .tabla-liq td { vertical-align: top; }
+  .tabla-liq .insignia { white-space: nowrap; }
+
   /* ---- editor de menú ---- */
   .barra-menu { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0; }
   .barra-menu #menu-buscar { flex: 1 1 240px; }
@@ -323,6 +330,7 @@
     <button data-panel="v2-corte" data-roles="dueno,administracion,encargada">Corte del día</button>
     <button data-panel="v2-inventario" data-roles="dueno,administracion,encargada">Inventario del día</button>
     <button data-panel="v2-cuentas" data-roles="dueno,administracion">Cuentas y Quicken</button>
+    <button data-panel="v2-liquidaciones" data-roles="dueno,administracion">Liquidaciones</button>
     <button data-panel="v2-menu" data-roles="dueno,administracion">Menú y precios</button>
     <button data-panel="v2-pareto" data-roles="dueno,administracion,encargada">80/20 de insumos</button>
     <button data-panel="v2-respaldo" data-roles="dueno,administracion">Respaldo</button>
@@ -434,10 +442,18 @@
       <div><label>Sucursal</label><input type="text" id="cuentas-sucursal" list="v2-sucursales" placeholder="Todas"></div>
     </div>
     <div id="cuentas-resultado"></div>
-    <h3>Comisión de cada forma de pago</h3>
-    <p class="subtitulo">Captura el % que cobra cada plataforma o la terminal. Mientras no esté capturada, el saldo se muestra en bruto.</p>
-    <table><thead><tr><th>Forma de pago</th><th>Llega a</th><th>Comisión %</th><th></th></tr></thead>
-    <tbody id="cuentas-comisiones"></tbody></table>
+    <h3>Comisiones, retenciones y día de depósito</h3>
+    <p class="subtitulo">La comisión depende del contrato de cada plataforma (como referencia pública: Uber 25–29 % según el plan, DiDi 30 %, Rappi alrededor de 30 %); cópiala de su contrato o estado de cuenta. Las retenciones de ISR (2.5 %) y de IVA (8 %) ya vienen puestas según las reglas de 2026 y se calculan sobre la venta sin IVA. Mientras la comisión no esté capturada, el saldo se calcula sin ella.</p>
+    <div class="tabla-scroll"><table class="tabla-comisiones"><thead><tr><th>Forma de pago</th><th>Llega a</th><th>Comisión %</th><th>+ IVA de la comisión</th><th>Ret. ISR %</th><th>Ret. IVA %</th><th>Deposita</th><th></th></tr></thead>
+    <tbody id="cuentas-comisiones"></tbody></table></div>
+  </div>
+
+  <!-- ---- Liquidaciones ---- -->
+  <div class="panel-v2" id="v2-liquidaciones" hidden>
+    <p class="subtitulo">Uber, DiDi y Rappi pagan cada semana (de lunes a domingo) a BBVA, ya sin su comisión y sin las retenciones de impuestos. Aquí está cuánto debe llegar de cada una y qué día. Cuando llegue el depósito, captura el monto que viste en BBVA y se marca si llegó completo.</p>
+    <div id="liq-resumen"></div>
+    <div id="liq-resultado"></div>
+    <p class="subtitulo" style="margin-top:12px">La comisión, las retenciones y el día de depósito se ajustan en <b>Cuentas y Quicken</b>. Ojo: el cálculo usa los precios cobrados en la caja; si en las apps el menú tiene precios distintos, el monto esperado no va a coincidir.</p>
   </div>
 
   <!-- ---- Menu y precios ---- -->
@@ -917,6 +933,7 @@ const CARGAR_PANEL = {
   'v2-caja': cargarCaja, 'v2-corte': cargarCorte, 'v2-cuentas': cargarCuentas,
   'v2-menu': cargarMenuAdmin, 'v2-pareto': cargarPareto, 'v2-respaldo': pintarRespaldo,
   'v2-usuarios': cargarUsuarios, 'v2-resumen': cargarResumen, 'v2-inventario': cargarInventarioDia,
+  'v2-liquidaciones': cargarLiquidaciones,
 };
 function panelPermitido(id) {
   const b = document.querySelector(`.sub-v2 button[data-panel="${id}"]`);
@@ -1464,7 +1481,7 @@ async function cargarCuentas() {
       <h3>${esc(c.cuenta)}</h3>
       <div class="neto">${fmtMoneda(c.neto_estimado)}</div>
       <p>Debería llegar (estimado)</p>
-      <p>Vendido: ${fmtMoneda(c.bruto)} · Comisión: ${fmtMoneda(c.comision)}</p>
+      <p>Vendido: ${fmtMoneda(c.bruto)} · Comisión: ${fmtMoneda(c.comision)}${c.retenciones ? ` · Retenciones: ${fmtMoneda(c.retenciones)}` : ''}</p>
       <p>${c.formas.map(f => `${esc(f.forma_pago)}: ${fmtMoneda(f.bruto)}`).join(' · ')}</p>
       ${c.falta_comision.length ? `<p class="dif-mal">Falta capturar la comisión de ${c.falta_comision.map(esc).join(', ')}: el monto está en bruto.</p>` : ''}
     </div>`).join('')}</div>` : '<div class="advertencia">No hay ventas de la caja en este periodo.</div>') + `
@@ -1473,20 +1490,75 @@ async function cargarCuentas() {
     <div style="display:flex; gap:8px; flex-wrap:wrap">${cuentasUnicas.map(c => `<a class="btn-fantasma btn-chico" href="/api/v2/quicken.csv?cuenta=${encodeURIComponent(c)}&${qs}" download>CSV ${esc(c)}</a>`).join('')}</div>`;
 
   const tbody = document.getElementById('cuentas-comisiones');
-  tbody.innerHTML = formas.map(f => `<tr>
+  const dias = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+  tbody.innerHTML = formas.filter(f => f.forma_pago !== 'Efectivo').map(f => `<tr data-forma="${esc(f.forma_pago)}">
     <td>${esc(f.forma_pago)}</td><td>${esc(f.cuenta)}</td>
-    <td><input type="number" min="0" max="99" step="0.1" data-forma="${esc(f.forma_pago)}" value="${f.comision_pct ?? ''}" placeholder="${f.forma_pago === 'Efectivo' ? '0' : 'sin capturar'}" style="width:120px"></td>
-    <td><button class="btn-fantasma btn-chico" data-forma="${esc(f.forma_pago)}">Guardar</button></td>
+    <td><input type="number" min="0" max="99" step="0.1" data-campo="comision_pct" value="${f.comision_pct ?? ''}" placeholder="—" aria-label="Comisión %"></td>
+    <td><input type="checkbox" data-campo="iva_comision" ${f.iva_comision ? 'checked' : ''} aria-label="Cobra IVA sobre la comisión"></td>
+    <td><input type="number" min="0" max="99" step="0.1" data-campo="ret_isr_pct" value="${f.ret_isr_pct}"></td>
+    <td><input type="number" min="0" max="99" step="0.1" data-campo="ret_iva_pct" value="${f.ret_iva_pct}"></td>
+    <td>${f.dia_deposito == null ? '<span class="subtitulo" style="margin:0">al momento</span>'
+      : `<select data-campo="dia_deposito">${dias.map((d, i) => `<option value="${i}" ${i === f.dia_deposito ? 'selected' : ''}>${d}</option>`).join('')}</select>`}</td>
+    <td><button class="btn-fantasma btn-chico">Guardar</button></td>
   </tr>`).join('');
-  tbody.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
-    const input = tbody.querySelector(`input[data-forma="${CSS.escape(b.dataset.forma)}"]`);
+  tbody.querySelectorAll('tr[data-forma]').forEach(tr => tr.querySelector('button').addEventListener('click', async () => {
+    const c = n => tr.querySelector(`[data-campo="${n}"]`);
     try {
-      await postJSON('/api/v2/formas-pago', { forma_pago: b.dataset.forma, comision_pct: input.value });
+      await postJSON('/api/v2/formas-pago', {
+        forma_pago: tr.dataset.forma, comision_pct: c('comision_pct').value, iva_comision: c('iva_comision').checked,
+        ret_isr_pct: c('ret_isr_pct').value, ret_iva_pct: c('ret_iva_pct').value,
+        dia_deposito: c('dia_deposito') ? c('dia_deposito').value : null,
+      });
       cargarCuentas();
     } catch (err) { alert(err.message); }
   }));
 }
 for (const id of ['cuentas-desde', 'cuentas-hasta', 'cuentas-sucursal']) document.getElementById(id).addEventListener('change', cargarCuentas);
+
+// --- liquidaciones semanales ---
+const ESTADOS_LIQ = {
+  ok: 'estado-ok', alerta: 'estado-alerta', pendiente: 'estado-pendiente', por_llegar: 'estado-sin', en_curso: 'estado-sin',
+};
+function fechaCorta(iso) {
+  const [a, m, d] = iso.split('-').map(Number);
+  return `${d} ${['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][m - 1]}`;
+}
+async function cargarLiquidaciones() {
+  const box = document.getElementById('liq-resultado');
+  let r;
+  try { r = await pedirJSON('/api/v2/liquidaciones'); } catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  pintarLiquidaciones(r);
+}
+function pintarLiquidaciones(r) {
+  const box = document.getElementById('liq-resultado');
+  const sinRegistrar = r.filas.filter(f => f.estado === 'pendiente' || f.estado === 'por_llegar');
+  const conDiferencia = r.filas.filter(f => f.estado === 'alerta');
+  document.getElementById('liq-resumen').innerHTML = `<div class="kpis">
+    <div class="kpi"><b>${fmtMoneda(sinRegistrar.reduce((a, f) => a + f.esperado, 0))}</b><span>Debe llegar y no se ha registrado (${sinRegistrar.length})</span></div>
+    <div class="kpi"><b>${conDiferencia.length}</b><span>Depósitos con diferencia</span></div>
+    <div class="kpi"><b style="font-size:1rem; line-height:1.6">${r.plataformas.map(p => `${esc(p.forma_pago)}: ${esc(p.dia_deposito_nombre)}`).join('<br>')}</b><span>Día de depósito</span></div>
+  </div>`;
+  if (!r.filas.length) { box.innerHTML = '<p class="subtitulo">Todavía no hay ventas de plataformas en la caja.</p>'; return; }
+  box.innerHTML = `<div class="tabla-scroll"><table class="tabla-liq"><thead><tr>
+      <th>Semana</th><th>Plataforma</th><th>Vendido</th><th>Comisión</th><th>Retenciones</th><th>Debe llegar</th><th>Llegó</th><th>Estado</th></tr></thead><tbody>
+    ${r.filas.map(f => `<tr data-forma="${esc(f.forma_pago)}" data-semana="${f.semana}">
+      <td>${fechaCorta(f.semana)} – ${fechaCorta(f.semana_fin)}<div class="nota-celda">deposita ${fechaCorta(f.fecha_esperada)}</div></td>
+      <td>${esc(f.forma_pago)}</td>
+      <td>${fmtMoneda(f.vendido)}</td>
+      <td>${f.falta_comision ? '<span class="pill" style="background:var(--ambar-suave);color:var(--ambar)">sin capturar</span>' : fmtMoneda(-f.comision)}</td>
+      <td>${fmtMoneda(-f.retenciones)}</td>
+      <td><b>${fmtMoneda(f.esperado)}</b></td>
+      <td>${f.estado === 'en_curso' ? '—' : `<input type="number" min="0" step="0.01" class="liq-monto" value="${f.real ?? ''}" placeholder="monto" aria-label="Monto que llegó a BBVA">`}</td>
+      <td><span class="insignia ${ESTADOS_LIQ[f.estado]}">${esc(f.texto)}</span></td>
+    </tr>`).join('')}</tbody></table></div>`;
+  box.querySelectorAll('.liq-monto').forEach(inp => inp.addEventListener('change', async () => {
+    const tr = inp.closest('tr');
+    try {
+      const nuevo = await postJSON('/api/v2/liquidaciones', { forma_pago: tr.dataset.forma, semana: tr.dataset.semana, monto: inp.value, fecha: hoyLocal() });
+      pintarLiquidaciones(nuevo);
+    } catch (err) { alert(err.message); }
+  }));
+}
 
 // --- menú y precios ---
 async function cargarMenuAdmin() {

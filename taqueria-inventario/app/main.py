@@ -516,9 +516,31 @@ async def v2_formas_pago():
 
 @app.post("/api/v2/formas-pago")
 async def v2_guardar_comision(payload: dict = Body(...)):
-    pct = payload.get("comision_pct")
-    _valor_error(caja.guardar_comision, str(payload.get("forma_pago", "")), float(pct) if pct not in (None, "") else None)
+    def num(campo):
+        v = payload.get(campo)
+        return float(v) if v not in (None, "") else None
+    dia = payload.get("dia_deposito")
+    _valor_error(
+        caja.guardar_comision, str(payload.get("forma_pago", "")), num("comision_pct"),
+        payload.get("iva_comision"), num("ret_isr_pct"), num("ret_iva_pct"),
+        int(dia) if dia not in (None, "") else None,
+    )
     return {"ok": True}
+
+
+@app.get("/api/v2/liquidaciones")
+async def v2_liquidaciones(semanas: int = 8):
+    return caja.liquidaciones(semanas=max(1, min(semanas, 26)))
+
+
+@app.post("/api/v2/liquidaciones")
+async def v2_guardar_liquidacion(payload: dict = Body(...)):
+    monto = payload.get("monto")
+    _valor_error(
+        caja.guardar_liquidacion, str(payload.get("forma_pago", "")), str(payload.get("semana", "")),
+        float(monto) if monto not in (None, "") else None, payload.get("fecha"), str(payload.get("notas") or ""),
+    )
+    return caja.liquidaciones()
 
 
 @app.post("/api/v2/ventas")

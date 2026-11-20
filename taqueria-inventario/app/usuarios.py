@@ -172,7 +172,7 @@ def permitido(rol: str, metodo: str, path: str) -> bool:
             return True
         return metodo == "POST" and path == "/api/v2/ventas"
     if rol == "encargada":
-        if _es(path, "/api/usuarios", "/api/v2/respaldo.xlsx", "/api/v2/quicken.csv", "/api/v2/saldos", "/api/v2/resumen-dia"):
+        if _es(path, "/api/usuarios", "/api/v2/respaldo.xlsx", "/api/v2/quicken.csv", "/api/v2/saldos", "/api/v2/resumen-dia", "/api/v2/liquidaciones"):
             return False
         if metodo != "GET" and _es(path, "/api/v2/menu", "/api/v2/formas-pago"):
             return False

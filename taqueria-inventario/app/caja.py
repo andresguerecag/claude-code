@@ -24,12 +24,32 @@ import csv
 import io
 import json
 import sqlite3
+from datetime import date, timedelta
 from pathlib import Path
 
 from . import db
 
 DB_PATH = Path(__file__).parent / "historial.db"
 RECETAS_PATH = Path(__file__).parent / "recetas.json"
+
+# Liquidaciones de las plataformas (Uber Eats, DiDi Food, Rappi), segun guias
+# publicas de 2026 -- se pueden ajustar en pantalla con lo que diga el
+# contrato o el estado de cuenta de cada una:
+#   - pagan cada semana; la semana va de lunes a domingo y se deposita
+#     Uber y DiDi el martes siguiente, Rappi el miercoles (o jueves);
+#   - descuentan su comision + 16% de IVA sobre esa comision;
+#   - retienen 2.5% de ISR y 8% de IVA sobre la venta SIN IVA (lo pagan al
+#     SAT a nombre del restaurante, pero baja lo que llega al banco).
+# La comision de cada contrato NO se pre-llena (depende de cada restaurante).
+DIAS_SEMANA = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+PLATAFORMAS_DEFAULT = {
+    # forma_pago: (iva_sobre_comision, ret_isr_pct, ret_iva_pct, dia_deposito 0=lunes)
+    "Uber": (1, 2.5, 8.0, 1),
+    "DiDi": (1, 2.5, 8.0, 1),
+    "Rappi": (1, 2.5, 8.0, 2),
+    "Tarjeta": (1, 0.0, 0.0, None),
+}
+IVA = 0.16
 
 FORMAS_PAGO_DEFAULT = [
     # forma_pago, cuenta, orden
@@ -138,6 +158,14 @@ _DDL = [
         comision_pct {real},
         orden INTEGER NOT NULL DEFAULT 99
     )""",
+    """CREATE TABLE IF NOT EXISTS liquidaciones (
+        forma_pago TEXT NOT NULL,
+        semana TEXT NOT NULL,
+        monto {real} NOT NULL,
+        fecha TEXT,
+        notas TEXT,
+        PRIMARY KEY (forma_pago, semana)
+    )""",
     """CREATE TABLE IF NOT EXISTS cortes_caja (
         fecha TEXT NOT NULL,
         sucursal TEXT NOT NULL,
@@ -168,6 +196,22 @@ def _conectar():
             cur.execute("ALTER TABLE ventas ADD COLUMN id_local TEXT")
     else:
         cur.execute("ALTER TABLE ventas ADD COLUMN IF NOT EXISTS id_local TEXT")
+    # Datos de liquidacion de cada forma de pago (ver PLATAFORMAS_DEFAULT).
+    nuevas = {"iva_comision": "INTEGER", "ret_isr_pct": tipos["real"], "ret_iva_pct": tipos["real"], "dia_deposito": "INTEGER"}
+    if isinstance(con, sqlite3.Connection):
+        existentes = {fila[1] for fila in cur.execute("PRAGMA table_info(formas_pago)")}
+        for col, tipo in nuevas.items():
+            if col not in existentes:
+                cur.execute(f"ALTER TABLE formas_pago ADD COLUMN {col} {tipo}")
+    else:
+        for col, tipo in nuevas.items():
+            cur.execute(f"ALTER TABLE formas_pago ADD COLUMN IF NOT EXISTS {col} {tipo}")
+    for forma, (iva_c, isr, iva_r, dia) in PLATAFORMAS_DEFAULT.items():
+        cur.execute(_sql(con, "UPDATE formas_pago SET iva_comision = ? WHERE forma_pago = ? AND iva_comision IS NULL"), (iva_c, forma))
+        cur.execute(_sql(con, "UPDATE formas_pago SET ret_isr_pct = ? WHERE forma_pago = ? AND ret_isr_pct IS NULL"), (isr, forma))
+        cur.execute(_sql(con, "UPDATE formas_pago SET ret_iva_pct = ? WHERE forma_pago = ? AND ret_iva_pct IS NULL"), (iva_r, forma))
+        if dia is not None:
+            cur.execute(_sql(con, "UPDATE formas_pago SET dia_deposito = ? WHERE forma_pago = ? AND dia_deposito IS NULL"), (dia, forma))
     con.commit()
     _sembrar(con)
     return con
@@ -306,14 +350,50 @@ def eliminar_platillo(clave: str) -> None:
 # --- formas de pago -------------------------------------------------------------
 
 def listar_formas_pago() -> list[dict]:
-    filas = _consultar("SELECT forma_pago, cuenta, comision_pct, orden FROM formas_pago ORDER BY orden, forma_pago")
-    return [{"forma_pago": f, "cuenta": c, "comision_pct": p, "orden": o} for f, c, p, o in filas]
+    filas = _consultar("SELECT forma_pago, cuenta, comision_pct, orden, iva_comision, ret_isr_pct, ret_iva_pct, dia_deposito "
+                       "FROM formas_pago ORDER BY orden, forma_pago")
+    return [{"forma_pago": f, "cuenta": c, "comision_pct": p, "orden": o, "iva_comision": bool(ivc),
+             "ret_isr_pct": isr or 0.0, "ret_iva_pct": ivr or 0.0, "dia_deposito": dia,
+             "dia_deposito_nombre": DIAS_SEMANA[dia] if dia is not None else None}
+            for f, c, p, o, ivc, isr, ivr, dia in filas]
 
 
-def guardar_comision(forma_pago: str, comision_pct: float | None) -> None:
-    if comision_pct is not None and not (0 <= comision_pct < 100):
-        raise ValueError("La comisión debe estar entre 0 y 100%.")
-    _ejecutar([("UPDATE formas_pago SET comision_pct = ? WHERE forma_pago = ?", (comision_pct, forma_pago))])
+def guardar_comision(forma_pago: str, comision_pct: float | None, iva_comision: bool | None = None,
+                     ret_isr_pct: float | None = None, ret_iva_pct: float | None = None,
+                     dia_deposito: int | None = None) -> None:
+    for nombre, v in (("La comisión", comision_pct), ("La retención de ISR", ret_isr_pct), ("La retención de IVA", ret_iva_pct)):
+        if v is not None and not (0 <= v < 100):
+            raise ValueError(f"{nombre} debe estar entre 0 y 100%.")
+    if dia_deposito is not None and dia_deposito not in range(7):
+        raise ValueError("Día de depósito inválido.")
+    actual = next((f for f in listar_formas_pago() if f["forma_pago"] == forma_pago), None)
+    if actual is None:
+        raise ValueError("Forma de pago desconocida.")
+    _ejecutar([(
+        "UPDATE formas_pago SET comision_pct = ?, iva_comision = ?, ret_isr_pct = ?, ret_iva_pct = ?, dia_deposito = ? WHERE forma_pago = ?",
+        (comision_pct,
+         int(actual["iva_comision"] if iva_comision is None else iva_comision),
+         actual["ret_isr_pct"] if ret_isr_pct is None else ret_isr_pct,
+         actual["ret_iva_pct"] if ret_iva_pct is None else ret_iva_pct,
+         actual["dia_deposito"] if dia_deposito is None else dia_deposito,
+         forma_pago),
+    )])
+
+
+def descuentos(forma: dict, bruto: float) -> dict:
+    """Lo que la plataforma o la terminal descuenta de una venta `bruto`
+    (precio cobrado, con IVA incluido) antes de depositar."""
+    pct = forma.get("comision_pct")
+    comision = bruto * pct / 100 if pct else 0.0
+    iva_comision = comision * IVA if forma.get("iva_comision") else 0.0
+    sin_iva = bruto / (1 + IVA)
+    retenciones = sin_iva * ((forma.get("ret_isr_pct") or 0) + (forma.get("ret_iva_pct") or 0)) / 100
+    return {
+        "comision": round(comision + iva_comision, 2),
+        "retenciones": round(retenciones, 2),
+        "neto": round(bruto - comision - iva_comision - retenciones, 2),
+        "falta_comision": pct is None and forma.get("forma_pago") != "Efectivo",
+    }
 
 
 # --- ventas ------------------------------------------------------------------
@@ -519,18 +599,19 @@ def saldos_estimados(desde: str, hasta: str, sucursal: str | None = None) -> dic
         fp = c["formas"].setdefault(forma, {"forma_pago": forma, "bruto": 0.0, "comision_pct": f["comision_pct"]})
         fp["bruto"] += total
     for c in cuentas.values():
+        c["retenciones"] = 0.0
         for fp in c["formas"].values():
-            if fp["comision_pct"] is None:
-                if fp["forma_pago"] != "Efectivo":
-                    c["falta_comision"].append(fp["forma_pago"])
-                fp["comision"] = 0.0
-            else:
-                fp["comision"] = round(fp["bruto"] * fp["comision_pct"] / 100, 2)
-            c["comision"] += fp["comision"]
+            d = descuentos(formas.get(fp["forma_pago"], {"forma_pago": fp["forma_pago"]}), fp["bruto"])
+            if d["falta_comision"]:
+                c["falta_comision"].append(fp["forma_pago"])
+            fp["comision"], fp["retenciones"] = d["comision"], d["retenciones"]
+            c["comision"] += d["comision"]
+            c["retenciones"] += d["retenciones"]
             fp["bruto"] = round(fp["bruto"], 2)
         c["bruto"] = round(c["bruto"], 2)
         c["comision"] = round(c["comision"], 2)
-        c["neto_estimado"] = round(c["bruto"] - c["comision"], 2)
+        c["retenciones"] = round(c["retenciones"], 2)
+        c["neto_estimado"] = round(c["bruto"] - c["comision"] - c["retenciones"], 2)
         c["formas"] = list(c["formas"].values())
     orden = {"BBVA": 0, "Mercado Pago": 1, "Efectivo": 2}
     return {"desde": desde, "hasta": hasta, "sucursal": sucursal,
@@ -556,7 +637,84 @@ def csv_quicken(cuenta: str, desde: str, hasta: str, sucursal: str | None = None
         a, m, d = fecha.split("-")
         fecha_us = f"{m}/{d}/{a}"
         w.writerow([fecha_us, f"Ventas {forma} - {suc}", f"{total:.2f}", "Ventas", f"T-Grill {suc}, ventas del día por {forma}"])
-        pct = formas[forma]["comision_pct"]
-        if pct:
-            w.writerow([fecha_us, f"Comisión {forma} - {suc}", f"{-total * pct / 100:.2f}", "Comisiones", f"{pct}% de {total:.2f}"])
+        d = descuentos(formas[forma], total)
+        if d["comision"]:
+            w.writerow([fecha_us, f"Comisión {forma} - {suc}", f"{-d['comision']:.2f}", "Comisiones",
+                        f"{formas[forma]['comision_pct']}% de {total:.2f}" + (" + IVA" if formas[forma]["iva_comision"] else "")])
+        if d["retenciones"]:
+            w.writerow([fecha_us, f"Retenciones ISR/IVA {forma} - {suc}", f"{-d['retenciones']:.2f}", "Impuestos retenidos",
+                        "Retenido por la plataforma y pagado al SAT a nombre del restaurante"])
     return salida.getvalue()
+
+
+# --- liquidaciones semanales de las plataformas --------------------------------------
+
+def _lunes(fecha: date) -> date:
+    return fecha - timedelta(days=fecha.weekday())
+
+
+def liquidaciones(semanas: int = 8, hoy: date | None = None) -> dict:
+    """Por plataforma y por semana (lunes a domingo): cuánto se vendió,
+    cuánto debe depositar y qué día, y lo que de verdad llegó (si ya se
+    capturó). Solo formas de pago con día de depósito (Uber, DiDi, Rappi)."""
+    hoy = hoy or date.today()
+    plataformas = [f for f in listar_formas_pago() if f["dia_deposito"] is not None]
+    lunes_actual = _lunes(hoy)
+    inicio = lunes_actual - timedelta(weeks=semanas - 1)
+    ventas = _consultar(
+        "SELECT fecha, forma_pago, total FROM ventas WHERE estado = 'pagada' AND fecha >= ? AND fecha <= ?",
+        (inicio.isoformat(), (lunes_actual + timedelta(days=6)).isoformat()),
+    )
+    reales = {(f, s): (m, fe, n) for f, s, m, fe, n in _consultar(
+        "SELECT forma_pago, semana, monto, fecha, notas FROM liquidaciones WHERE semana >= ?", (inicio.isoformat(),))}
+    filas = []
+    for k in range(semanas):
+        lunes = lunes_actual - timedelta(weeks=k)
+        domingo = lunes + timedelta(days=6)
+        for p in plataformas:
+            bruto = sum(t for fe, fp, t in ventas if fp == p["forma_pago"] and lunes.isoformat() <= fe <= domingo.isoformat())
+            real = reales.get((p["forma_pago"], lunes.isoformat()))
+            if not bruto and not real:
+                continue
+            d = descuentos(p, bruto)
+            fecha_esperada = lunes + timedelta(days=7 + p["dia_deposito"])
+            if domingo >= hoy:
+                estado, texto = "en_curso", "Semana en curso"
+            elif real is None:
+                if hoy > fecha_esperada + timedelta(days=1):
+                    estado, texto = "pendiente", "No se ha registrado el depósito"
+                else:
+                    estado, texto = "por_llegar", f"Debe llegar el {DIAS_SEMANA[fecha_esperada.weekday()]} {fecha_esperada.day}"
+            else:
+                diferencia = round(real[0] - d["neto"], 2)
+                margen = max(20.0, abs(d["neto"]) * 0.01)
+                if abs(diferencia) <= margen:
+                    estado, texto = "ok", "Llegó completo"
+                else:
+                    estado = "alerta"
+                    texto = f"Llegaron ${abs(diferencia):,.2f} de {'menos' if diferencia < 0 else 'más'}"
+            filas.append({
+                "forma_pago": p["forma_pago"], "cuenta": p["cuenta"],
+                "semana": lunes.isoformat(), "semana_fin": domingo.isoformat(),
+                "vendido": round(bruto, 2), "comision": d["comision"], "retenciones": d["retenciones"],
+                "esperado": d["neto"], "falta_comision": d["falta_comision"],
+                "fecha_esperada": fecha_esperada.isoformat(),
+                "real": real[0] if real else None, "fecha_real": real[1] if real else None, "notas": real[2] if real else "",
+                "diferencia": round(real[0] - d["neto"], 2) if real else None,
+                "estado": estado, "texto": texto,
+            })
+    return {"plataformas": plataformas, "filas": filas}
+
+
+def guardar_liquidacion(forma_pago: str, semana: str, monto: float | None, fecha: str | None, notas: str = "") -> None:
+    lunes = _lunes(date.fromisoformat(semana)).isoformat()
+    if monto is None:
+        _ejecutar([("DELETE FROM liquidaciones WHERE forma_pago = ? AND semana = ?", (forma_pago, lunes))])
+        return
+    if monto < 0:
+        raise ValueError("El monto no puede ser negativo.")
+    _ejecutar([
+        ("DELETE FROM liquidaciones WHERE forma_pago = ? AND semana = ?", (forma_pago, lunes)),
+        ("INSERT INTO liquidaciones (forma_pago, semana, monto, fecha, notas) VALUES (?, ?, ?, ?, ?)",
+         (forma_pago, lunes, monto, fecha or None, notas or "")),
+    ])
