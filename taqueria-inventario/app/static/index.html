@@ -273,11 +273,16 @@
   .tabla-menu td { vertical-align: top; }
   .tabla-menu input[type=number] { width: 100%; padding: 6px 8px; min-height: 34px; text-align: right; }
   .celda-platillo input[type=text] { width: 100%; padding: 6px 8px; min-height: 34px; font-weight: 500; }
-  .platillo-meta { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .platillo-meta { display: flex; gap: 6px 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+  .platillo-meta .pill { white-space: nowrap; }
   .platillo-meta select { padding: 2px 6px; min-height: 26px; font-size: .78rem; color: var(--tenue); max-width: 220px; }
   .clave-chip { font-size: .72rem; font-weight: 600; color: var(--tenue); background: var(--superficie-2); border: 1px solid var(--borde); border-radius: 5px; padding: 1px 6px; font-variant-numeric: tabular-nums; }
   .tabla-menu tr.modificada td { background: var(--marca-suave); }
   .tabla-menu tr.inactivo td { opacity: .55; }
+  .pendientes-menu { margin: 12px 0 4px; }
+  .pendientes-menu summary { cursor: pointer; font-weight: 600; }
+  .pendientes-menu ul { margin: 8px 0 0; padding-left: 18px; }
+  .pendientes-menu li { margin: 4px 0; }
   .tabla-menu tr.recien td { background: var(--verde-suave); }
   .btn-quitar { background: none; color: var(--tenue); font-size: .8rem; font-weight: 500; padding: 6px 4px; }
   .btn-quitar:hover { color: var(--rojo); }
@@ -466,6 +471,7 @@
       <button class="btn-naranja" id="menu-guardar" disabled>Guardar cambios</button>
     </div>
     <p class="subtitulo" id="menu-mensaje" style="margin:6px 0 0"></p>
+    <div id="menu-pendientes"></div>
     <div id="menu-editor"></div>
     <h3>Agregar platillo</h3>
     <div class="filtros">
@@ -1583,6 +1589,7 @@ async function cargarMenuAdmin() {
   document.getElementById('nuevo-categoria').innerHTML = categorias.map(c => `<option>${esc(c)}</option>`).join('');
 
   const vendibles = menu.filter(m => m.activo && m.precio > 0).length;
+  pintarPendientesMenu(menu);
   document.getElementById('menu-resumen').innerHTML = `<b>${vendibles} de ${menu.length}</b> platillos aparecen en la caja (en venta y con precio).`;
 
   const q = document.getElementById('menu-buscar').value.trim().toLowerCase();
@@ -1613,6 +1620,7 @@ async function cargarMenuAdmin() {
         <td class="celda-platillo">
           <input type="text" data-campo="nombre" value="${esc(m.nombre)}">
           <div class="platillo-meta"><span class="clave-chip" title="Clave (la misma de Wansoft)">${esc(m.clave)}</span>
+            ${masBaratoEnApps(m) ? '<span class="pill" style="background:var(--ambar-suave);color:var(--ambar)" title="En las apps debería costar más que en el local, por las comisiones">más barato en apps</span>' : ''}
             <select data-campo="categoria" aria-label="Categoría">${opcionesCat(m.categoria)}</select></div>
         </td>
         <td><input type="number" min="0" step="0.5" data-campo="precio" value="${m.precio ?? ''}" placeholder="—"></td>
@@ -1641,6 +1649,23 @@ async function cargarMenuAdmin() {
 }
 
 let menuCategorias = [];
+
+// Pendientes del menú que se detectan solos y desaparecen al corregirlos.
+// En las apps todo debería costar más que en el local, por las comisiones.
+const masBaratoEnApps = m => m.activo && m.precio > 0 && m.precio_plataforma > 0 && m.precio_plataforma < m.precio;
+function pintarPendientesMenu(menu) {
+  const activos = menu.filter(m => m.activo);
+  const nombres = lista => lista.map(m => esc(m.nombre)).join(', ');
+  const baratos = activos.filter(masBaratoEnApps);
+  const sinPrecio = activos.filter(m => !(m.precio > 0));
+  const sinApps = activos.filter(m => m.precio > 0 && !(m.precio_plataforma > 0));
+  const items = [];
+  if (baratos.length) items.push(`<li><b>Más baratos en apps que en el local</b> (deberían costar más por las comisiones): ${baratos.map(m => `${esc(m.nombre)} (${fmtMoneda(m.precio_plataforma)} en apps contra ${fmtMoneda(m.precio)})`).join(', ')}.</li>`);
+  if (sinPrecio.length) items.push(`<li><b>En venta pero sin precio</b> (no aparecen en la caja): ${nombres(sinPrecio)}.</li>`);
+  if (sinApps.length) items.push(`<li><b>Sin precio en apps</b> (en Uber, DiDi y Rappi se cobran al precio del local): ${nombres(sinApps)}.</li>`);
+  document.getElementById('menu-pendientes').innerHTML = items.length
+    ? `<details class="advertencia pendientes-menu" open><summary>Pendientes del menú (${items.length})</summary><ul>${items.join('')}</ul></details>` : '';
+}
 function filasMenuModificadas() { return [...document.querySelectorAll('#menu-editor tr.modificada')]; }
 function actualizarBotonGuardarMenu() {
   const n = filasMenuModificadas().length;
