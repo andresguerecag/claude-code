@@ -165,14 +165,14 @@ def permitido(rol: str, metodo: str, path: str) -> bool:
     if rol in ("dueno", "administracion"):
         return True
     # lo que cualquiera con sesion necesita para cargar la pagina
-    if path in ("/", "/favicon.ico") or _es(path, "/static", "/api/yo"):
+    if path in ("/", "/favicon.ico", "/sw.js") or _es(path, "/static", "/api/yo"):
         return True
     if rol == "cajero":
         if metodo == "GET" and _es(path, "/api/v2/menu", "/api/v2/formas-pago", "/api/v2/sucursales", "/api/v2/ventas"):
             return True
         return metodo == "POST" and path == "/api/v2/ventas"
     if rol == "encargada":
-        if _es(path, "/api/usuarios", "/api/v2/respaldo.xlsx", "/api/v2/quicken.csv", "/api/v2/saldos"):
+        if _es(path, "/api/usuarios", "/api/v2/respaldo.xlsx", "/api/v2/quicken.csv", "/api/v2/saldos", "/api/v2/resumen-dia"):
             return False
         if metodo != "GET" and _es(path, "/api/v2/menu", "/api/v2/formas-pago"):
             return False

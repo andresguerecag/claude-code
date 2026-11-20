@@ -161,6 +161,13 @@ def _conectar():
     cur = con.cursor()
     for ddl in _DDL:
         cur.execute(ddl.format(**tipos))
+    # id_local: identificador que pone la caja a cada venta, para que una
+    # venta cobrada sin internet y reenviada al volver no se duplique.
+    if isinstance(con, sqlite3.Connection):
+        if "id_local" not in {fila[1] for fila in cur.execute("PRAGMA table_info(ventas)")}:
+            cur.execute("ALTER TABLE ventas ADD COLUMN id_local TEXT")
+    else:
+        cur.execute("ALTER TABLE ventas ADD COLUMN IF NOT EXISTS id_local TEXT")
     con.commit()
     _sembrar(con)
     return con
@@ -312,16 +319,30 @@ def guardar_comision(forma_pago: str, comision_pct: float | None) -> None:
 # --- ventas ------------------------------------------------------------------
 
 def registrar_venta(fecha: str, hora: str, sucursal: str, forma_pago: str,
-                    items: list[dict], recibido: float | None = None) -> dict:
+                    items: list[dict], recibido: float | None = None, id_local: str | None = None) -> dict:
     """items: [{clave, cantidad}]. El precio y el nombre se toman del menu
-    del servidor, nunca de lo que mande el navegador."""
+    del servidor, nunca de lo que mande el navegador.
+
+    Con `id_local` (ventas de la caja, incluidas las cobradas sin internet)
+    la operación es idempotente: si esa venta ya se registró, se regresa la
+    misma en vez de duplicarla. Una venta que se cobró sin internet ya se
+    cobró de verdad, así que se acepta aunque el platillo se haya quitado de
+    la venta mientras tanto (mientras siga en el menú con precio)."""
+    id_local = (id_local or "").strip()[:64] or None
+    if id_local:
+        ya = _consultar("SELECT id FROM ventas WHERE id_local = ?", (id_local,))
+        if ya:
+            return obtener_venta(ya[0][0])
     sucursal = (sucursal or "").strip()
     if not sucursal:
         raise ValueError("Falta la sucursal.")
     formas = {f["forma_pago"] for f in listar_formas_pago()}
     if forma_pago not in formas:
         raise ValueError(f"Forma de pago desconocida: {forma_pago}")
-    menu = {m["clave"]: m for m in listar_menu(solo_vendibles=True)}
+    if id_local:
+        menu = {m["clave"]: m for m in listar_menu() if m["precio"] is not None and m["precio"] > 0}
+    else:
+        menu = {m["clave"]: m for m in listar_menu(solo_vendibles=True)}
 
     lineas = []
     for it in items:
@@ -343,12 +364,12 @@ def registrar_venta(fecha: str, hora: str, sucursal: str, forma_pago: str,
     cur = con.cursor()
     cur.execute(_sql(con, "SELECT COALESCE(MAX(folio), 0) FROM ventas WHERE fecha = ? AND sucursal = ?"), (fecha, sucursal))
     folio = cur.fetchone()[0] + 1
-    insert = "INSERT INTO ventas (folio, fecha, hora, sucursal, forma_pago, total, recibido, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'pagada')"
+    insert = "INSERT INTO ventas (folio, fecha, hora, sucursal, forma_pago, total, recibido, estado, id_local) VALUES (?, ?, ?, ?, ?, ?, ?, 'pagada', ?)"
     if isinstance(con, sqlite3.Connection):
-        cur.execute(insert, (folio, fecha, hora, sucursal, forma_pago, total, recibido))
+        cur.execute(insert, (folio, fecha, hora, sucursal, forma_pago, total, recibido, id_local))
         venta_id = cur.lastrowid
     else:
-        cur.execute(_sql(con, insert) + " RETURNING id", (folio, fecha, hora, sucursal, forma_pago, total, recibido))
+        cur.execute(_sql(con, insert) + " RETURNING id", (folio, fecha, hora, sucursal, forma_pago, total, recibido, id_local))
         venta_id = cur.fetchone()[0]
     for l in lineas:
         cur.execute(_sql(con, "INSERT INTO venta_items (venta_id, clave, nombre, cantidad, precio_unitario, importe) VALUES (?, ?, ?, ?, ?, ?)"),

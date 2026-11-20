@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 
 _logger = logging.getLogger("uvicorn.error")
 
-from . import asesor_compras, caja, colchon, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia, usuarios
+from . import asesor_compras, caja, colchon, operacion, compras, dinero, exportar, historial, historial_dinero, pareto, reconciliacion, respaldo, resumen_ia, usuarios
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -531,6 +531,7 @@ async def v2_registrar_venta(request: Request, payload: dict = Body(...)):
         str(payload.get("fecha", "")), str(payload.get("hora", "")), sucursal,
         str(payload.get("forma_pago", "")), payload.get("items") or [],
         float(recibido) if recibido not in (None, "") else None,
+        payload.get("id_local"),
     )
 
 
@@ -583,6 +584,31 @@ async def v2_inventario(formato_corte: UploadFile = File(...), fecha: str = Form
     reporte["fecha"] = fecha
     reporte["sucursal"] = sucursal
     return reporte
+
+
+@app.get("/api/v2/inventario-dia")
+async def v2_inventario_dia(request: Request, fecha: str, sucursal: str):
+    sucursal = request.state.usuario.get("sucursal") or sucursal
+    conteo = operacion.conteo_del_dia(fecha, sucursal)
+    comp = operacion.comparativo_del_dia(fecha, sucursal)
+    conteo["comparativo"] = comp["comparativo"] if comp else None
+    conteo["pendientes"] = comp["platillos_no_identificados"] if comp else []
+    return conteo
+
+
+@app.post("/api/v2/inventario-dia")
+async def v2_guardar_inventario_dia(request: Request, payload: dict = Body(...)):
+    sucursal = request.state.usuario.get("sucursal") or str(payload.get("sucursal", "")).strip()
+    fecha = str(payload.get("fecha", ""))
+    if not fecha or not sucursal:
+        raise HTTPException(status_code=400, detail="Falta fecha o sucursal.")
+    _valor_error(operacion.guardar_conteo, fecha, sucursal, payload.get("productos") or [])
+    return await v2_inventario_dia(request, fecha, sucursal)
+
+
+@app.get("/api/v2/resumen-dia")
+async def v2_resumen_dia(fecha: str):
+    return operacion.resumen_del_dia(fecha)
 
 
 @app.get("/api/v2/saldos")
@@ -730,6 +756,36 @@ async def preguntar_asesor(payload: dict = Body(...)):
     if respuesta is None:
         raise HTTPException(status_code=503, detail="El asesor con IA no está configurado (falta ANTHROPIC_API_KEY).")
     return {"respuesta": respuesta}
+
+
+_SERVICE_WORKER = """
+// Guarda la página y sus archivos en el navegador para que la caja abra
+// aunque se caiga el internet. Siempre intenta primero la red (así cada
+// deploy se ve de inmediato) y solo usa lo guardado si no hay conexión.
+const CACHE = 'tgrill-v1';
+self.addEventListener('install', e => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/', '/static/logo.jpg'])).catch(() => {}));
+});
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  if (!(e.request.mode === 'navigate' || url.pathname.startsWith('/static/'))) return;
+  e.respondWith(
+    fetch(e.request).then(r => {
+      if (r.ok) { const copia = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copia)); }
+      return r;
+    }).catch(() => caches.match(e.request).then(r => r || caches.match('/')))
+  );
+});
+"""
+
+
+@app.get("/sw.js")
+async def service_worker():
+    from fastapi.responses import Response
+    return Response(_SERVICE_WORKER, media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/")

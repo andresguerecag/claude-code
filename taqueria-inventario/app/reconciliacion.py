@@ -480,14 +480,18 @@ PRODUCTOS_DIRECTOS = {
 
 # --- Reporte consolidado ---------------------------------------------------
 
-def generar_reporte(path_formato_corte: str, hoja_corte: str, path_wansoft: str | None = None,
-                    hoja_wansoft: str | None = None, ventas: list[VentaPlatillo] | None = None) -> dict:
+def generar_reporte(path_formato_corte: str | None, hoja_corte: str | None, path_wansoft: str | None = None,
+                    hoja_wansoft: str | None = None, ventas: list[VentaPlatillo] | None = None,
+                    inventario: list[ItemInventario] | None = None) -> dict:
     """Las ventas salen del reporte de Wansoft, o -- en la Versión 2 -- se
-    pasan ya armadas desde la caja propia (`ventas`)."""
+    pasan ya armadas desde la caja propia (`ventas`). Igual el inventario:
+    del formato de corte en Excel, o capturado en la plataforma
+    (`inventario`)."""
     recetas = _cargar_recetas()
     mapeo_manual = cargar_mapeo_manual()
 
-    inventario = leer_inventario_formato_corte(path_formato_corte, hoja_corte)
+    if inventario is None:
+        inventario = leer_inventario_formato_corte(path_formato_corte, hoja_corte)
     if ventas is None:
         ventas = leer_ventas_wansoft(path_wansoft, hoja_wansoft)
     match = emparejar_ventas_con_recetas(ventas, recetas, mapeo_manual)

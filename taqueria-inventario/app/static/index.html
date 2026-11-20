@@ -218,6 +218,39 @@
   #menu-tabla input[type=text], #menu-tabla input[type=number],
   #usuarios-tabla input[type=text], #usuarios-tabla select { width: 100%; padding: 6px 8px; min-height: 34px; }
 
+  /* ---- resumen del día ---- */
+  .tarjetas-sucursal { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  .tarjeta-sucursal { background: var(--superficie); border: 1px solid var(--borde); border-top: 4px solid var(--borde-fuerte); border-radius: 12px; padding: 18px 20px; box-shadow: var(--sombra); }
+  .tarjeta-sucursal.borde-ok { border-top-color: var(--verde); }
+  .tarjeta-sucursal.borde-alerta { border-top-color: var(--rojo); }
+  .tarjeta-sucursal.borde-pendiente { border-top-color: #D99A1E; }
+  .ts-cab { display: flex; justify-content: space-between; align-items: center; }
+  .ts-cab h3 { margin: 0; font-size: 1.05rem; }
+  .ts-total { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; margin: 10px 0 12px; font-variant-numeric: tabular-nums; }
+  .ts-total span { font-size: .85rem; font-weight: 500; color: var(--tenue); letter-spacing: 0; margin-left: 6px; }
+  .ts-fila { display: grid; grid-template-columns: 10px 84px 1fr; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--borde); font-size: .88rem; }
+  .ts-etq { color: var(--tenue); font-weight: 500; }
+  .ts-formas { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 0; border-top: 1px solid var(--borde); font-size: .8rem; color: var(--tenue); }
+  .ts-formas b { color: var(--texto); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ts-acciones { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--borde); }
+  .insignia { font-size: .75rem; font-weight: 600; border-radius: 999px; padding: 3px 10px; }
+  .punto { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .estado-ok { background: var(--verde-suave); color: var(--verde); }
+  .estado-alerta { background: var(--rojo-suave); color: var(--rojo); }
+  .estado-pendiente { background: var(--ambar-suave); color: var(--ambar); }
+  .estado-sin { background: #ECE8E1; color: var(--tenue); }
+  .punto.estado-ok { background: var(--verde); }
+  .punto.estado-alerta { background: var(--rojo); }
+  .punto.estado-pendiente { background: #D99A1E; }
+  .punto.estado-sin { background: var(--borde-fuerte); }
+
+  /* ---- inventario del día ---- */
+  .tabla-conteo td { vertical-align: top; }
+  .tabla-conteo input[type=number] { width: 120px; text-align: right; padding: 6px 8px; min-height: 34px; }
+  .tabla-conteo .unidad { font-size: .75rem; color: var(--tenue); margin-left: 4px; }
+  .tabla-conteo .consumo { font-weight: 600; padding-top: 16px; }
+  .nota-celda { font-size: .72rem; color: var(--tenue); margin-top: 3px; }
+
   /* ---- editor de menú ---- */
   .barra-menu { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0; }
   .barra-menu #menu-buscar { flex: 1 1 240px; }
@@ -285,8 +318,10 @@
   </button>
   <p class="menu-grupo">Operación</p>
   <nav class="sub-v2" aria-label="Operación">
+    <button data-panel="v2-resumen" data-roles="dueno,administracion">Resumen del día</button>
     <button data-panel="v2-caja">Caja</button>
     <button data-panel="v2-corte" data-roles="dueno,administracion,encargada">Corte del día</button>
+    <button data-panel="v2-inventario" data-roles="dueno,administracion,encargada">Inventario del día</button>
     <button data-panel="v2-cuentas" data-roles="dueno,administracion">Cuentas y Quicken</button>
     <button data-panel="v2-menu" data-roles="dueno,administracion">Menú y precios</button>
     <button data-panel="v2-pareto" data-roles="dueno,administracion,encargada">80/20 de insumos</button>
@@ -319,6 +354,21 @@
     </div>
   </div>
 
+  <!-- ---- Resumen del dia ---- -->
+  <div class="panel-v2" id="v2-resumen" hidden>
+    <p class="subtitulo">Cómo cerró cada sucursal: si el efectivo cuadró y si hubo merma fuera de tolerancia, con lo cobrado en la caja y el inventario del día. Si todo está en verde, no hay nada que revisar.</p>
+    <div class="filtros"><div><label for="resumen-fecha">Fecha</label><input type="date" id="resumen-fecha"></div></div>
+    <div id="resumen-resultado"></div>
+  </div>
+
+  <!-- ---- Inventario del dia ---- -->
+  <div class="panel-v2" id="v2-inventario" hidden>
+    <p class="subtitulo">El conteo del día, sin Excel. El inicial ya viene del cierre de ayer (se puede corregir); captura lo que entró de compras y el conteo final, y guarda. La comparación contra lo cobrado en la caja sale sola abajo.</p>
+    <div class="filtros"><div><label for="invdia-fecha">Fecha</label><input type="date" id="invdia-fecha"></div></div>
+    <div id="invdia-conteo"></div>
+    <div id="invdia-comparativo"></div>
+  </div>
+
   <!-- ---- Caja ---- -->
   <div class="panel-v2" id="v2-caja">
     <div class="pos">
@@ -348,6 +398,7 @@
           </ol>
         </details>
         <p class="subtitulo" id="pos-mensaje"></p>
+        <div id="pos-pendientes"></div>
       </div>
     </div>
     <h3>Ventas de hoy</h3>
@@ -865,7 +916,7 @@ const postJSON = (url, cuerpo) => pedirJSON(url, { method: 'POST', headers: { 'C
 const CARGAR_PANEL = {
   'v2-caja': cargarCaja, 'v2-corte': cargarCorte, 'v2-cuentas': cargarCuentas,
   'v2-menu': cargarMenuAdmin, 'v2-pareto': cargarPareto, 'v2-respaldo': pintarRespaldo,
-  'v2-usuarios': cargarUsuarios,
+  'v2-usuarios': cargarUsuarios, 'v2-resumen': cargarResumen, 'v2-inventario': cargarInventarioDia,
 };
 function panelPermitido(id) {
   const b = document.querySelector(`.sub-v2 button[data-panel="${id}"]`);
@@ -909,9 +960,16 @@ async function cargarCaja() {
   cargarSucursalesV2();
   try {
     [posMenu, posFormas] = await Promise.all([pedirJSON('/api/v2/menu?vendibles=true'), pedirJSON('/api/v2/formas-pago')]);
+    guardarLocal('caja-menu', JSON.stringify(posMenu));
+    guardarLocal('caja-formas', JSON.stringify(posFormas));
   } catch (err) {
-    document.getElementById('pos-platillos').innerHTML = `<div class="advertencia">No se pudo cargar el menú: ${esc(err.message)}</div>`;
-    return;
+    // Sin internet: se cobra con el último menú que se cargó en esta computadora.
+    const menuGuardado = leerLocal('caja-menu'), formasGuardadas = leerLocal('caja-formas');
+    if (!(err instanceof TypeError) || !menuGuardado || !formasGuardadas) {
+      document.getElementById('pos-platillos').innerHTML = `<div class="advertencia">No se pudo cargar el menú: ${esc(err.message)}</div>`;
+      return;
+    }
+    posMenu = JSON.parse(menuGuardado); posFormas = JSON.parse(formasGuardadas);
   }
   document.getElementById('pos-imprimir').checked = leerLocal('pos-imprimir') === '1';
   pintarPlatillos(); pintarFormas(); pintarOrden(); cargarVentasHoy();
@@ -998,40 +1056,117 @@ function pintarOrden() {
 document.getElementById('pos-recibido').addEventListener('input', pintarOrden);
 document.getElementById('pos-imprimir').addEventListener('change', e => guardarLocal('pos-imprimir', e.target.checked ? '1' : '0'));
 
+// --- cobro sin internet ---
+// Cada venta lleva un id propio (id_local). Si no hay internet, la venta se
+// guarda en esta computadora y se sube sola cuando regresa la conexión; el
+// servidor no la duplica aunque llegue dos veces.
+function nuevoIdLocal() {
+  return (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+}
+function ventasPendientes() { try { return JSON.parse(leerLocal('ventas-pendientes') || '[]'); } catch { return []; } }
+function guardarPendientes(lista) { guardarLocal('ventas-pendientes', JSON.stringify(lista)); }
+
+function pintarPendientes() {
+  const box = document.getElementById('pos-pendientes');
+  const lista = ventasPendientes();
+  const conError = lista.filter(p => p.error);
+  box.innerHTML = !lista.length ? '' : `<div class="advertencia" style="margin:10px 0 0">
+    <b>${lista.length} venta${lista.length === 1 ? '' : 's'} sin subir</b> (cobrada${lista.length === 1 ? '' : 's'} sin internet). Se suben solas al volver la conexión.
+    ${conError.length ? `<br>No se pudieron subir: ${conError.map(p => esc(p.error)).join(' · ')}` : ''}</div>`;
+}
+
+let sincronizando = false;
+async function sincronizarPendientes() {
+  if (sincronizando || !ventasPendientes().length) { pintarPendientes(); return; }
+  sincronizando = true;
+  try {
+    for (const p of ventasPendientes()) {
+      try {
+        await postJSON('/api/v2/ventas', p.payload);
+        guardarPendientes(ventasPendientes().filter(x => x.payload.id_local !== p.payload.id_local));
+      } catch (err) {
+        if (err instanceof TypeError) break;  // sigue sin internet: se reintenta después
+        guardarPendientes(ventasPendientes().map(x => x.payload.id_local === p.payload.id_local ? { ...x, error: err.message } : x));
+      }
+    }
+  } finally {
+    sincronizando = false;
+    pintarPendientes();
+    if (!document.getElementById('v2-caja').hidden) cargarVentasHoy();
+  }
+}
+window.addEventListener('online', sincronizarPendientes);
+setInterval(sincronizarPendientes, 30000);
+
+function ventaLocal(payload) {
+  // Lo que se imprime en el ticket de una venta cobrada sin internet.
+  let menuGuardado = [];
+  try { menuGuardado = JSON.parse(leerLocal('caja-menu') || '[]'); } catch {}
+  const items = payload.items.map(i => {
+    const m = posMenu.find(x => x.clave === i.clave) || menuGuardado.find(x => x.clave === i.clave) || { nombre: i.clave, precio: 0 };
+    return { clave: i.clave, nombre: m.nombre, cantidad: i.cantidad, precio_unitario: m.precio, importe: m.precio * i.cantidad };
+  });
+  const total = Math.round(items.reduce((a, i) => a + i.importe, 0) * 100) / 100;
+  const recibido = payload.recibido != null ? Number(payload.recibido) : null;
+  return { folio: 'SC-' + payload.id_local.slice(-4).toUpperCase(), fecha: payload.fecha, hora: payload.hora, sucursal: payload.sucursal,
+           forma_pago: payload.forma_pago, items, total, recibido, cambio: recibido != null ? recibido - total : null };
+}
+
 document.getElementById('pos-cobrar').addEventListener('click', async () => {
   const boton = document.getElementById('pos-cobrar');
   const mensaje = document.getElementById('pos-mensaje');
   const ahora = new Date();
   const recibido = document.getElementById('pos-recibido').value;
-  boton.disabled = true;
-  try {
-    const venta = await postJSON('/api/v2/ventas', {
-      fecha: hoyLocal(), hora: ahora.toTimeString().slice(0, 5), sucursal: sucursalV2(), forma_pago: posForma,
-      items: [...posOrden].map(([clave, cantidad]) => ({ clave, cantidad })),
-      recibido: posForma === 'Efectivo' && recibido !== '' ? recibido : null,
-    });
-    mensaje.innerHTML = `<span class="dif-ok">Folio ${venta.folio} cobrado: ${fmtMoneda(venta.total)}</span>` + (venta.cambio != null ? ` · Cambio: <b>${fmtMoneda(venta.cambio)}</b>` : '');
-    if (document.getElementById('pos-imprimir').checked) imprimirVenta(venta, true, true);
+  const payload = {
+    id_local: nuevoIdLocal(),
+    fecha: hoyLocal(), hora: ahora.toTimeString().slice(0, 5), sucursal: sucursalV2(), forma_pago: posForma,
+    items: [...posOrden].map(([clave, cantidad]) => ({ clave, cantidad })),
+    recibido: posForma === 'Efectivo' && recibido !== '' ? recibido : null,
+  };
+  const limpiarOrden = () => {
     posOrden.clear(); posForma = null;
     document.getElementById('pos-recibido').value = '';
-    pintarFormas(); pintarOrden(); cargarVentasHoy();
+    pintarFormas(); pintarOrden();
+  };
+  boton.disabled = true;
+  try {
+    const venta = await postJSON('/api/v2/ventas', payload);
+    mensaje.innerHTML = `<span class="dif-ok">Folio ${venta.folio} cobrado: ${fmtMoneda(venta.total)}</span>` + (venta.cambio != null ? ` · Cambio: <b>${fmtMoneda(venta.cambio)}</b>` : '');
+    if (document.getElementById('pos-imprimir').checked) imprimirVenta(venta, true, true);
+    limpiarOrden(); cargarVentasHoy(); sincronizarPendientes();
   } catch (err) {
-    mensaje.innerHTML = `<span class="dif-mal">No se cobró: ${esc(err.message)}</span>`;
-    pintarOrden();
+    if (err instanceof TypeError) {
+      // Sin internet: la venta se cobra igual y queda guardada aquí.
+      guardarPendientes([...ventasPendientes(), { payload }]);
+      const venta = ventaLocal(payload);
+      mensaje.innerHTML = `<span class="dif-ok">Cobrado sin internet: ${fmtMoneda(venta.total)}</span>` + (venta.cambio != null ? ` · Cambio: <b>${fmtMoneda(venta.cambio)}</b>` : '') + '. Se sube sola al volver la conexión.';
+      if (document.getElementById('pos-imprimir').checked) imprimirVenta(venta, true, true);
+      limpiarOrden(); pintarPendientes(); cargarVentasHoy();
+    } else {
+      mensaje.innerHTML = `<span class="dif-mal">No se cobró: ${esc(err.message)}</span>`;
+      pintarOrden();
+    }
   }
 });
 
 let ventasHoy = [];
 async function cargarVentasHoy() {
   const tbody = document.getElementById('pos-ventas');
+  pintarPendientes();
   if (!sucursalV2()) { tbody.innerHTML = '<tr><td colspan="6">Escribe la sucursal arriba para ver sus ventas.</td></tr>'; return; }
+  const pendientes = ventasPendientes().filter(p => p.payload.fecha === hoyLocal()).map(p => ventaLocal(p.payload)).reverse();
   try {
     ventasHoy = await pedirJSON(`/api/v2/ventas?fecha=${hoyLocal()}&sucursal=${encodeURIComponent(sucursalV2())}`);
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6">No se pudieron cargar: ${esc(err.message)}</td></tr>`;
-    return;
+    ventasHoy = [];
+    if (!(err instanceof TypeError)) { tbody.innerHTML = `<tr><td colspan="6">No se pudieron cargar: ${esc(err.message)}</td></tr>`; return; }
   }
-  tbody.innerHTML = ventasHoy.map(v => `
+  const puedeCancelar = yo.rol !== 'cajero';
+  tbody.innerHTML = pendientes.map(v => `
+    <tr><td>${esc(v.folio)}</td><td>${esc(v.hora)}</td>
+      <td>${v.items.map(i => `${i.cantidad}× ${esc(i.nombre)}`).join(', ')}</td>
+      <td>${esc(v.forma_pago)} <span class="pill" style="background:var(--ambar-suave);color:var(--ambar)">sin subir</span></td>
+      <td>${fmtMoneda(v.total)}</td><td></td></tr>`).join('') + ventasHoy.map(v => `
     <tr class="${v.estado === 'cancelada' ? 'fila-guardada' : ''}">
       <td>${v.folio}</td><td>${esc(v.hora)}</td>
       <td>${v.items.map(i => `${i.cantidad}× ${esc(i.nombre)}`).join(', ')}</td>
@@ -1039,7 +1174,7 @@ async function cargarVentasHoy() {
       <td>${fmtMoneda(v.total)}</td>
       <td>${v.estado === 'pagada' ? `<button class="btn-fantasma btn-chico" data-id="${v.id}" data-accion="ticket">Ticket</button>
         <button class="btn-fantasma btn-chico" data-id="${v.id}" data-accion="comanda">Comanda</button>
-        <button class="btn-peligro" data-id="${v.id}" data-accion="cancelar">Cancelar</button>` : ''}</td>
+        ${puedeCancelar ? `<button class="btn-peligro" data-id="${v.id}" data-accion="cancelar">Cancelar</button>` : ''}` : ''}</td>
     </tr>`).join('') || '<tr><td colspan="6">Todavía no hay ventas hoy.</td></tr>';
   tbody.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
     const v = ventasHoy.find(x => x.id === Number(b.dataset.id));
@@ -1198,6 +1333,110 @@ document.getElementById('v2-inventario-btn').addEventListener('click', async () 
   }
   box.innerHTML = html;
 });
+
+// --- resumen del día (semáforo por sucursal) ---
+const ESTADOS = {
+  ok: ['estado-ok', 'Todo bien'], alerta: ['estado-alerta', 'Revisar'],
+  pendiente: ['estado-pendiente', 'Pendiente'], sin_datos: ['estado-sin', 'Sin datos'],
+};
+const insignia = (estado, texto) => `<span class="insignia ${ESTADOS[estado][0]}">${esc(texto || ESTADOS[estado][1])}</span>`;
+const punto = estado => `<span class="punto ${ESTADOS[estado][0]}" aria-hidden="true"></span>`;
+
+async function cargarResumen() {
+  const inputFecha = document.getElementById('resumen-fecha');
+  if (!inputFecha.value) inputFecha.value = hoyLocal();
+  const box = document.getElementById('resumen-resultado');
+  let r;
+  try { r = await pedirJSON(`/api/v2/resumen-dia?fecha=${inputFecha.value}`); }
+  catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  if (!r.sucursales.length) { box.innerHTML = '<p class="subtitulo">Todavía no hay ventas ni conteos en la Versión 2.</p>'; return; }
+  box.innerHTML = `<div class="tarjetas-sucursal">${r.sucursales.map(s => `
+    <article class="tarjeta-sucursal borde-${s.general}">
+      <div class="ts-cab"><h3>${esc(s.sucursal)}</h3>${insignia(s.general)}</div>
+      <p class="ts-total">${fmtMoneda(s.total_vendido)} <span>${s.num_ventas} venta${s.num_ventas === 1 ? '' : 's'}</span></p>
+      <div class="ts-fila">${punto(s.caja.estado)}<span class="ts-etq">Efectivo</span><span>${esc(s.caja.texto)}</span></div>
+      <div class="ts-fila">${punto(s.inventario.estado)}<span class="ts-etq">Inventario</span><span>${esc(s.inventario.texto)}</span></div>
+      ${s.por_forma_pago.length ? `<div class="ts-formas">${s.por_forma_pago.map(f => `<span>${esc(f.forma_pago)} <b>${fmtMoneda(f.total)}</b></span>`).join('')}</div>` : ''}
+      <div class="ts-acciones">
+        <button class="btn-fantasma btn-chico" data-ir="v2-corte" data-suc="${esc(s.sucursal)}">Ver corte</button>
+        <button class="btn-fantasma btn-chico" data-ir="v2-inventario" data-suc="${esc(s.sucursal)}">Ver inventario</button>
+      </div>
+    </article>`).join('')}</div>`;
+  box.querySelectorAll('button[data-ir]').forEach(b => b.addEventListener('click', () => {
+    if (!inputSucursalV2.readOnly) inputSucursalV2.value = b.dataset.suc;
+    document.getElementById('corte-fecha').value = inputFecha.value;
+    document.getElementById('invdia-fecha').value = inputFecha.value;
+    mostrarPanelV2(b.dataset.ir);
+  }));
+}
+document.getElementById('resumen-fecha').addEventListener('change', cargarResumen);
+
+// --- inventario del día ---
+const nombreProducto = p => p.charAt(0) + p.slice(1).toLowerCase();
+async function cargarInventarioDia() {
+  const inputFecha = document.getElementById('invdia-fecha');
+  if (!inputFecha.value) inputFecha.value = hoyLocal();
+  const box = document.getElementById('invdia-conteo');
+  const comp = document.getElementById('invdia-comparativo');
+  if (!sucursalV2()) { box.innerHTML = '<div class="advertencia">Escribe la sucursal arriba.</div>'; comp.innerHTML = ''; return; }
+  let r;
+  try { r = await pedirJSON(`/api/v2/inventario-dia?fecha=${inputFecha.value}&sucursal=${encodeURIComponent(sucursalV2())}`); }
+  catch (err) { box.innerHTML = `<div class="advertencia">${esc(err.message)}</div>`; return; }
+  pintarInventarioDia(r);
+}
+
+function pintarInventarioDia(r) {
+  const box = document.getElementById('invdia-conteo');
+  const valor = v => v ?? '';
+  box.innerHTML = `
+    <table class="tabla-conteo"><thead><tr><th>Producto</th><th>Inicial</th><th>Entró (compras)</th><th>Final (conteo)</th><th>Se usó</th></tr></thead><tbody>
+    ${r.productos.map(p => `<tr data-producto="${esc(p.producto)}">
+      <td><b>${esc(nombreProducto(p.producto))}</b> <span class="unidad">${esc(p.unidad)}</span></td>
+      <td><input type="number" min="0" step="any" data-campo="inicial" value="${valor(p.inicial)}" placeholder="—">
+        ${p.inicial_sugerido ? '<div class="nota-celda">del cierre de ayer</div>' : ''}</td>
+      <td><input type="number" min="0" step="any" data-campo="entrada" value="${valor(p.entrada)}" placeholder="0"></td>
+      <td><input type="number" min="0" step="any" data-campo="final" value="${valor(p.final)}" placeholder="—"></td>
+      <td class="consumo">${p.consumo != null ? num(p.consumo) : '—'}</td>
+    </tr>`).join('')}
+    </tbody></table>
+    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+      <button class="btn-naranja" id="invdia-guardar">Guardar conteo</button>
+      <span class="subtitulo" id="invdia-mensaje" style="margin:0">${r.capturado ? 'Conteo guardado. Puedes corregirlo y volver a guardar.' : 'Todavía no se guarda el conteo de este día.'}</span>
+    </div>`;
+  // "Se usó" se recalcula mientras se escribe
+  box.querySelectorAll('tr[data-producto]').forEach(tr => tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+    const v = c => tr.querySelector(`[data-campo="${c}"]`).value;
+    const celda = tr.querySelector('.consumo');
+    celda.textContent = v('inicial') !== '' && v('final') !== '' ? num(Number(v('inicial')) + Number(v('entrada') || 0) - Number(v('final'))) : '—';
+  })));
+  document.getElementById('invdia-guardar').addEventListener('click', async () => {
+    const productos = [...box.querySelectorAll('tr[data-producto]')].map(tr => ({
+      producto: tr.dataset.producto,
+      inicial: tr.querySelector('[data-campo="inicial"]').value,
+      entrada: tr.querySelector('[data-campo="entrada"]').value,
+      final: tr.querySelector('[data-campo="final"]').value,
+    }));
+    try {
+      const nuevo = await postJSON('/api/v2/inventario-dia', { fecha: document.getElementById('invdia-fecha').value, sucursal: sucursalV2(), productos });
+      pintarInventarioDia(nuevo);
+      document.getElementById('invdia-mensaje').innerHTML = '<span class="dif-ok">✓ Conteo guardado</span>';
+    } catch (err) { document.getElementById('invdia-mensaje').innerHTML = `<span class="dif-mal">${esc(err.message)}</span>`; }
+  });
+
+  const comp = document.getElementById('invdia-comparativo');
+  if (!r.comparativo) {
+    comp.innerHTML = `<h3>Lo cobrado contra lo que se usó</h3><p class="subtitulo">${r.capturado ? 'No hay ventas de la caja este día para comparar.' : 'Aparece aquí en cuanto guardes el conteo (y haya ventas en la caja ese día).'}</p>`;
+    return;
+  }
+  comp.innerHTML = `<h3>Lo cobrado contra lo que se usó</h3>
+    <table><thead><tr><th>Insumo</th><th>Se usó (conteo)</th><th>Debió usarse (ventas)</th><th>Diferencia</th></tr></thead><tbody>
+    ${ordenarInsumos(r.comparativo).map(f => `<tr class="${f.alerta ? 'alerta' : ''}">
+      <td>${esc(f.insumo)}</td><td>${num(f.consumo_real)}</td><td>${num(f.consumo_teorico)}</td>
+      <td>${typeof f.diferencia === 'number' ? num(f.diferencia) : esc(f.diferencia)}${f.alerta ? ' <span class="pill pill-mal">fuera de tolerancia</span>' : ''}</td>
+    </tr>`).join('')}</tbody></table>
+    ${r.pendientes.length ? `<div class="advertencia">Platillos vendidos sin receta (no cuentan en "debió usarse"): ${r.pendientes.map(p => `${esc(p.nombre)} (${p.cantidad})`).join(', ')}. Captura lo que llevan en <b>Menú y precios</b>.</div>` : ''}`;
+}
+document.getElementById('invdia-fecha').addEventListener('change', cargarInventarioDia);
 
 // --- cuentas y Quicken ---
 function lunesDeEstaSemana() {
@@ -2801,6 +3040,11 @@ document.getElementById('nu-crear').addEventListener('click', async () => {
 
 async function iniciar() {
   try { yo = await pedirJSON('/api/yo'); } catch {}
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+  // La página se guarda desde aquí también (con la sesión ya abierta), para
+  // que la caja vuelva a abrir aunque se recargue sin internet.
+  if (window.caches) caches.open('tgrill-v1').then(c => c.addAll(['/', '/static/logo.jpg'])).catch(() => {});
+  sincronizarPendientes();
   document.getElementById('yo-nombre').textContent = yo.maestro ? '' : `${yo.nombre} · ${(yo.roles || {})[yo.rol] || yo.rol}`;
   document.querySelectorAll('.sub-v2 button[data-roles]').forEach(b => { b.hidden = !b.dataset.roles.split(',').includes(yo.rol); });
   if (yo.sucursal) { inputSucursalV2.value = yo.sucursal; inputSucursalV2.readOnly = true; }
@@ -2814,7 +3058,7 @@ async function iniciar() {
   }
   if (ROLES_ADMIN.includes(yo.rol)) respaldoAutomatico();
   // Al cargar la página, el dashboard es la pantalla de inicio.
-  cargarDashboard();
+  cargarDashboard().catch(() => {});
 }
 iniciar();
 </script>
